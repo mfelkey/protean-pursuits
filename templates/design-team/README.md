@@ -2,7 +2,7 @@
 
 > **This is a Protean Pursuits team template.**
 > Instantiated by `scripts/refresh_templates.py` from `teams/design-team/`.
-> Last refreshed: 2026-03-23 20:58 UTC
+> Last refreshed: 2026-03-23 21:18 UTC
 > Replace all `PROJECT_NAME_PLACEHOLDER` and `PROJ-TEMPLATE` tokens.
 
 ---

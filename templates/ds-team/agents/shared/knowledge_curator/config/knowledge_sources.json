@@ -1,0 +1,76 @@
+{
+  "version": "1.1",
+  "description": "Knowledge Curator source configuration",
+
+  "github_repos": [
+    "crewAIInc/crewAI",
+    "facebook/react-native",
+    "expo/expo",
+    "python/cpython",
+    "nodejs/node",
+    "fastlane/fastlane",
+    "OWASP/owasp-mastg",
+    "microsoft/TypeScript",
+    "jestjs/jest",
+    "ollama/ollama",
+    "chroma-core/chroma",
+    "wix/Detox",
+    "microsoft/playwright",
+    "grafana/k6",
+    "getsentry/sentry-react-native",
+    "docker/compose",
+    "pallets/flask",
+    "pydantic/pydantic",
+    "BerriAI/litellm",
+    "apple/swift",
+    "JetBrains/kotlin",
+    "gradle/gradle",
+    "CocoaPods/CocoaPods"
+  ],
+
+  "arxiv_categories": [
+    "cs.SE",
+    "cs.AI",
+    "cs.LG",
+    "stat.ML",
+    "stat.AP"
+  ],
+
+  "schedule": {
+    "github_releases": {
+      "frequency": "daily",
+      "since_days": 3,
+      "max_per_repo": 3
+    },
+    "arxiv_papers": {
+      "frequency": "weekly",
+      "since_days": 7,
+      "max_per_category": 10
+    },
+    "security_feeds": {
+      "frequency": "daily",
+      "since_days": 3,
+      "max_results": 20
+    },
+    "va_cms_bulletins": {
+      "frequency": "weekly",
+      "since_days": 7,
+      "max_results": 20
+    }
+  },
+
+  "expiration_days": {
+    "github_release": 180,
+    "arxiv_paper_cs": 365,
+    "arxiv_paper_stat": 365,
+    "arxiv_paper_cs_ai": 365,
+    "cve_advisory": 90,
+    "owasp_update": 365,
+    "va_bulletin": 365,
+    "cms_bulletin": 365
+  },
+
+  "relevance_threshold": 0.6,
+
+  "notes": "Edit this file to add/remove repos, change frequencies, or adjust expiration windows."
+}

@@ -121,13 +121,11 @@ def send_sms(message: str) -> bool:
         from email.mime.text import MIMEText
         sms_address = os.getenv("HUMAN_PHONE_NUMBER", "").replace("+1", "") + "@txt.att.net"
         msg = MIMEText(message[:160])
-        msg["From"] = os.getenv("OUTLOOK_ADDRESS")
+        msg["From"] = os.getenv("GMAIL_ADDRESS")
         msg["To"] = sms_address
         msg["Subject"] = ""
-        with smtplib.SMTP("smtp.office365.com", 587) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(os.getenv("OUTLOOK_ADDRESS"), os.getenv("OUTLOOK_PASSWORD"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(os.getenv("GMAIL_ADDRESS"), os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
         print(f"📱 SMS sent: {message[:60]}...")
         return True
@@ -142,14 +140,12 @@ def send_email(subject: str, body: str) -> bool:
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
         msg = MIMEMultipart()
-        msg["From"] = os.getenv("OUTLOOK_ADDRESS")
+        msg["From"] = os.getenv("GMAIL_ADDRESS")
         msg["To"] = os.getenv("HUMAN_EMAIL")
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain"))
-        with smtplib.SMTP("smtp.office365.com", 587) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(os.getenv("OUTLOOK_ADDRESS"), os.getenv("OUTLOOK_PASSWORD"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(os.getenv("GMAIL_ADDRESS"), os.getenv("GMAIL_APP_PASSWORD"))
             server.send_message(msg)
         print(f"📧 Email sent: {subject}")
         return True

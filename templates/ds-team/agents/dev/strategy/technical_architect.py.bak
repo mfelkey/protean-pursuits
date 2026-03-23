@@ -1,0 +1,196 @@
+import sys
+sys.path.insert(0, "/home/mfelkey/dev-team")
+
+import os
+import json
+from datetime import datetime
+from dotenv import load_dotenv
+from crewai import Agent, Task, Crew, Process, LLM
+from agents.orchestrator.orchestrator import log_event, save_context
+
+load_dotenv("config/.env")
+
+def build_technical_architect() -> Agent:
+    llm = LLM(
+        model=os.getenv("TIER1_MODEL", "ollama/gpt-oss:120b"),
+        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+        timeout=1800
+    )
+
+    return Agent(
+        role="Technical Architect",
+        goal=(
+            "Translate business and functional requirements into a complete, "
+            "implementable technical architecture that is secure, scalable, "
+            "and achievable within the project constraints."
+        ),
+        backstory=(
+            "You are a Principal Technical Architect with 15 years of experience "
+            "designing systems for federal healthcare agencies. You have deep expertise "
+            "in Azure Government Cloud, VA enterprise standards, data pipeline architecture, "
+            "and HIPAA-compliant system design. You have led ATO packages through the VA "
+            "IA Review Board multiple times and understand exactly what security controls "
+            "are required. You also have deep experience architecting AI and ML systems "
+            "including LLM-based pipelines, vector databases, embedding workflows, RAG "
+            "architectures, and multi-agent orchestration platforms. You understand the "
+            "infrastructure differences between traditional data pipelines and AI inference "
+            "workloads — GPU provisioning, model serving, context management, and the "
+            "latency/cost tradeoffs of local vs cloud inference. You think in components, "
+            "interfaces, data flows, and failure modes. You never recommend technology for "
+            "its own sake — every choice must be justified by the requirements. You produce "
+            "architecture that developers can actually build from, not hand-wavy diagrams. "
+            "Your deliverable is a Technical Architecture Document (TAD) that covers: system "
+            "context, component design, data architecture, API specifications, infrastructure, "
+            "security controls, and deployment topology."
+        ),
+        llm=llm,
+        verbose=True,
+        allow_delegation=False
+    )
+
+
+def run_architecture_design(context: dict, prd_path: str, bad_path: str, sprint_path: str) -> dict:
+    """
+    Reads PRD, BAD, and Sprint Plan and produces a Technical Architecture Document (TAD).
+    Returns updated context.
+    """
+
+    with open(prd_path) as f:
+        prd_content = f.read()[:2000]
+
+    with open(bad_path) as f:
+        bad_content = f.read()[:1500]
+
+    with open(sprint_path) as f:
+        sprint_content = f.read()[:1500]
+
+    ta = build_technical_architect()
+
+    arch_task = Task(
+        description=f"""
+You have received the following project documents:
+
+--- PRD (excerpt) ---
+{prd_content}
+
+--- BAD (excerpt) ---
+{bad_content}
+
+--- Sprint Plan (excerpt) ---
+{sprint_content}
+
+Produce a complete Technical Architecture Document (TAD) with ALL of the following sections:
+
+1. SYSTEM CONTEXT
+   - System boundary diagram (textual)
+   - External systems and integrations
+   - User roles and access patterns
+
+2. COMPONENT ARCHITECTURE
+   - All system components with responsibilities
+   - Component interaction diagram (textual)
+   - Technology stack with justification for each choice
+
+3. DATA ARCHITECTURE
+   - Data flow diagram (textual, source to dashboard)
+   - Database schema (key tables, columns, data types, indexes)
+   - Data retention and archival policy
+   - PHI handling and masking approach
+
+4. API SPECIFICATIONS
+   - All internal APIs (endpoint, method, request/response schema)
+   - External integrations (EDW, SFTP, Event Hub)
+   - Authentication and authorization approach
+
+5. INFRASTRUCTURE & DEPLOYMENT
+   - Infrastructure diagram (textual)
+   - Azure services used with SKU/tier recommendations
+   - CI/CD pipeline design
+   - Environment topology (Dev/Test/Staging/Prod)
+
+6. SECURITY ARCHITECTURE
+   - Security controls mapped to NIST 800-53
+   - Encryption at rest and in transit
+   - RBAC design (roles, permissions, scope)
+   - Audit logging approach
+   - Vulnerability management
+
+7. NON-FUNCTIONAL REQUIREMENTS DESIGN
+   - Performance: how the design meets latency/throughput targets
+   - Scalability: horizontal/vertical scaling approach
+   - Availability: HA design, failover, RTO/RPO targets
+   - Disaster recovery approach
+
+8. ARCHITECTURE DECISIONS LOG (ADL)
+   - Top 5 key decisions made
+   - Each with: decision, alternatives considered, rationale, consequences
+
+Output the complete TAD as well-formatted markdown.
+""",
+        expected_output="A complete Technical Architecture Document in markdown format.",
+        agent=ta
+    )
+
+    crew = Crew(
+        agents=[ta],
+        tasks=[arch_task],
+        process=Process.sequential,
+        verbose=True
+    )
+
+    print(f"\n🏗️  Technical Architect designing system architecture...\n")
+    result = crew.kickoff()
+
+    os.makedirs("dev/architecture", exist_ok=True)
+    tad_path = f"dev/architecture/{context['project_id']}_TAD.md"
+    with open(tad_path, "w") as f:
+        f.write(str(result))
+
+    print(f"\n💾 Technical Architecture Document saved: {tad_path}")
+
+    context["artifacts"].append({
+        "name": "Technical Architecture Document",
+        "type": "TAD",
+        "path": tad_path,
+        "created_at": datetime.utcnow().isoformat(),
+        "created_by": "Technical Architect"
+    })
+    context["status"] = "ARCHITECTURE_COMPLETE"
+    log_event(context, "ARCHITECTURE_COMPLETE", tad_path)
+    save_context(context)
+
+    return context, tad_path
+
+
+if __name__ == "__main__":
+    import glob
+
+    logs = sorted(glob.glob("logs/PROJ-*.json"), key=os.path.getmtime, reverse=True)
+    if not logs:
+        print("No project context found.")
+        exit(1)
+
+    with open(logs[0]) as f:
+        context = json.load(f)
+
+    prd_path = bad_path = sprint_path = None
+    for artifact in context.get("artifacts", []):
+        if artifact.get("type") == "PRD":
+            prd_path = artifact["path"]
+        if artifact.get("type") == "BAD":
+            bad_path = artifact["path"]
+        if artifact.get("type") == "SPRINT_PLAN":
+            sprint_path = artifact["path"]
+
+    if not all([prd_path, bad_path, sprint_path]):
+        print("Missing PRD, BAD, or Sprint Plan.")
+        exit(1)
+
+    print(f"📂 Loaded context: {logs[0]}")
+    context, tad_path = run_architecture_design(context, prd_path, bad_path, sprint_path)
+
+    print(f"\n✅ Architecture design complete.")
+    print(f"📄 TAD: {tad_path}")
+    print(f"\nFirst 500 chars:")
+    with open(tad_path) as f:
+        print(f.read(500))

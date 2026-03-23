@@ -1,0 +1,9 @@
+config/.env
+logs/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+output/posts/*_DRAFT.md
+output/emails/*_DRAFT.md
+output/videos/*_DRAFT.md

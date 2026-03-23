@@ -1,0 +1,227 @@
+{
+  "project_id": "PROJ-TEMPLATE",
+  "created_at": "2026-02-20T14:30:00Z",
+  "status": "BUILD_IN_PROGRESS",
+  "classification": "JOINT",
+  "original_request": "Analyze project data to find patterns, then build an interactive dashboard and cross-platform mobile app with filters for type, date range, and category.",
+  "structured_spec": {
+    "title": "Project Analysis System",
+    "description": "A comprehensive system that analyzes project data and presents findings through an interactive web dashboard and cross-platform mobile application.",
+    "business_goal": "Enable stakeholders to identify patterns in resource usage, optimize costs, and improve response times through data-driven insights.",
+    "deliverables": [
+      "Data analysis pipeline with statistical models",
+      "Interactive web dashboard (React + Node.js)",
+      "Cross-platform mobile app (React Native/Expo)",
+      "REST API for trip data access",
+      "Automated deployment pipeline"
+    ],
+    "success_criteria": [
+      "Dashboard loads in under 2 seconds with 100k+ trip records",
+      "Mobile app works offline with cached data",
+      "All filters (type, date, provider, region) functional",
+      "WCAG 2.1 AA accessibility compliance",
+      "Deployment-agnostic infrastructure"
+    ],
+    "estimated_complexity": "HIGH",
+    "data_required": true,
+    "primary_crew": "JOINT",
+    "handoff_direction": "DS \u2192 DEV"
+  },
+  "assigned_crew": "DEV",
+  "artifacts": [
+    {
+      "name": "Product Requirements Document",
+      "type": "PRD",
+      "path": "dev/requirements/PROJ-TEMPLATE_PRD.md",
+      "created_at": "2026-02-20T15:12:00Z",
+      "agent": "Product Manager"
+    },
+    {
+      "name": "Business Analysis Document",
+      "type": "BAD",
+      "path": "dev/requirements/PROJ-TEMPLATE_BAD.md",
+      "created_at": "2026-02-20T16:45:00Z",
+      "agent": "Business Analyst"
+    },
+    {
+      "name": "Sprint Planning Document",
+      "type": "Sprint Plan",
+      "path": "dev/requirements/PROJ-TEMPLATE_SPRINT.md",
+      "created_at": "2026-02-20T17:30:00Z",
+      "agent": "Scrum Master"
+    },
+    {
+      "name": "Technical Architecture Document",
+      "type": "TAD",
+      "path": "dev/architecture/PROJ-TEMPLATE_TAD.md",
+      "created_at": "2026-02-20T19:15:00Z",
+      "agent": "Technical Architect"
+    },
+    {
+      "name": "Security Review Report",
+      "type": "SRR",
+      "path": "dev/security/PROJ-TEMPLATE_SRR.md",
+      "created_at": "2026-02-20T20:45:00Z",
+      "agent": "Security Reviewer"
+    },
+    {
+      "name": "User Experience Document",
+      "type": "UXD",
+      "path": "dev/design/PROJ-TEMPLATE_UXD.md",
+      "created_at": "2026-02-21T09:30:00Z",
+      "agent": "UX/UI Designer"
+    },
+    {
+      "name": "UI Content Guide",
+      "type": "Content Guide",
+      "path": "dev/design/PROJ-TEMPLATE_CONTENT.md",
+      "created_at": "2026-02-21T10:15:00Z",
+      "agent": "UX Content Guide"
+    },
+    {
+      "name": "Technical Implementation Plan",
+      "type": "TIP",
+      "path": "dev/build/PROJ-TEMPLATE_TIP.md",
+      "created_at": "2026-02-21T12:00:00Z",
+      "agent": "Senior Developer"
+    },
+    {
+      "name": "Backend Implementation Report",
+      "type": "BIR",
+      "path": "dev/build/PROJ-TEMPLATE_BIR.md",
+      "created_at": "2026-02-21T15:30:00Z",
+      "agent": "Backend Developer"
+    }
+  ],
+  "checkpoints": [
+    {
+      "name": "CP-1: Requirements Review",
+      "timestamp": "2026-02-20T15:20:00Z",
+      "action": "APPROVED",
+      "reviewer": "Mike"
+    },
+    {
+      "name": "CP-2: Architecture Review",
+      "timestamp": "2026-02-20T19:30:00Z",
+      "action": "APPROVED",
+      "reviewer": "Mike"
+    },
+    {
+      "name": "CP-3: Security Gate",
+      "timestamp": "2026-02-20T21:00:00Z",
+      "action": "APPROVED",
+      "reviewer": "Mike",
+      "note": "SRR rated GREEN \u2014 no critical findings"
+    },
+    {
+      "name": "CP-4: Design Review",
+      "timestamp": "2026-02-21T10:30:00Z",
+      "action": "APPROVED",
+      "reviewer": "Mike"
+    }
+  ],
+  "handoffs": [
+    {
+      "from": "DS_CREW",
+      "to": "DEV_CREW",
+      "timestamp": "2026-02-20T14:45:00Z",
+      "package": {
+        "artifacts": [
+          "EDA Report",
+          "Statistical Model",
+          "Feature Matrix"
+        ],
+        "validated": true
+      }
+    }
+  ],
+  "audit_log": [
+    {
+      "timestamp": "2026-02-20T14:30:00Z",
+      "event": "PROJECT_CREATED",
+      "detail": "Classified as JOINT (DS \u2192 DEV)"
+    },
+    {
+      "timestamp": "2026-02-20T14:35:00Z",
+      "event": "ROUTED",
+      "detail": "Assigned to DS Crew first"
+    },
+    {
+      "timestamp": "2026-02-20T14:45:00Z",
+      "event": "HANDOFF_COMPLETE",
+      "detail": "DS \u2192 DEV handoff validated, 3 artifacts transferred"
+    },
+    {
+      "timestamp": "2026-02-20T15:12:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "PRD generated by Product Manager"
+    },
+    {
+      "timestamp": "2026-02-20T15:20:00Z",
+      "event": "CHECKPOINT_APPROVED",
+      "detail": "CP-1: Requirements Review approved"
+    },
+    {
+      "timestamp": "2026-02-20T16:45:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "BAD generated by Business Analyst"
+    },
+    {
+      "timestamp": "2026-02-20T17:30:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "Sprint Plan generated by Scrum Master"
+    },
+    {
+      "timestamp": "2026-02-20T19:15:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "TAD generated by Technical Architect"
+    },
+    {
+      "timestamp": "2026-02-20T19:30:00Z",
+      "event": "CHECKPOINT_APPROVED",
+      "detail": "CP-2: Architecture Review approved"
+    },
+    {
+      "timestamp": "2026-02-20T20:45:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "SRR generated by Security Reviewer \u2014 rated GREEN"
+    },
+    {
+      "timestamp": "2026-02-20T21:00:00Z",
+      "event": "CHECKPOINT_APPROVED",
+      "detail": "CP-3: Security Gate approved"
+    },
+    {
+      "timestamp": "2026-02-21T09:30:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "UXD generated by UX/UI Designer"
+    },
+    {
+      "timestamp": "2026-02-21T10:15:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "Content Guide generated by UX Content Guide"
+    },
+    {
+      "timestamp": "2026-02-21T10:30:00Z",
+      "event": "CHECKPOINT_APPROVED",
+      "detail": "CP-4: Design Review approved"
+    },
+    {
+      "timestamp": "2026-02-21T12:00:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "TIP generated by Senior Developer"
+    },
+    {
+      "timestamp": "2026-02-21T15:30:00Z",
+      "event": "ARTIFACT_CREATED",
+      "detail": "BIR generated by Backend Developer"
+    },
+    {
+      "timestamp": "2026-02-21T15:35:00Z",
+      "event": "STATUS_UPDATE",
+      "detail": "Frontend Developer next in queue"
+    }
+  ],
+  "description": "A system that analyzes project data and presents findings through an interactive web dashboard and cross-platform mobile application.",
+  "business_goal": "Enable stakeholders to identify patterns in usage, optimize costs, and improve outcomes through data-driven insights."
+}
