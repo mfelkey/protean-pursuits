@@ -1,21 +1,21 @@
 [submodule "teams/dev-team"]
 	path = teams/dev-team
-	url = https://github.com/mfelkey/dev-team.git
+	url = git@github.com:mfelkey/dev-team.git
 [submodule "teams/ds-team"]
 	path = teams/ds-team
-	url = https://github.com/mfelkey/ds-team.git
+	url = git@github.com:mfelkey/ds-team.git
 [submodule "teams/marketing-team"]
 	path = teams/marketing-team
-	url = https://github.com/mfelkey/marketing-team.git
+	url = git@github.com:mfelkey/marketing-team.git
 [submodule "teams/strategy-team"]
 	path = teams/strategy-team
-	url = https://github.com/mfelkey/strategy-team.git
+	url = git@github.com:mfelkey/strategy-team.git
 [submodule "teams/legal-team"]
 	path = teams/legal-team
-	url = https://github.com/mfelkey/legal-team.git
+	url = git@github.com:mfelkey/legal-team.git
 [submodule "teams/design-team"]
 	path = teams/design-team
-	url = https://github.com/mfelkey/design-team.git
+	url = git@github.com:mfelkey/design-team.git
 [submodule "teams/qa-team"]
 	path = teams/qa-team
-	url = https://github.com/mfelkey/qa-team.git
+	url = git@github.com:mfelkey/qa-team.git
