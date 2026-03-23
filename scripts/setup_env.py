@@ -44,8 +44,8 @@ FIELDS = [
     # Human-in-the-loop
     ("HUMAN_EMAIL",       "Your email address",       "",                           False, True),
     ("HUMAN_PHONE_NUMBER","Your phone (e.g. +15551234567)", "",                    False, True),
-    ("OUTLOOK_ADDRESS",   "Outlook email address for notifications", "mike.felkey@outlook.com", False, True),
-    ("OUTLOOK_PASSWORD",  "Outlook password",                          "",                           True,  True),
+    ("PUSHOVER_USER_KEY",  "Pushover user key",                        "",  True,  True),
+    ("PUSHOVER_API_TOKEN", "Pushover API token",                       "",  True,  True),
     # GitHub
     ("GITHUB_TOKEN",      "GitHub Personal Access Token", "",                      True,  True),
     ("GITHUB_USERNAME",   "GitHub username",          "mfelkey",                   False, True),
@@ -143,7 +143,7 @@ def write_env(repo_path: Path, values: dict, extra_fields: list = None) -> None:
     sections = {
         "LLM": ["TIER1_MODEL", "TIER2_MODEL", "OLLAMA_BASE_URL"],
         "Human-in-the-loop": ["HUMAN_EMAIL", "HUMAN_PHONE_NUMBER",
-                               "OUTLOOK_ADDRESS", "OUTLOOK_PASSWORD"],
+                               "PUSHOVER_USER_KEY", "PUSHOVER_API_TOKEN"],
         "GitHub": ["GITHUB_TOKEN", "GITHUB_USERNAME"],
         "Observability": ["LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_HOST"],
     }
@@ -223,7 +223,7 @@ def run_interactive(update: bool = False, target_team: str = None) -> None:
     for key, prompt, default, secret, required in FIELDS[:3]:
         values[key] = prompt_value(key, prompt, default, secret, existing.get(key, ""))
 
-    print("\n── Human-in-the-Loop Notifications (Outlook) ──────────────")
+    print("\n── Human-in-the-Loop Notifications (Pushover) ─────────────")
     for key, prompt, default, secret, required in FIELDS[3:7]:
         values[key] = prompt_value(key, prompt, default, secret, existing.get(key, ""))
 
