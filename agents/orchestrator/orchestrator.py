@@ -284,10 +284,11 @@ def spinup_project_repo(context: dict, teams: list,
 
 def build_orchestrator() -> Agent:
     llm = LLM(
-        model=os.getenv("TIER1_MODEL", "ollama/qwen3:32b"),
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-        timeout=1800
-    )
+    model=os.getenv("TIER1_MODEL", "ollama/qwen2.5:32b"),
+    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    timeout=3600,
+    num_ctx=8192
+)
 
     return Agent(
         role="Protean Pursuits Orchestrator",
