@@ -166,12 +166,15 @@ This will be reviewed by the human and used to generate the PRD.
 
 def run_brief_intake(project_name: str, prd_path: str,
                      teams: list = None, timeline_weeks: int = 12,
-                     budget_usd: float = 50000.0) -> dict:
+                     budget_usd: float = 50000.0,
+                     project_id: str = None) -> dict:
     """
     Ingest an existing PRD/brief and proceed directly to kickoff.
     Human confirms team selection and repo spin-up before work begins.
     """
     context = create_project_context(project_name, mode="BRIEF")
+    if project_id:
+        context["project_id"] = project_id
     orchestrator = build_orchestrator()
 
     with open(prd_path) as f:
@@ -351,6 +354,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Protean Pursuits — Project Intake")
     parser.add_argument("--mode", choices=["discovery", "brief"], required=True)
     parser.add_argument("--name", type=str, required=True, help="Project name")
+    parser.add_argument("--project-id", type=str, default=None,
+                        help="Custom project ID (e.g. PROJ-PARALLAXEDGE). Auto-generated if not set.")
     parser.add_argument("--prd", type=str, default=None, help="Path to PRD (brief mode)")
     parser.add_argument("--teams", type=str, default=None,
                         help="Comma-separated team list (brief mode, optional)")
@@ -360,6 +365,8 @@ if __name__ == "__main__":
 
     print(f"\n🚀 Protean Pursuits — {args.mode.title()} Intake")
     print(f"   Project: {args.name}")
+    if args.project_id:
+        print(f"   Project ID: {args.project_id}")
     print(f"   Started: {datetime.utcnow().isoformat()}\n")
 
     if args.mode == "discovery":
@@ -370,7 +377,8 @@ if __name__ == "__main__":
             exit(1)
         teams = args.teams.split(",") if args.teams else None
         context = run_brief_intake(
-            args.name, args.prd, teams, args.weeks, args.budget
+            args.name, args.prd, teams, args.weeks, args.budget,
+            project_id=args.project_id
         )
 
     print(f"\n✅ Intake complete.")
