@@ -1,0 +1,238 @@
+
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font-sans, sans-serif); }
+.wrap { padding: 1.5rem 1rem 2rem; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 1.5rem; font-size: 12px; color: var(--color-text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.phase-block { margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.phase-header { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; cursor: pointer; user-select: none; }
+.phase-header:hover { background: var(--color-background-secondary); }
+.phase-color { width: 4px; min-width: 4px; border-radius: 2px; align-self: stretch; min-height: 32px; }
+.phase-title-group { flex: 1; }
+.phase-label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 2px; }
+.phase-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.phase-date { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.phase-kpi { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; font-style: italic; }
+.chevron { font-size: 14px; color: var(--color-text-secondary); transition: transform 0.2s; margin-top: 2px; }
+.chevron.open { transform: rotate(90deg); }
+.tasks-container { border-top: 0.5px solid var(--color-border-tertiary); overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
+.tasks-container.open { max-height: 2000px; }
+.task { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: start; padding: 9px 16px 9px 22px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 13px; }
+.task:last-child { border-bottom: none; }
+.task-icon { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.task-body { color: var(--color-text-primary); }
+.task-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.task-owner { font-size: 11px; color: var(--color-text-secondary); white-space: nowrap; padding-top: 1px; }
+.blocker { background: #FCEBEB; color: #A32D2D; border-left: 3px solid #E24B4A; padding: 8px 16px 8px 12px; margin: 0; font-size: 12px; }
+.badge { display: inline-block; font-size: 10px; font-weight: 500; border-radius: 4px; padding: 2px 6px; margin-left: 6px; vertical-align: middle; }
+.badge-crit { background: #FCEBEB; color: #A32D2D; }
+.badge-high { background: #FAEEDA; color: #854F0B; }
+.badge-ok   { background: #EAF3DE; color: #3B6D11; }
+
+/* status icons */
+.icon-blocker { background: #FCEBEB; color: #A32D2D; border: 1px solid #F09595; }
+.icon-open    { background: #FAEEDA; color: #854F0B; border: 1px solid #FAC775; }
+.icon-done    { background: #EAF3DE; color: #3B6D11; border: 1px solid #C0DD97; }
+.icon-mkt     { background: #E6F1FB; color: #185FA5; border: 1px solid #85B7EB; }
+.icon-legal   { background: #EEEDFE; color: #534AB7; border: 1px solid #AFA9EC; }
+.icon-launch  { background: #E1F5EE; color: #0F6E56; border: 1px solid #5DCAA5; }
+
+/* phase bar colors */
+.bar-gray   { background: #888780; }
+.bar-amber  { background: #BA7517; }
+.bar-blue   { background: #185FA5; }
+.bar-purple { background: #534AB7; }
+.bar-teal   { background: #0F6E56; }
+.bar-coral  { background: #993C1D; }
+
+.timeline-strip { display: flex; gap: 0; margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.ts-month { flex: 1; text-align: center; font-size: 10px; font-weight: 500; color: var(--color-text-secondary); padding: 5px 2px; border-right: 0.5px solid var(--color-border-tertiary); }
+.ts-month:last-child { border-right: none; }
+.ts-month.current { background: var(--color-background-secondary); color: var(--color-text-primary); }
+</style>
+
+<div class="wrap">
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:#E24B4A"></span>Hard blocker</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#EF9F27"></span>Open / in progress</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#639922"></span>Complete</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#378ADD"></span>Marketing</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#7F77DD"></span>Legal / compliance</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#1D9E75"></span>Launch event</span>
+  </div>
+
+  <div class="timeline-strip">
+    <div class="ts-month current">Mar '26</div>
+    <div class="ts-month">Apr</div>
+    <div class="ts-month">May</div>
+    <div class="ts-month">Jun</div>
+    <div class="ts-month">Jul</div>
+    <div class="ts-month">Aug</div>
+    <div class="ts-month">Sep</div>
+    <div class="ts-month">Oct</div>
+    <div class="ts-month">Nov–May</div>
+  </div>
+
+  <div id="phases"></div>
+</div>
+
+<script>
+const phases = [
+  {
+    label: "Phase 0", name: "Pre-development blockers & PRD finalization",
+    date: "Now → End of March 2026", color: "bar-gray",
+    kpi: "PRD v1.7 locked; all hard blockers assigned",
+    tasks: [
+      { icon: "icon-blocker", badge: "CRIT", text: "PDB-01: Confirm Open-Meteo licensing or contract Tomorrow.io", sub: "2-week deadline. Gate on weather pipeline design.", owner: "Legal + Eng" },
+      { icon: "icon-blocker", badge: "CRIT", text: "PDB-02: Confirm WC2026 xG data source (StatsBomb eval first)", sub: "Gate on soccer model training. DS team pipeline owner designated.", owner: "DS Team" },
+      { icon: "icon-blocker", badge: "CRIT", text: "PDB-03: Confirm UCL xG data source", sub: "Hard blocker on Champions League model training.", owner: "DS Team" },
+      { icon: "icon-open", badge: "HIGH", text: "OQ-2: Validate BALLDONTLIE data quality for NBA & NFL", sub: "Gate for SportsDataIO/Sportradar production decision.", owner: "DS + Eng" },
+      { icon: "icon-open", badge: "HIGH", text: "OQ-5: Confirm Pinnacle closing-line coverage in odds vendor feed", sub: "Required for all CLV calculations.", owner: "Engineering" },
+      { icon: "icon-open", badge: "HIGH", text: "OQ-6: Cookiebot free tier GDPR audit logging confirmation", sub: "Required before any EU user data collected.", owner: "Eng + Legal" },
+      { icon: "icon-done", badge: "DONE", text: "PRD v1.7 circulated — CHG-31 to CHG-43 applied", sub: "Tennis table routing, Phase 2 sport planning, neutral-venue weather fix.", owner: "PM" },
+    ]
+  },
+  {
+    label: "Phase 1", name: "Data ingestion & model training",
+    date: "April – May 2026", color: "bar-amber",
+    kpi: "All 5-sport models backtested and passing walk-forward validation",
+    tasks: [
+      { icon: "icon-open", badge: "HIGH", text: "Step 2.5: Joint DS + Dev Section 7 review", sub: "Must complete after PDB-01 and PDB-02 close. ~1 hour. Interface contract gate.", owner: "Both teams" },
+      { icon: "icon-open", badge: "CRIT", text: "Historical data ingestion: NFL (5 seasons, nflfastR/nflreadr)", sub: "Great Expectations suites required. 100% pass rate.", owner: "DS Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Historical data ingestion: NBA (5 seasons, BALLDONTLIE)", sub: "Gated on OQ-2 vendor decision.", owner: "DS Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Historical data ingestion: EPL + WC2026 + UCL (5 seasons each)", sub: "Gated on PDB-02 / PDB-03 source confirmation.", owner: "DS Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Soccer model v1 backtested (Dixon-Coles, EPL + WC2026 + UCL)", sub: "Walk-forward validation. Brier score within targets.", owner: "DS Team" },
+      { icon: "icon-open", badge: "CRIT", text: "NFL model v1 backtested (EPA-based)", sub: "Calibration check passing.", owner: "DS Team" },
+      { icon: "icon-open", badge: "CRIT", text: "NBA model v1 backtested (four-factor + referee adjustment)", sub: "CLV positive on >55% of flagged value bets.", owner: "DS Team" },
+      { icon: "icon-open", badge: "HIGH", text: "Weather pipeline implementation (post-PDB-01 resolution)", sub: "Neutral-venue lat/lng routing for WC2026, UCL, NCAA bowl games.", owner: "Engineering" },
+      { icon: "icon-open", badge: "HIGH", text: "Neutral venue coordinates seeded for all known outdoor neutral-site games", sub: "Great Expectations null-check must block pipeline on missing coords.", owner: "Dev Team" },
+    ]
+  },
+  {
+    label: "Phase 2", name: "Product build & infrastructure",
+    date: "April – May 2026", color: "bar-blue",
+    kpi: "All pre-launch checklist critical items green; penetration test passed",
+    tasks: [
+      { icon: "icon-open", badge: "CRIT", text: "Core platform build: API, signal card engine, subscription tier logic", sub: "TDD with minimum coverage requirements. No feature ships without acceptance criteria.", owner: "Dev Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Pre-launch landing page — dev build complete", sub: "Email capture, age gate, countdown to Jun 11 WC2026 kickoff, sign-up cap logic (1,000).", owner: "Dev Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Stripe integration — billing, promo cohort logic, Stripe Tax enabled", sub: "Stripe Tax must be live before first paid transaction.", owner: "Dev Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Cookiebot consent flow — GDPR, timestamped audit log", sub: "DPAs with all EU-data vendors signed before any EU user data collected.", owner: "Eng + Legal" },
+      { icon: "icon-open", badge: "HIGH", text: "Management dashboard — internal Product Lead only", sub: "7 panels: KPIs, model performance, infra status, uptime, rate limits, financials, affiliates.", owner: "Dev Team" },
+      { icon: "icon-open", badge: "HIGH", text: "Observability: Grafana / Statuspage.io uptime probes, Redis rate-limit counters", sub: "Amber/red alert thresholds configured per PRD CHG-28.", owner: "Dev Team" },
+      { icon: "icon-open", badge: "CRIT", text: "Penetration test — third party", sub: "Must pass before any user data collected.", owner: "Security" },
+      { icon: "icon-open", badge: "HIGH", text: "i18n string externalization CI check enabled", sub: "Required per PRD CHG-43 pre-launch checklist.", owner: "Dev Team" },
+    ]
+  },
+  {
+    label: "Phase 3", name: "Legal, compliance & corporate setup",
+    date: "April – May 2026", color: "bar-purple",
+    kpi: "All legal items complete before any user data collected or paid transactions",
+    tasks: [
+      { icon: "icon-legal", badge: "HIGH", text: "ParallaxEdge LLC formation (Michigan) + EIN obtained", sub: "Operating agreement between Protean Pursuits and ParallaxEdge LLC.", owner: "Founder" },
+      { icon: "icon-legal", badge: "HIGH", text: "Terms of Service — legal counsel review", sub: "Budgeted $2,000. Must be complete pre-launch.", owner: "Founder + Legal" },
+      { icon: "icon-legal", badge: "HIGH", text: "Privacy Policy — legal counsel review", sub: "Shared with ToS budget. GDPR/CCPA compliant.", owner: "Legal" },
+      { icon: "icon-legal", badge: "HIGH", text: "USPTO trademark application — 'Parallax' / 'ParallaxEdge'", sub: "Budgeted $1,500. Starts Paris Convention 6-month window for EUIPO.", owner: "Founder + Legal" },
+      { icon: "icon-legal", badge: "HIGH", text: "EUIPO + UKIPO clearance searches commissioned", sub: "Within 30 days of USPTO filing. Critical given EPL/UCL EU user exposure.", owner: "Legal" },
+      { icon: "icon-legal", badge: "HIGH", text: "Affiliate agreements — minimum 3 sportsbooks signed", sub: "FTC affiliate disclosure compliant. Target: pre-launch.", owner: "Founder" },
+      { icon: "icon-legal", badge: "HIGH", text: "Data Processing Agreements (DPAs) — all EU-data vendors", sub: "Must be signed before any EU user data is collected.", owner: "Legal" },
+      { icon: "icon-legal", badge: "HIGH", text: "Legal review: operating model classification (analytics, not picks)", sub: "State-level classification risk assessment before launch.", owner: "Legal" },
+    ]
+  },
+  {
+    label: "Phase 4", name: "Pre-launch marketing build",
+    date: "Late April – May 2026 (Weeks 6–1 before launch)", color: "bar-blue",
+    kpi: "1,500+ waitlist sign-ups before go-live",
+    tasks: [
+      { icon: "icon-mkt", badge: "HIGH", text: "All social handles secured — consistent handle across all platforms", sub: "Must be complete by Week 6 (late April). Non-negotiable.", owner: "Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Pre-launch landing page live — email capture, waitlist", sub: "Sign-up cap at 1,000 for free Sharp group-stage access.", owner: "Dev + Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Weeks 6–5: Signal card seeding on X and Instagram", sub: "No product mention. AI model outputs for top fixtures. Voice established.", owner: "Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Weeks 4–3: ParallaxEdge brand introduced", sub: "Teaser UI screenshots, methodology explainer. Waitlist CTA activated.", owner: "Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Brand film production (60s + 15s teaser) — AI agent workflow", sub: "Teaser drops Day -7. Full film releases on launch Day 1.", owner: "Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Weeks 2–1: Full activation — influencer seeding, early access distribution", sub: "Target: sports data and analytics creators.", owner: "Founder" },
+      { icon: "icon-mkt", badge: "HIGH", text: "Waitlist nurture sequence — weekly email", sub: "Model signal previews, methodology explainers, launch countdown.", owner: "Founder" },
+    ]
+  },
+  {
+    label: "Phase 5", name: "Soft launch — World Cup 2026",
+    date: "June 11 – July 3, 2026", color: "bar-teal",
+    kpi: "350+ promo conversions; 500 paid subs by end of July",
+    tasks: [
+      { icon: "icon-launch", badge: "GO", text: "Day 1: 60-second brand film released across all channels", sub: "X, Instagram, TikTok, YouTube Shorts simultaneously.", owner: "Founder" },
+      { icon: "icon-launch", badge: "GO", text: "Day 3: First public model signal card published", sub: "Opening WC2026 match. 24-hour pre-kickoff cadence begins.", owner: "DS + Dev" },
+      { icon: "icon-launch", badge: "GO", text: "Day 5: Early access seeded to analytics creators", sub: "Sports data and analytics community. Word-of-mouth seeding.", owner: "Founder" },
+      { icon: "icon-launch", badge: "GO", text: "Day 7: Platform opens to waitlist — promo cohort onboarded", sub: "First 1,000 users: Sharp tier free for group stage (~1 billing cycle).", owner: "Dev + Founder" },
+      { icon: "icon-launch", badge: "GO", text: "Daily signal cards for all 48 WC2026 group stage fixtures", sub: "Every covered fixture: prediction published 24h before kickoff, results tracked publicly.", owner: "DS Team" },
+      { icon: "icon-launch", badge: "HIGH", text: "~July 3: Group stage ends — promo conversion emails sent", sub: "35% conversion target = 350 paid Sharp subscribers from promo cohort.", owner: "Founder" },
+    ]
+  },
+  {
+    label: "Phase 6", name: "NFL launch & affiliate activation",
+    date: "August – September 2026", color: "bar-coral",
+    kpi: "200 new paid subs in September; affiliate links live with 3+ partners",
+    tasks: [
+      { icon: "icon-mkt", badge: "HIGH", text: "NFL model launch announcement — 2 weeks pre-season", sub: "Second brand moment. New signal card format. NFL analytics community seeding.", owner: "Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Sept 4: NFL regular season — weekly NFL signal cards begin", sub: "Affiliate links go live simultaneously. Treat as a second launch.", owner: "DS + Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Sportsbook affiliate links live — minimum 3 partners", sub: "FTC disclosure on all affiliate content.", owner: "Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "X engagement ramp — NFL audience", sub: "Dedicated NFL influencer outreach. Analytics community focus.", owner: "Founder" },
+    ]
+  },
+  {
+    label: "Phase 7", name: "NBA launch & steady state",
+    date: "October 2026 – May 2027", color: "bar-purple",
+    kpi: "2,604 paid subs & $49,476 MRR by May 2027",
+    tasks: [
+      { icon: "icon-launch", badge: "GO", text: "Oct: NBA season tip-off — NBA signal cards begin", sub: "One month after NFL to avoid diluting NFL moment. Basketball analytics community is highly data-literate.", owner: "DS + Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Tri-sport signal card cadence established (Soccer, NFL, NBA)", sub: "Daily signal volume increases materially with NBA high-frequency schedule.", owner: "DS Team" },
+      { icon: "icon-open", badge: "HIGH", text: "Discord Sharp channels activated", sub: "Community layer for paying subscribers.", owner: "Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Post-WC2026 CLV performance update published", sub: "First public track record summary. Compounding trust asset.", owner: "Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Monthly cadence: 100 new paid subs/month target", sub: "Affiliate ramp: $500/mo (Sep) → $1,500/mo (Feb), then flat.", owner: "Founder" },
+      { icon: "icon-open", badge: "HIGH", text: "Q1 2027: Year 2 Pro / Elite tier prep begins", sub: "Pricing power and tier expansion are Year 2+ levers.", owner: "PM + Dev" },
+      { icon: "icon-legal", badge: "HIGH", text: "Within 6 months of USPTO filing: EUTM / UKIPO decision", sub: "File before Paris Convention window closes. EUTM ~€850 base fee.", owner: "Founder + Legal" },
+    ]
+  },
+];
+
+function togglePhase(idx) {
+  const tasks = document.getElementById('tasks-' + idx);
+  const chev = document.getElementById('chev-' + idx);
+  tasks.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+function badgeHtml(badge) {
+  const cls = badge === 'CRIT' ? 'badge-crit' : badge === 'DONE' || badge === 'GO' ? 'badge-ok' : 'badge-high';
+  return `<span class="badge ${cls}">${badge}</span>`;
+}
+
+const container = document.getElementById('phases');
+phases.forEach((p, i) => {
+  const el = document.createElement('div');
+  el.className = 'phase-block';
+  const taskRows = p.tasks.map(t =>
+    `<div class="task">
+      <div class="task-icon ${t.icon}">${t.icon.includes('legal') ? '⚖' : t.icon.includes('mkt') ? '▶' : t.icon.includes('launch') ? '★' : t.icon.includes('done') ? '✓' : t.icon.includes('blocker') ? '!' : '○'}</div>
+      <div class="task-body">${t.text}${badgeHtml(t.badge)}<div class="task-sub">${t.sub}</div></div>
+      <div class="task-owner">${t.owner}</div>
+    </div>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="phase-header" onclick="togglePhase(${i})">
+      <div class="phase-color ${p.color}"></div>
+      <div class="phase-title-group">
+        <div class="phase-label">${p.label}</div>
+        <div class="phase-name">${p.name}</div>
+        <div class="phase-date">${p.date}</div>
+        <div class="phase-kpi">Target: ${p.kpi}</div>
+      </div>
+      <div class="chevron" id="chev-${i}">›</div>
+    </div>
+    <div class="tasks-container" id="tasks-${i}">
+      ${taskRows}
+    </div>
+  `;
+  container.appendChild(el);
+});
+</script>

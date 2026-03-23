@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParallaxEdge — Signal Card Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:    #070E1C;
+  --navy-2:  #0D1829;
+  --navy-3:  #112038;
+  --navy-4:  #1A2F50;
+  --white:   #F0F4FA;
+  --white-2: #C8D4E8;
+  --white-3: #94A8C4;
+  --teal:    #00D4B4;
+  --teal-2:  #00B89C;
+  --amber:   #F5A623;
+  --amber-2: #E09015;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+  --display: 'DM Serif Display', serif;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { background:#060c16; color:var(--white); font-family:var(--sans); min-height:100vh; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  background: rgba(7,14,28,0.97);
+  border-bottom: 1px solid rgba(200,212,232,0.08);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.toolbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tb-wm { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+.tb-wm .p { color: var(--white-2); }
+.tb-wm .e { color: var(--teal); }
+
+.toolbar-title {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(200,212,232,0.3);
+  text-transform: uppercase;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid rgba(200,212,232,0.12);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--white-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  border-right: 1px solid rgba(200,212,232,0.12);
+}
+.ctrl-btn:last-child { border-right: none; }
+.ctrl-btn:hover { background: rgba(200,212,232,0.06); color: var(--white); }
+.ctrl-btn.active { background: rgba(0,212,180,0.12); color: var(--teal); }
+
+.dl-btn {
+  background: var(--teal);
+  color: #05111F;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.15s;
+}
+.dl-btn:hover { background: var(--teal-2); }
+
+/* ── STAGE ── */
+.stage {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 48px;
+  padding: 48px 32px 64px;
+  flex-wrap: wrap;
+}
+
+.card-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.platform-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(200,212,232,0.3);
+  text-transform: uppercase;
+}
+
+/* ── INSTAGRAM CARD  1:1 ── */
+.card-ig {
+  width: 480px;
+  height: 480px;
+  background: var(--navy);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── X CARD  16:9 ── */
+.card-x {
+  width: 640px;
+  height: 360px;
+  background: var(--navy);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* ── CARD INTERNALS ── */
+
+/* Background grid */
+.card-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,180,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,180,0.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+
+/* Glow */
+.card-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.glow-tl  { top: -80px; left: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(0,212,180,0.09) 0%, transparent 65%); }
+.glow-br  { bottom: -60px; right: -60px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(0,212,180,0.05) 0%, transparent 65%); }
+.glow-tl-a  { top: -80px; left: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 65%); }
+.glow-br-a  { bottom: -60px; right: -60px; width: 260px; height: 260px; background: radial-gradient(circle, rgba(245,166,35,0.04) 0%, transparent 65%); }
+
+/* Accent bar at top */
+.card-accent-bar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.bar-high { background: linear-gradient(90deg, #00B89C, #00D4B4, #00B89C); }
+.bar-med  { background: linear-gradient(90deg, #E09015, #F5A623, #E09015); }
+
+/* IG card layout */
+.ig-inner {
+  position: relative;
+  z-index: 1;
+  padding: 32px 32px 28px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.ig-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.ig-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ig-wm { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+.ig-wm .p { color: var(--white-2); }
+.ig-wm .e { color: var(--teal); }
+.ig-wm-a .e { color: var(--amber); }
+
+.ig-badge {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+.badge-high { background: rgba(0,212,180,0.12); border: 1px solid rgba(0,212,180,0.28); color: var(--teal); }
+.badge-med  { background: rgba(245,166,35,0.1);  border: 1px solid rgba(245,166,35,0.28);  color: var(--amber); }
+
+.ig-match-block { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+.ig-fixture {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--white-3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.ig-teams {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.1;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.ig-edge-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.ig-edge-val {
+  font-family: var(--mono);
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.val-high { color: var(--teal); }
+.val-med  { color: var(--amber); }
+
+.ig-edge-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--white-3);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.ig-conf-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.ig-conf-bar-wrap { flex: 1; }
+.ig-conf-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--white-3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+}
+.ig-conf-track {
+  height: 3px;
+  background: rgba(200,212,232,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ig-conf-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+.fill-high { background: linear-gradient(90deg, #00B89C, #00D4B4); }
+.fill-med  { background: linear-gradient(90deg, #E09015, #F5A623); }
+
+.ig-signals {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+.ig-signal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--white-3);
+  letter-spacing: 0.3px;
+}
+.sig-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.dot-active { background: var(--teal); }
+.dot-med    { background: var(--amber); }
+.dot-off    { background: rgba(200,212,232,0.22); }
+
+.ig-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid rgba(200,212,232,0.07);
+}
+
+.ig-handle {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: rgba(200,212,232,0.28);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.ig-disclaimer {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(200,212,232,0.2);
+  letter-spacing: 0.5px;
+}
+
+/* ── X CARD LAYOUT ── */
+.x-inner {
+  position: relative;
+  z-index: 1;
+  padding: 28px 32px 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.x-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.x-left { flex: 1; }
+
+.x-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.x-wm { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; }
+.x-wm .p { color: rgba(200,212,232,0.5); }
+.x-wm .e { color: var(--teal); }
+
+.x-fixture {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--white-3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.x-teams {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  margin-bottom: 4px;
+}
+
+.x-stage {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--white-3);
+  letter-spacing: 0.5px;
+}
+
+.x-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.x-edge-val {
+  font-family: var(--mono);
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  text-align: right;
+}
+
+.x-edge-type {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--white-3);
+  letter-spacing: 0.5px;
+  text-align: right;
+}
+
+.x-badge { align-self: flex-end; }
+
+.x-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.x-signals-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.x-signal-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--white-3);
+  letter-spacing: 0.3px;
+}
+
+.x-conf-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  min-width: 120px;
+}
+
+.x-conf-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--white-3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.x-conf-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(200,212,232,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.x-conf-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.x-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(200,212,232,0.07);
+}
+
+.x-handle {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(200,212,232,0.25);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.x-disclaimer {
+  font-family: var(--mono);
+  font-size: 7px;
+  color: rgba(200,212,232,0.18);
+  letter-spacing: 0.3px;
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-logo">
+    <svg width="22" height="22" viewBox="0 0 56 56" fill="none">
+      <defs><clipPath id="tb-clip"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+      <g clip-path="url(#tb-clip)">
+        <line x1="28" y1="4" x2="14" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="0.8" opacity="0.9"/>
+        <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="42" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="4" y1="28" x2="52" y2="28" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+        <line x1="4" y1="40" x2="52" y2="40" stroke="#00D4B4" stroke-width="0.4" opacity="0.35"/>
+      </g>
+      <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.1" stroke-linejoin="round"/>
+      <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+    </svg>
+    <div>
+      <div class="tb-wm"><span class="p">Parallax</span><span class="e">Edge</span></div>
+      <div class="toolbar-title">Signal Card Generator</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group" id="conf-toggle">
+      <button class="ctrl-btn active" onclick="setConf('high')">High</button>
+      <button class="ctrl-btn" onclick="setConf('med')">Med</button>
+    </div>
+    <div class="ctrl-group" id="sport-toggle">
+      <button class="ctrl-btn active" onclick="setSport('soccer')">Football</button>
+      <button class="ctrl-btn" onclick="setSport('nfl')">NFL</button>
+      <button class="ctrl-btn" onclick="setSport('nba')">NBA</button>
+    </div>
+    <button class="dl-btn" onclick="downloadSVG('ig')">↓ Instagram SVG</button>
+    <button class="dl-btn" onclick="downloadSVG('x')">↓ X SVG</button>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- INSTAGRAM 1:1 -->
+  <div class="card-wrapper">
+    <div class="platform-label">Instagram · 1080 × 1080</div>
+    <div class="card-ig" id="card-ig">
+      <div class="card-grid"></div>
+      <div class="card-glow glow-tl" id="ig-glow-tl"></div>
+      <div class="card-glow glow-br" id="ig-glow-br"></div>
+      <div class="card-accent-bar bar-high" id="ig-bar"></div>
+
+      <div class="ig-inner">
+        <div class="ig-header">
+          <div class="ig-logo">
+            <svg width="20" height="20" viewBox="0 0 56 56" fill="none">
+              <defs><clipPath id="ig-mark"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+              <g clip-path="url(#ig-mark)">
+                <line x1="28" y1="4" x2="4"  y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+                <line x1="28" y1="4" x2="9"  y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+                <line x1="28" y1="4" x2="14" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+                <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+                <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="0.8" opacity="0.9"/>
+                <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+                <line x1="28" y1="4" x2="42" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+                <line x1="28" y1="4" x2="47" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+                <line x1="28" y1="4" x2="52" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+                <line x1="4"  y1="18" x2="52" y2="18" stroke="#00D4B4" stroke-width="0.4" opacity="0.2"/>
+                <line x1="4"  y1="28" x2="52" y2="28" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+                <line x1="4"  y1="38" x2="52" y2="38" stroke="#00D4B4" stroke-width="0.4" opacity="0.35"/>
+                <line x1="4"  y1="48" x2="52" y2="48" stroke="#00D4B4" stroke-width="0.4" opacity="0.4"/>
+              </g>
+              <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.1" stroke-linejoin="round"/>
+              <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+            </svg>
+            <div class="ig-wm" id="ig-wm"><span class="p">Parallax</span><span class="e">Edge</span></div>
+          </div>
+          <span class="ig-badge badge-high" id="ig-badge">High Conf</span>
+        </div>
+
+        <div class="ig-match-block">
+          <div class="ig-fixture" id="ig-fixture">Group Stage · 14 Jun 2026</div>
+          <div class="ig-teams" id="ig-teams">Brazil vs<br>Argentina</div>
+
+          <div class="ig-edge-row">
+            <div class="ig-edge-val val-high" id="ig-edge-val">+7.4%</div>
+            <div class="ig-edge-label" id="ig-edge-label">BRAZIL WIN<br>PRE-MATCH EDGE</div>
+          </div>
+
+          <div class="ig-conf-row">
+            <div class="ig-conf-bar-wrap">
+              <div class="ig-conf-label"><span>Confidence</span><span id="ig-conf-pct">84%</span></div>
+              <div class="ig-conf-track"><div class="ig-conf-fill fill-high" id="ig-conf-fill" style="width:84%"></div></div>
+            </div>
+          </div>
+
+          <div class="ig-signals" id="ig-signals">
+            <div class="ig-signal-item"><span class="sig-dot dot-active"></span>xG Differential +1.34</div>
+            <div class="ig-signal-item"><span class="sig-dot dot-active"></span>Market Drift Index +0.82</div>
+            <div class="ig-signal-item"><span class="sig-dot dot-active"></span>Fatigue Model –0.21</div>
+          </div>
+        </div>
+
+        <div class="ig-footer">
+          <div class="ig-handle">@parallaxedge</div>
+          <div class="ig-disclaimer">Not financial advice · 18+ only</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- X 16:9 -->
+  <div class="card-wrapper">
+    <div class="platform-label">X (Twitter) · 1600 × 900</div>
+    <div class="card-x" id="card-x">
+      <div class="card-grid"></div>
+      <div class="card-glow glow-tl" id="x-glow-tl"></div>
+      <div class="card-glow glow-br" id="x-glow-br"></div>
+      <div class="card-accent-bar bar-high" id="x-bar"></div>
+
+      <div class="x-inner">
+        <div class="x-top">
+          <div class="x-left">
+            <div class="x-logo-row">
+              <svg width="16" height="16" viewBox="0 0 56 56" fill="none">
+                <defs><clipPath id="x-mark"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+                <g clip-path="url(#x-mark)">
+                  <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+                  <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="1"   opacity="1"/>
+                  <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+                  <line x1="4" y1="32" x2="52" y2="32" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+                </g>
+                <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.2" stroke-linejoin="round"/>
+                <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+              </svg>
+              <div class="x-wm"><span class="p">Parallax</span><span class="e">Edge</span></div>
+            </div>
+            <div class="x-fixture" id="x-fixture">Group Stage · 14 Jun 2026 · FIFA World Cup</div>
+            <div class="x-teams" id="x-teams">Brazil vs Argentina</div>
+            <div class="x-stage" id="x-stage">Pre-Match Edge Detected</div>
+          </div>
+
+          <div class="x-right">
+            <div class="x-edge-val val-high" id="x-edge-val">+7.4%</div>
+            <div class="x-edge-type" id="x-edge-type">BRAZIL WIN · PRE-MATCH EDGE</div>
+            <span class="ig-badge badge-high x-badge" id="x-badge" style="margin-top:8px;">High Conf</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="x-signals-row" id="x-signals">
+            <div class="x-signal-item"><span class="sig-dot dot-active"></span>xG Differential +1.34</div>
+            <div class="x-signal-item"><span class="sig-dot dot-active"></span>Market Drift Index +0.82</div>
+            <div class="x-signal-item"><span class="sig-dot dot-active"></span>Fatigue Model –0.21</div>
+          </div>
+
+          <div class="x-footer-row" style="margin-top:12px;">
+            <div style="display:flex;gap:20px;align-items:center;">
+              <div class="x-conf-label" style="width:auto;gap:8px;"><span>Confidence</span><span id="x-conf-pct" style="color:#00D4B4;">84%</span></div>
+              <div class="x-conf-track" style="width:100px;"><div class="x-conf-fill fill-high" id="x-conf-fill" style="width:84%"></div></div>
+            </div>
+            <div style="display:flex;gap:16px;align-items:center;">
+              <div class="x-handle">@parallaxedge</div>
+              <div class="x-disclaimer">Not financial advice · 18+ only</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SPORTS = {
+  soccer: {
+    high: {
+      fixture: 'Group Stage · 14 Jun 2026 · FIFA World Cup',
+      fixture_short: 'Group Stage · 14 Jun 2026',
+      teams: ['Brazil vs', 'Argentina'],
+      teams_x: 'Brazil vs Argentina',
+      edge: '+7.4%',
+      type: 'BRAZIL WIN · PRE-MATCH EDGE',
+      conf: 84,
+      stage: 'Pre-Match Edge Detected',
+      signals: [
+        { label: 'xG Differential +1.34', active: true },
+        { label: 'Market Drift Index +0.82', active: true },
+        { label: 'Fatigue Model –0.21', active: true }
+      ]
+    },
+    med: {
+      fixture: 'Group Stage · 17 Jun 2026 · FIFA World Cup',
+      fixture_short: 'Group Stage · 17 Jun 2026',
+      teams: ['France vs', 'Germany'],
+      teams_x: 'France vs Germany',
+      edge: '+3.1%',
+      type: 'DRAW · LIVE ODDS SHIFT',
+      conf: 52,
+      stage: 'Mid-Confidence Signal',
+      signals: [
+        { label: 'Formation Advantage +0.61', active: true },
+        { label: 'Weather Adjustment (offline)', active: false },
+        { label: 'Referee Bias +0.14', active: true }
+      ]
+    }
+  },
+  nfl: {
+    high: {
+      fixture: 'NFL Week 4 · 28 Sep 2026',
+      fixture_short: 'NFL Week 4 · 28 Sep 2026',
+      teams: ['Chiefs vs', 'Bills'],
+      teams_x: 'Chiefs vs Bills',
+      edge: '+5.2%',
+      type: 'CHIEFS –3.5 ATS · PRE-GAME EDGE',
+      conf: 79,
+      stage: 'Pre-Game Edge Detected',
+      signals: [
+        { label: 'EPA Power Rating +1.18', active: true },
+        { label: 'Line Movement +1.5pts', active: true },
+        { label: 'Weather Adj. (neutral)', active: true }
+      ]
+    },
+    med: {
+      fixture: 'NFL Week 6 · 11 Oct 2026',
+      fixture_short: 'NFL Week 6 · 11 Oct 2026',
+      teams: ['Eagles vs', 'Cowboys'],
+      teams_x: 'Eagles vs Cowboys',
+      edge: '+2.8%',
+      type: 'OVER 48.5 · LIVE ODDS SHIFT',
+      conf: 58,
+      stage: 'Mid-Confidence Signal',
+      signals: [
+        { label: 'Pace Model +0.74', active: true },
+        { label: 'Referee Tendency +0.21', active: true },
+        { label: 'Injury Adjustment –0.09', active: false }
+      ]
+    }
+  },
+  nba: {
+    high: {
+      fixture: 'NBA Reg. Season · 14 Nov 2026',
+      fixture_short: 'NBA · 14 Nov 2026',
+      teams: ['Celtics vs', 'Lakers'],
+      teams_x: 'Celtics vs Lakers',
+      edge: '+6.1%',
+      type: 'CELTICS –5.5 ATS · PRE-GAME EDGE',
+      conf: 81,
+      stage: 'Pre-Game Edge Detected',
+      signals: [
+        { label: 'Four-Factor Rating +1.42', active: true },
+        { label: 'Referee Crew Bias +0.38', active: true },
+        { label: 'Back-to-Back Penalty –0.14', active: true }
+      ]
+    },
+    med: {
+      fixture: 'NBA Reg. Season · 19 Nov 2026',
+      fixture_short: 'NBA · 19 Nov 2026',
+      teams: ['Nuggets vs', 'Warriors'],
+      teams_x: 'Nuggets vs Warriors',
+      edge: '+3.4%',
+      type: 'OVER 224.5 · LIVE ODDS SHIFT',
+      conf: 61,
+      stage: 'Mid-Confidence Signal',
+      signals: [
+        { label: 'Pace Differential +0.88', active: true },
+        { label: 'Referee Data (offline)', active: false },
+        { label: 'Rest Advantage +0.17', active: true }
+      ]
+    }
+  }
+};
+
+let currentConf = 'high';
+let currentSport = 'soccer';
+
+function setConf(conf) {
+  currentConf = conf;
+  document.querySelectorAll('#conf-toggle .ctrl-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updateCards();
+}
+
+function setSport(sport) {
+  currentSport = sport;
+  document.querySelectorAll('#sport-toggle .ctrl-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updateCards();
+}
+
+function updateCards() {
+  const d = SPORTS[currentSport][currentConf];
+  const isHigh = currentConf === 'high';
+  const accentCol = isHigh ? '#00D4B4' : '#F5A623';
+  const glowCol   = isHigh ? 'rgba(0,212,180,{o})' : 'rgba(245,166,35,{o})';
+
+  // ─ Instagram ─
+  document.getElementById('ig-bar').className = 'card-accent-bar ' + (isHigh ? 'bar-high' : 'bar-med');
+  document.getElementById('ig-glow-tl').style.background = isHigh
+    ? 'radial-gradient(circle, rgba(0,212,180,0.09) 0%, transparent 65%)'
+    : 'radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 65%)';
+  document.getElementById('ig-glow-br').style.background = isHigh
+    ? 'radial-gradient(circle, rgba(0,212,180,0.05) 0%, transparent 65%)'
+    : 'radial-gradient(circle, rgba(245,166,35,0.04) 0%, transparent 65%)';
+  document.getElementById('ig-badge').className = 'ig-badge ' + (isHigh ? 'badge-high' : 'badge-med');
+  document.getElementById('ig-badge').textContent = isHigh ? 'High Conf' : 'Med Conf';
+  document.getElementById('ig-fixture').textContent = d.fixture_short;
+  document.getElementById('ig-teams').innerHTML = d.teams[0] + '<br>' + d.teams[1];
+  document.getElementById('ig-edge-val').className = 'ig-edge-val ' + (isHigh ? 'val-high' : 'val-med');
+  document.getElementById('ig-edge-val').textContent = d.edge;
+  document.getElementById('ig-edge-label').innerHTML = d.type.replace(' · ', '<br>');
+  document.getElementById('ig-conf-pct').textContent = d.conf + '%';
+  document.getElementById('ig-conf-fill').className = 'ig-conf-fill ' + (isHigh ? 'fill-high' : 'fill-med');
+  document.getElementById('ig-conf-fill').style.width = d.conf + '%';
+
+  const igSigs = document.getElementById('ig-signals');
+  igSigs.innerHTML = d.signals.map(s => `
+    <div class="ig-signal-item">
+      <span class="sig-dot ${s.active ? (isHigh ? 'dot-active' : 'dot-med') : 'dot-off'}"></span>
+      ${s.label}
+    </div>
+  `).join('');
+
+  // ─ X ─
+  document.getElementById('x-bar').className = 'card-accent-bar ' + (isHigh ? 'bar-high' : 'bar-med');
+  document.getElementById('x-glow-tl').style.background = isHigh
+    ? 'radial-gradient(circle, rgba(0,212,180,0.09) 0%, transparent 65%)'
+    : 'radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 65%)';
+  document.getElementById('x-glow-br').style.background = isHigh
+    ? 'radial-gradient(circle, rgba(0,212,180,0.05) 0%, transparent 65%)'
+    : 'radial-gradient(circle, rgba(245,166,35,0.04) 0%, transparent 65%)';
+  document.getElementById('x-badge').className = 'ig-badge ' + (isHigh ? 'badge-high' : 'badge-med') + ' x-badge';
+  document.getElementById('x-badge').textContent = isHigh ? 'High Conf' : 'Med Conf';
+  document.getElementById('x-fixture').textContent = d.fixture;
+  document.getElementById('x-teams').textContent = d.teams_x;
+  document.getElementById('x-stage').textContent = d.stage;
+  document.getElementById('x-edge-val').className = 'x-edge-val ' + (isHigh ? 'val-high' : 'val-med');
+  document.getElementById('x-edge-val').textContent = d.edge;
+  document.getElementById('x-edge-type').textContent = d.type;
+  document.getElementById('x-conf-pct').style.color = accentCol;
+  document.getElementById('x-conf-pct').textContent = d.conf + '%';
+  document.getElementById('x-conf-fill').className = 'x-conf-fill ' + (isHigh ? 'fill-high' : 'fill-med');
+  document.getElementById('x-conf-fill').style.width = d.conf + '%';
+
+  const xSigs = document.getElementById('x-signals');
+  xSigs.innerHTML = d.signals.map(s => `
+    <div class="x-signal-item">
+      <span class="sig-dot ${s.active ? (isHigh ? 'dot-active' : 'dot-med') : 'dot-off'}"></span>
+      ${s.label}
+    </div>
+  `).join('');
+}
+
+function downloadSVG(platform) {
+  const el = document.getElementById('card-' + platform);
+  const svgContent = buildSVG(platform);
+  const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `parallaxedge-signal-${currentSport}-${currentConf}-${platform}.svg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function buildSVG(platform) {
+  const d = SPORTS[currentSport][currentConf];
+  const isHigh = currentConf === 'high';
+  const accentCol = isHigh ? '#00D4B4' : '#F5A623';
+  const accentDim  = isHigh ? '#00B89C' : '#E09015';
+  const badgeBg    = isHigh ? 'rgba(0,212,180,0.12)' : 'rgba(245,166,35,0.10)';
+  const badgeBdr   = isHigh ? 'rgba(0,212,180,0.28)' : 'rgba(245,166,35,0.28)';
+  const glowCol    = isHigh ? 'rgba(0,212,180,0.09)' : 'rgba(245,166,35,0.07)';
+
+  const W = platform === 'ig' ? 1080 : 1600;
+  const H = platform === 'ig' ? 1080 : 900;
+  const sc = platform === 'ig' ? 2.25 : 2.5;
+
+  const markSVG = `
+    <defs>
+      <clipPath id="mc"><polygon points="${28*sc/4},${4*sc/4} ${52*sc/4},${52*sc/4} ${4*sc/4},${52*sc/4}"/></clipPath>
+      <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(0,0) scale(300)">
+        <stop offset="0%" stop-color="${glowCol}"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+      <radialGradient id="glow2" cx="1" cy="1" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(${W},${H}) scale(260)">
+        <stop offset="0%" stop-color="${isHigh ? 'rgba(0,212,180,0.05)' : 'rgba(245,166,35,0.04)'}"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+      <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${accentDim}"/>
+        <stop offset="50%" stop-color="${accentCol}"/>
+        <stop offset="100%" stop-color="${accentDim}"/>
+      </linearGradient>
+      <linearGradient id="confbar" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="${accentDim}"/>
+        <stop offset="100%" stop-color="${accentCol}"/>
+      </linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="#070E1C"/>
+    <rect width="${W}" height="${H}" fill="url(#glow1)"/>
+    <rect width="${W}" height="${H}" fill="url(#glow2)"/>
+  `;
+
+  if (platform === 'ig') {
+    const px = 72, py = 72;
+    const ms = 44; // mark size
+    const teamsLine = d.teams[0] + ' ' + d.teams[1];
+    const confBarW = Math.round((W - px*2) * d.conf / 100);
+
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" xmlns="http://www.w3.org/2000/svg">
+  ${markSVG}
+  <rect width="${W}" height="6" fill="url(#bar)"/>
+  <g transform="translate(${px},${py})">
+    <svg width="${ms}" height="${ms}" viewBox="0 0 56 56" fill="none">
+      <defs><clipPath id="mc2"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+      <g clip-path="url(#mc2)">
+        <line x1="28" y1="4" x2="4" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+        <line x1="28" y1="4" x2="9" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+        <line x1="28" y1="4" x2="14" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="0.8" opacity="0.9"/>
+        <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="42" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="28" y1="4" x2="47" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+        <line x1="28" y1="4" x2="52" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+        <line x1="4" y1="18" x2="52" y2="18" stroke="#00D4B4" stroke-width="0.4" opacity="0.2"/>
+        <line x1="4" y1="28" x2="52" y2="28" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+        <line x1="4" y1="38" x2="52" y2="38" stroke="#00D4B4" stroke-width="0.4" opacity="0.35"/>
+        <line x1="4" y1="48" x2="52" y2="48" stroke="#00D4B4" stroke-width="0.4" opacity="0.4"/>
+      </g>
+      <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.1" stroke-linejoin="round"/>
+      <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+    </svg>
+  </g>
+  <text x="${px + ms + 14}" y="${py + 22}" font-family="DM Sans, Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="3" fill="#C8D4E8" text-transform="uppercase">PARALLAX</text>
+  <text x="${px + ms + 14 + 170}" y="${py + 22}" font-family="DM Sans, Arial, sans-serif" font-size="28" font-weight="500" letter-spacing="3" fill="${accentCol}">EDGE</text>
+  <rect x="${W - px - 140}" y="${py - 2}" width="140" height="34" rx="4" fill="${badgeBg}" stroke="${badgeBdr}" stroke-width="1.5"/>
+  <text x="${W - px - 70}" y="${py + 19}" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="2" fill="${accentCol}" text-anchor="middle">${isHigh ? 'HIGH CONF' : 'MED CONF'}</text>
+  <text x="${px}" y="${py + 160}" font-family="IBM Plex Mono, monospace" font-size="22" letter-spacing="3" fill="#94A8C4">${d.fixture_short.toUpperCase()}</text>
+  <text x="${px}" y="${py + 260}" font-family="DM Serif Display, serif" font-size="84" fill="#F0F4FA">${d.teams[0]}</text>
+  <text x="${px}" y="${py + 360}" font-family="DM Serif Display, serif" font-size="84" fill="#F0F4FA">${d.teams[1]}</text>
+  <text x="${px}" y="${py + 480}" font-family="IBM Plex Mono, monospace" font-size="126" font-weight="700" fill="${accentCol}" letter-spacing="-2">${d.edge}</text>
+  <text x="${px}" y="${py + 530}" font-family="IBM Plex Mono, monospace" font-size="22" fill="#94A8C4" letter-spacing="1">${d.type}</text>
+  <text x="${px}" y="${py + 600}" font-family="IBM Plex Mono, monospace" font-size="20" letter-spacing="2" fill="#94A8C4">CONFIDENCE</text>
+  <text x="${W - px}" y="${py + 600}" font-family="IBM Plex Mono, monospace" font-size="20" letter-spacing="1" fill="${accentCol}" text-anchor="end">${d.conf}%</text>
+  <rect x="${px}" y="${py + 616}" width="${W - px*2}" height="6" rx="3" fill="rgba(200,212,232,0.1)"/>
+  <rect x="${px}" y="${py + 616}" width="${confBarW}" height="6" rx="3" fill="url(#confbar)"/>
+  ${d.signals.map((s, i) => `
+  <circle cx="${px + 6}" cy="${py + 680 + i * 48}" r="5" fill="${s.active ? accentCol : 'rgba(200,212,232,0.22)'}"/>
+  <text x="${px + 22}" y="${py + 686 + i * 48}" font-family="IBM Plex Mono, monospace" font-size="22" fill="#94A8C4">${s.label}</text>
+  `).join('')}
+  <line x1="${px}" y1="${H - py - 36}" x2="${W - px}" y2="${H - py - 36}" stroke="rgba(200,212,232,0.07)" stroke-width="1"/>
+  <text x="${px}" y="${H - py - 8}" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="2" fill="rgba(200,212,232,0.28)">@PARALLAXEDGE</text>
+  <text x="${W - px}" y="${H - py - 8}" font-family="IBM Plex Mono, monospace" font-size="16" fill="rgba(200,212,232,0.18)" text-anchor="end">Not financial advice · 18+ only</text>
+</svg>`;
+  } else {
+    // X 16:9 1600×900
+    const px = 80, py = 60;
+    const confBarW = Math.round(220 * d.conf / 100);
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" fill="none" xmlns="http://www.w3.org/2000/svg">
+  ${markSVG}
+  <rect width="${W}" height="6" fill="url(#bar)"/>
+  <g transform="translate(${px},${py})">
+    <svg width="36" height="36" viewBox="0 0 56 56" fill="none">
+      <defs><clipPath id="mc3"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+      <g clip-path="url(#mc3)">
+        <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+        <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="1" opacity="1"/>
+        <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+        <line x1="4" y1="30" x2="52" y2="30" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+      </g>
+      <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.2" stroke-linejoin="round"/>
+      <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+    </svg>
+  </g>
+  <text x="${px + 50}" y="${py + 26}" font-family="DM Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="2.5" fill="rgba(200,212,232,0.5)">PARALLAX</text>
+  <text x="${px + 50 + 146}" y="${py + 26}" font-family="DM Sans, Arial, sans-serif" font-size="24" font-weight="500" letter-spacing="2.5" fill="${accentCol}">EDGE</text>
+  <text x="${px}" y="${py + 100}" font-family="IBM Plex Mono, monospace" font-size="20" letter-spacing="2.5" fill="#94A8C4">${d.fixture.toUpperCase()}</text>
+  <text x="${px}" y="${py + 180}" font-family="DM Serif Display, serif" font-size="72" fill="#F0F4FA">${d.teams_x}</text>
+  <text x="${px}" y="${py + 230}" font-family="IBM Plex Mono, monospace" font-size="20" letter-spacing="1" fill="#94A8C4">${d.stage.toUpperCase()}</text>
+  <text x="${W - px}" y="${py + 180}" font-family="IBM Plex Mono, monospace" font-size="120" font-weight="700" fill="${accentCol}" letter-spacing="-2" text-anchor="end">${d.edge}</text>
+  <text x="${W - px}" y="${py + 220}" font-family="IBM Plex Mono, monospace" font-size="20" fill="#94A8C4" text-anchor="end" letter-spacing="1">${d.type}</text>
+  <rect x="${W - px - 130}" y="${py + 230}" width="130" height="30" rx="3" fill="${badgeBg}" stroke="${badgeBdr}" stroke-width="1.5"/>
+  <text x="${W - px - 65}" y="${py + 251}" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="1.5" fill="${accentCol}" text-anchor="middle">${isHigh ? 'HIGH CONF' : 'MED CONF'}</text>
+  ${d.signals.map((s, i) => `
+  <circle cx="${px + 6}" cy="${py + 340 + i * 44}" r="5" fill="${s.active ? accentCol : 'rgba(200,212,232,0.22)'}"/>
+  <text x="${px + 22}" y="${py + 347 + i * 44}" font-family="IBM Plex Mono, monospace" font-size="20" fill="#94A8C4">${s.label}</text>
+  `).join('')}
+  <line x1="${px}" y1="${H - py - 56}" x2="${W - px}" y2="${H - py - 56}" stroke="rgba(200,212,232,0.07)" stroke-width="1"/>
+  <text x="${px}" y="${H - py - 24}" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="1.5" fill="rgba(200,212,232,0.25)">CONFIDENCE</text>
+  <text x="${px + 200}" y="${H - py - 24}" font-family="IBM Plex Mono, monospace" font-size="18" fill="${accentCol}" letter-spacing="1">${d.conf}%</text>
+  <rect x="${px + 260}" y="${H - py - 38}" width="220" height="5" rx="2" fill="rgba(200,212,232,0.1)"/>
+  <rect x="${px + 260}" y="${H - py - 38}" width="${confBarW}" height="5" rx="2" fill="url(#confbar)"/>
+  <text x="${W - px}" y="${H - py - 24}" font-family="IBM Plex Mono, monospace" font-size="16" fill="rgba(200,212,232,0.22)" text-anchor="end">@parallaxedge · Not financial advice · 18+</text>
+</svg>`;
+  }
+}
+</script>
+</body>
+</html>

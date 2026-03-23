@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Methodology — ParallaxEdge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #070E1C;
+    --navy-surface: #0D1829;
+    --navy-elevated: #112030;
+    --navy-border: #1a2d45;
+    --teal: #00D4B4;
+    --teal-dim: rgba(0,212,180,0.12);
+    --teal-glow: rgba(0,212,180,0.25);
+    --amber: #F5A623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --cold-white: #E8EDF5;
+    --muted: #4a6080;
+    --muted-light: #6b87a8;
+    --red-dim: rgba(255,80,80,0.12);
+    --red: #ff6060;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--cold-white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(7,14,28,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--navy-border);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+
+  .nav-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--cold-white);
+    text-decoration: none;
+    letter-spacing: 0.01em;
+  }
+
+  .nav-logo span { color: var(--teal); }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted-light);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover, .nav-links a.active { color: var(--teal); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 7rem 2.5rem 5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  .hero-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .hero-label::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--teal);
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.6rem, 5vw, 4rem);
+    line-height: 1.1;
+    color: var(--cold-white);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .hero-intro {
+    font-size: 1.1rem;
+    color: var(--muted-light);
+    max-width: 680px;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+  }
+
+  .philosophy-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--navy-border);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 3rem;
+  }
+
+  .philosophy-item {
+    background: var(--navy-surface);
+    padding: 1.5rem;
+  }
+
+  .philosophy-item .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  .philosophy-item p {
+    font-size: 0.88rem;
+    color: var(--muted-light);
+    line-height: 1.6;
+  }
+
+  /* ── SECTION WRAPPER ── */
+  .section {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2.5rem 6rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--navy-border);
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.9rem;
+    color: var(--cold-white);
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    color: var(--cold-white);
+    margin-bottom: 0.75rem;
+    margin-top: 2.5rem;
+  }
+
+  p {
+    color: var(--muted-light);
+    margin-bottom: 1.1rem;
+    font-size: 0.95rem;
+    line-height: 1.8;
+  }
+
+  /* ── MODEL CARDS ── */
+  .model-card {
+    background: var(--navy-surface);
+    border: 1px solid var(--navy-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+
+  .model-card-header {
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    border-bottom: 1px solid var(--navy-border);
+    background: var(--navy-elevated);
+  }
+
+  .model-badge {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--teal-dim);
+    border-radius: 8px;
+    border: 1px solid rgba(0,212,180,0.2);
+  }
+
+  .model-card-title {
+    flex: 1;
+  }
+
+  .model-card-title h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--cold-white);
+    margin: 0 0 0.2rem;
+  }
+
+  .model-card-title .subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .brier-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal);
+    background: var(--teal-dim);
+    border: 1px solid rgba(0,212,180,0.2);
+    border-radius: 4px;
+    padding: 0.3rem 0.7rem;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .brier-badge .label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.62rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .model-card-body {
+    padding: 2rem;
+  }
+
+  .model-section-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    margin-top: 1.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .model-section-title:first-child { margin-top: 0; }
+
+  .model-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--navy-border);
+  }
+
+  .model-card-body p {
+    font-size: 0.92rem;
+  }
+
+  /* ── INPUTS GRID ── */
+  .inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .input-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cold-white);
+    background: var(--navy);
+    border: 1px solid var(--navy-border);
+    border-radius: 4px;
+    padding: 0.4rem 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .input-tag::before {
+    content: '→';
+    color: var(--teal);
+    font-size: 0.65rem;
+  }
+
+  .input-tag.critical {
+    border-color: rgba(245,166,35,0.35);
+    color: var(--amber);
+  }
+
+  .input-tag.critical::before { color: var(--amber); }
+
+  /* ── DATA TABLE ── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin: 1rem 0 1.5rem;
+  }
+
+  .data-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.6rem 1rem;
+    background: var(--navy);
+    border-bottom: 1px solid var(--navy-border);
+  }
+
+  .data-table td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--navy-border);
+    color: var(--muted-light);
+    font-size: 0.875rem;
+    vertical-align: top;
+  }
+
+  .data-table td:first-child {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--cold-white);
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+
+  .tag-confirmed {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    background: var(--teal-dim);
+    color: var(--teal);
+    border-radius: 3px;
+    padding: 0.15rem 0.45rem;
+  }
+
+  .tag-pending {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    background: var(--amber-dim);
+    color: var(--amber);
+    border-radius: 3px;
+    padding: 0.15rem 0.45rem;
+  }
+
+  /* ── SHORTCOMINGS ── */
+  .shortcoming-card {
+    background: rgba(245,166,35,0.05);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-left: 3px solid var(--amber);
+    border-radius: 6px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .shortcoming-card .sc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    margin-bottom: 0.4rem;
+  }
+
+  .shortcoming-card p {
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  /* ── DQ GATE ── */
+  .dq-gate {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--navy-border);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .dq-tier {
+    background: var(--navy-surface);
+    padding: 1.2rem 1.4rem;
+    text-align: center;
+  }
+
+  .dq-tier .score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+  }
+
+  .dq-tier.blocked .score { color: var(--red); }
+  .dq-tier.flagged .score { color: var(--amber); }
+  .dq-tier.pass .score { color: var(--teal); }
+
+  .dq-tier .verdict {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .dq-tier.blocked .verdict { color: var(--red); }
+  .dq-tier.flagged .verdict { color: var(--amber); }
+  .dq-tier.pass .verdict { color: var(--teal); }
+
+  .dq-tier p {
+    font-size: 0.78rem;
+    margin: 0;
+  }
+
+  /* ── METRICS ── */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .metric-tile {
+    background: var(--navy-surface);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 1.2rem 1.4rem;
+  }
+
+  .metric-tile .m-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .metric-tile .m-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.4rem;
+    color: var(--teal);
+    margin-bottom: 0.3rem;
+  }
+
+  .metric-tile p {
+    font-size: 0.78rem;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--teal-dim);
+    border: 1px solid rgba(0,212,180,0.2);
+    border-left: 3px solid var(--teal);
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .callout p {
+    font-size: 0.9rem;
+    margin: 0;
+    color: var(--cold-white);
+  }
+
+  .callout .callout-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--teal);
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── CLV SECTION ── */
+  .clv-explainer {
+    background: var(--navy-surface);
+    border: 1px solid var(--navy-border);
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+  }
+
+  .clv-formula {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.88rem;
+    color: var(--teal);
+    background: var(--navy);
+    border: 1px solid var(--navy-border);
+    border-radius: 6px;
+    padding: 1rem 1.4rem;
+    margin: 1rem 0;
+    display: block;
+  }
+
+  /* ── VERSION TABLE ── */
+  .version-scheme {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: 1px;
+    background: var(--navy-border);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+  }
+
+  .vs-cell {
+    background: var(--navy-surface);
+    padding: 0.75rem 1rem;
+    color: var(--muted-light);
+  }
+
+  .vs-cell.header {
+    background: var(--navy);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .vs-cell.code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--teal);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--navy-border);
+    padding: 2.5rem 2.5rem;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-brand span { color: var(--teal); }
+
+  footer p {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0;
+    max-width: 460px;
+    line-height: 1.6;
+  }
+
+  .footer-updated {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── DIVIDER ── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--navy-border);
+    margin: 2.5rem 0;
+  }
+
+  /* ── ANIMATE IN ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero, .model-card, .section { animation: fadeUp 0.6s ease both; }
+  .model-card:nth-child(2) { animation-delay: 0.08s; }
+  .model-card:nth-child(3) { animation-delay: 0.16s; }
+
+  /* ── TEAL GLOW LINE ── */
+  .glow-line {
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--teal-glow), transparent);
+    margin: 0 0 4rem;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    nav { padding: 0 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 4rem 1.25rem 3rem; }
+    .section { padding: 0 1.25rem 4rem; }
+    h1 { font-size: 2.2rem; }
+    .philosophy-strip { grid-template-columns: 1fr; }
+    .metrics-row { grid-template-columns: 1fr; }
+    .dq-gate { grid-template-columns: 1fr; }
+    .inputs-grid { grid-template-columns: 1fr 1fr; }
+    footer { flex-direction: column; }
+    .footer-updated { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Parallax<span>Edge</span></a>
+  <ul class="nav-links">
+    <li><a href="#models">Models</a></li>
+    <li><a href="#inputs">Inputs</a></li>
+    <li><a href="#quality">Data Quality</a></li>
+    <li><a href="#clv">CLV</a></li>
+    <li><a href="#shortcomings">Shortcomings</a></li>
+    <li><a href="#versioning">Versioning</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Methodology</div>
+  <h1>How the models<br><em>actually work.</em></h1>
+  <p class="hero-intro">
+    Every number on this platform has a traceable origin. This page explains the statistical frameworks behind each model, why we chose them, what data they run on, and — critically — where they fall short. No black boxes. No vague claims about "AI." Just the methodology, in full.
+  </p>
+
+  <div class="philosophy-strip">
+    <div class="philosophy-item">
+      <div class="label">No black boxes</div>
+      <p>Every output is traceable to its inputs. We publish the framework, the data sources, and the performance metrics.</p>
+    </div>
+    <div class="philosophy-item">
+      <div class="label">No picks</div>
+      <p>We surface opportunities. You make the decision. ParallaxEdge is the tool, not the tipster.</p>
+    </div>
+    <div class="philosophy-item">
+      <div class="label">Honest about limits</div>
+      <p>No model finds every edge. This page exists to tell you exactly where ours stop working.</p>
+    </div>
+  </div>
+</div>
+
+<span class="glow-line"></span>
+
+<!-- SECTION 1 — WHY THESE MODELS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Why these statistical frameworks</h2>
+  </div>
+
+  <p>
+    Sports betting markets are efficient in a specific way: they price the crowd's opinion, not necessarily the truth. Exploitable edges exist where well-calibrated probabilistic models diverge from market consensus. Our model selection criteria were therefore simple: we needed frameworks with a proven academic track record of calibration on sports outcomes, that operate on available data, and that are explainable to users.
+  </p>
+  <p>
+    We deliberately chose established statistical models over opaque deep-learning architectures. Neural networks can achieve strong predictive accuracy but are difficult to audit, expensive to explain, and prone to overfitting on the relatively small sample sizes available in sport. The models below are each widely published, peer-reviewed, and used by professional betting markets globally. Our edge comes from the quality and timeliness of the data we feed them — not from proprietary black-box architectures.
+  </p>
+
+  <div class="callout">
+    <div class="callout-label">Core philosophy</div>
+    <p>A well-calibrated, explainable model with good data consistently outperforms a complex model with poor data. We optimise for calibration — the probability we output should reflect the true frequency of outcomes — not just for picking winners.</p>
+  </div>
+</div>
+
+<!-- SECTION 2 — THE MODELS -->
+<div class="section" id="models">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2>The models</h2>
+  </div>
+
+  <!-- NFL -->
+  <div class="model-card">
+    <div class="model-card-header">
+      <div class="model-badge">🏈</div>
+      <div class="model-card-title">
+        <h3>NFL Model</h3>
+        <div class="subtitle">EPA-Based Power Ratings with situational adjustments</div>
+      </div>
+      <div class="brier-badge">
+        <span class="label">Brier Score Target</span>
+        &lt; 0.240
+      </div>
+    </div>
+    <div class="model-card-body">
+
+      <div class="model-section-title">The framework</div>
+      <p>
+        The NFL model builds offensive and defensive power ratings for every team using Expected Points Added (EPA), the most information-rich play-level metric in football. EPA assigns each play a value based on how much it shifts the team's expected point total for the drive — a 6-yard gain on 3rd-and-5 is scored very differently from a 6-yard gain on 1st-and-10. By aggregating EPA across plays, we derive team-level efficiency ratings that are far more predictive than win-loss records or simple yardage statistics.
+      </p>
+      <p>
+        These ratings are then adjusted for schedule strength, rest differential, home-field advantage (quantified as a points value, not a binary flag), playoff pressure, and divisional game dynamics. Weather conditions are integrated for all outdoor and open-roof venues at the six-hour-before-kickoff forecast window. Injury adjustments are applied within 15 minutes of any key player designation change and within 10 minutes of a confirmed late scratch.
+      </p>
+
+      <div class="model-section-title">Why EPA</div>
+      <p>
+        EPA is the standard quantitative framework used by NFL front offices and the most cited metric in academic sports analytics literature for American football. It is derived from the publicly available nflfastR play-by-play dataset, which provides over 20 seasons of granular play data and is maintained by a community of quantitative analysts. EPA-based models have been shown to predict future game outcomes more accurately than any alternative metric available from public data.
+      </p>
+
+      <div class="model-section-title">Key inputs</div>
+      <div class="inputs-grid">
+        <div class="input-tag">Offensive EPA rating</div>
+        <div class="input-tag">Defensive EPA rating</div>
+        <div class="input-tag">Net power rating</div>
+        <div class="input-tag">Rest differential</div>
+        <div class="input-tag">Home advantage (pts)</div>
+        <div class="input-tag">Injury adjustment</div>
+        <div class="input-tag">Divisional flag</div>
+        <div class="input-tag">Playoff flag</div>
+        <div class="input-tag">Weather: wind / temp / precip</div>
+        <div class="input-tag">Referee crew assignment</div>
+        <div class="input-tag">Neutral site flag</div>
+        <div class="input-tag">Games played (season)</div>
+      </div>
+
+      <div class="model-section-title">Training data</div>
+      <table class="data-table">
+        <tr><th>Source</th><th>Usage</th><th>Coverage</th><th>Status</th></tr>
+        <tr>
+          <td>nflfastR / nflreadr</td>
+          <td>Historical training, EPA computation, injury history</td>
+          <td>5+ seasons minimum</td>
+          <td><span class="tag-confirmed">Confirmed</span></td>
+        </tr>
+        <tr>
+          <td>Production stats vendor</td>
+          <td>Real-time injury polling, referee crew assignments</td>
+          <td>Season-length feed</td>
+          <td><span class="tag-pending">Pending vendor selection</span></td>
+        </tr>
+        <tr>
+          <td>Weather API</td>
+          <td>Game-day forecasts for outdoor/open-roof venues</td>
+          <td>6-hour forecast window</td>
+          <td><span class="tag-pending">Vendor pending</span></td>
+        </tr>
+      </table>
+
+      <div class="model-section-title">Markets covered</div>
+      <p>Spread · Moneyline · Game totals</p>
+    </div>
+  </div>
+
+  <!-- NBA -->
+  <div class="model-card">
+    <div class="model-card-header">
+      <div class="model-badge">🏀</div>
+      <div class="model-card-title">
+        <h3>NBA Model</h3>
+        <div class="subtitle">Four-Factor ratings with referee foul-rate adjustment</div>
+      </div>
+      <div class="brier-badge">
+        <span class="label">Brier Score Target</span>
+        &lt; 0.230
+      </div>
+    </div>
+    <div class="model-card-body">
+
+      <div class="model-section-title">The framework</div>
+      <p>
+        The NBA model is built on Dean Oliver's Four Factors framework — the four metrics statistically most predictive of winning basketball: effective field goal percentage, turnover rate, offensive rebounding rate, and free throw rate. Derived from play-by-play data, Four Factor ratings capture the efficiency of both a team's offense and its defence in a compact, well-calibrated form that has been academically validated across multiple decades of NBA data.
+      </p>
+      <p>
+        Beyond the base ratings, the model incorporates two NBA-specific adjustments not typically found in retail analytics tools. First, back-to-back scheduling: both home and away back-to-back flags are explicit model inputs, as rest effects are well-documented and material in the NBA's compressed schedule. Second, and most distinctively, the model integrates referee crew foul-rate tendencies as a scored input. Referee assignment influences pace, foul count, and free throw volume in ways that shift the expected distribution of outcomes for a given game — particularly for totals markets.
+      </p>
+
+      <div class="model-section-title">Why Four Factors</div>
+      <p>
+        Four Factors is the dominant framework in academic basketball analytics and is used extensively by NBA front offices. It is derived from publicly available play-by-play data and has demonstrated strong out-of-sample predictive validity. The referee adjustment is less standard — it is an additional signal layer that we add because foul-rate data is available, the effect is real, and it is almost entirely ignored by the retail betting market.
+      </p>
+
+      <div class="model-section-title">Key inputs</div>
+      <div class="inputs-grid">
+        <div class="input-tag">eFG% (offense)</div>
+        <div class="input-tag">eFG% (defense)</div>
+        <div class="input-tag">Turnover rate</div>
+        <div class="input-tag">Reb. rate</div>
+        <div class="input-tag">Free throw rate</div>
+        <div class="input-tag">Pace (home / away)</div>
+        <div class="input-tag">Back-to-back flag</div>
+        <div class="input-tag">Rest differential</div>
+        <div class="input-tag critical">Referee foul-rate %ile</div>
+        <div class="input-tag">Home advantage (pts)</div>
+        <div class="input-tag">Injury adjustment</div>
+        <div class="input-tag">Games played</div>
+      </div>
+      <p style="font-size:0.8rem; color: var(--amber); margin-top:0.5rem;">⚠ Amber = critical field. If referee foul-rate percentile is unavailable at game time, the output's data quality score is hard-capped at 0.84 and published with a visible data quality flag.</p>
+
+      <div class="model-section-title">Training data</div>
+      <table class="data-table">
+        <tr><th>Source</th><th>Usage</th><th>Coverage</th><th>Status</th></tr>
+        <tr>
+          <td>BALLDONTLIE</td>
+          <td>Historical play-by-play, Four Factor computation</td>
+          <td>NBA back to 1979</td>
+          <td><span class="tag-pending">Validation in progress</span></td>
+        </tr>
+        <tr>
+          <td>SportsDataIO / Sportradar</td>
+          <td>Fallback if BALLDONTLIE fails production requirements</td>
+          <td>Full season feed</td>
+          <td><span class="tag-pending">Contingent on validation</span></td>
+        </tr>
+        <tr>
+          <td>Production stats vendor</td>
+          <td>Real-time injury polling, referee crew</td>
+          <td>Game-day feed</td>
+          <td><span class="tag-pending">Pending vendor selection</span></td>
+        </tr>
+      </table>
+
+      <div class="model-section-title">Markets covered</div>
+      <p>Spread · Moneyline · Game totals</p>
+    </div>
+  </div>
+
+  <!-- SOCCER -->
+  <div class="model-card">
+    <div class="model-card-header">
+      <div class="model-badge">⚽</div>
+      <div class="model-card-title">
+        <h3>Soccer Model</h3>
+        <div class="subtitle">Dixon-Coles Poisson with Expected Goals (xG) inputs — EPL · WC2026 · UCL</div>
+      </div>
+      <div class="brier-badge">
+        <span class="label">Brier Score Target</span>
+        &lt; 0.220
+      </div>
+    </div>
+    <div class="model-card-body">
+
+      <div class="model-section-title">The framework</div>
+      <p>
+        The soccer model is built on the Dixon-Coles model, published by Mark Dixon and Stuart Coles in 1997 and the most widely cited statistical model for football match outcomes in the quantitative sports analytics literature. Dixon-Coles models each team's goal-scoring rate as a Poisson process — a probability distribution well-suited to count data like goals — and applies a correction for the statistical anomaly at low-scoring results (0-0, 1-0, 0-1, 1-1), where the Poisson assumption underestimates frequency.
+      </p>
+      <p>
+        The model produces a full probability distribution across all possible scorelines, from which win, draw, and loss probabilities are derived — along with Asian handicap lines, totals, and BTTS (Both Teams to Score) implied probabilities. This is materially more powerful than models that predict outcomes directly, because it enables consistent pricing across multiple markets from a single underlying distribution.
+      </p>
+      <p>
+        Critically, our implementation replaces raw historical goals with xG (Expected Goals) as the model's attack and defence inputs. xG measures the quality of shots taken and conceded, correcting for the noise of finishing luck. A team that creates high-quality chances but fails to convert them is scored more accurately by xG than by goals alone — which is precisely where market mispricing tends to occur after a string of low-scoring results.
+      </p>
+
+      <div class="model-section-title">Why Dixon-Coles</div>
+      <p>
+        Dixon-Coles is the canonical model in quantitative football analytics. It is used by professional trading desks at major European betting exchanges and has been continuously validated in peer-reviewed literature since 1997. Its interpretability — attack and defence ratings per team — makes it auditable and explainable. The xG extension is now standard in modern implementations, as it significantly improves calibration by filtering goal-scoring luck from the signal.
+      </p>
+
+      <div class="model-section-title">Key inputs</div>
+      <div class="inputs-grid">
+        <div class="input-tag">xG attack rate (home)</div>
+        <div class="input-tag">xG attack rate (away)</div>
+        <div class="input-tag">xG defence rate (home)</div>
+        <div class="input-tag">xG defence rate (away)</div>
+        <div class="input-tag">League average goals</div>
+        <div class="input-tag critical">xG source method</div>
+        <div class="input-tag">Home advantage</div>
+        <div class="input-tag">Rest differential</div>
+        <div class="input-tag">Injury adjustment</div>
+        <div class="input-tag">Referee assignment</div>
+        <div class="input-tag">Weather (outdoor venues)</div>
+        <div class="input-tag">Neutral site flag</div>
+      </div>
+
+      <div class="model-section-title">xG data sources — by competition</div>
+      <table class="data-table">
+        <tr><th>Competition</th><th>xG Source</th><th>Method</th><th>Status</th></tr>
+        <tr>
+          <td>English Premier League</td>
+          <td>Understat</td>
+          <td>Direct xG (shot-level)</td>
+          <td><span class="tag-confirmed">Confirmed</span></td>
+        </tr>
+        <tr>
+          <td>FIFA World Cup 2026</td>
+          <td>StatsBomb Open Data (preferred) · Club proxy (fallback)</td>
+          <td>Direct / club-weighted proxy</td>
+          <td><span class="tag-pending">Evaluation in progress</span></td>
+        </tr>
+        <tr>
+          <td>UEFA Champions League</td>
+          <td>TBD — StatsBomb, FBref, or API-Football</td>
+          <td>To be confirmed</td>
+          <td><span class="tag-pending">Hard blocker — unresolved</span></td>
+        </tr>
+      </table>
+
+      <div class="callout">
+        <div class="callout-label">Transparency note — WC2026 xG</div>
+        <p>If World Cup 2026 model outputs are trained on a club-level xG proxy rather than direct tournament shot data, every affected output will carry an <code style="font-family:'IBM Plex Mono'; font-size:0.82em; color:var(--amber);">xg_source_method: club_proxy</code> flag and this methodology page will be updated accordingly. We will not publish WC2026 outputs before the xG source decision is finalised and disclosed.</p>
+      </div>
+
+      <div class="model-section-title">Markets covered</div>
+      <p>1X2 (win/draw/loss) · Asian handicap · Totals (over/under) · BTTS (Both Teams to Score)</p>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3 — INPUTS AND UPDATES -->
+<div class="section" id="inputs">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2>Inputs, updates, and data freshness</h2>
+  </div>
+
+  <p>
+    The predictive value of any model is bounded by the quality and timeliness of its inputs. We operate a dedicated data pipeline with sport-specific polling schedules designed to ensure every model output reflects the most current available information at the moment it is published.
+  </p>
+
+  <h3>Injury polling schedule</h3>
+  <table class="data-table">
+    <tr><th>Sport</th><th>Window</th><th>Interval</th></tr>
+    <tr><td>NFL</td><td>Game week (Wed–Sun)</td><td>Every 5 minutes</td></tr>
+    <tr><td>NFL</td><td>Game day, 3 hours pre-kickoff</td><td>Every 2 minutes</td></tr>
+    <tr><td>NFL</td><td>Off-season / Mon–Tue</td><td>Every 60 minutes</td></tr>
+    <tr><td>NBA</td><td>Any day with scheduled games</td><td>Every 5 minutes</td></tr>
+    <tr><td>NBA</td><td>Game day, 3 hours pre-tip</td><td>Every 2 minutes</td></tr>
+    <tr><td>NBA</td><td>Non-game days</td><td>Every 60 minutes</td></tr>
+    <tr><td>Soccer</td><td>72 hours before any EPL / WC2026 / UCL match</td><td>Every 5 minutes</td></tr>
+    <tr><td>Soccer</td><td>Match day, 3 hours pre-kickoff</td><td>Every 2 minutes</td></tr>
+  </table>
+
+  <h3>Referee polling schedule</h3>
+  <table class="data-table">
+    <tr><th>Sport</th><th>Window</th><th>Interval</th></tr>
+    <tr><td>NFL</td><td>Wednesday through Friday each game week</td><td>Once daily</td></tr>
+    <tr><td>NBA</td><td>Game day morning: 08:00–14:00 ET</td><td>Every 30 minutes</td></tr>
+    <tr><td>NBA</td><td>Game day afternoon: 14:00 ET → tip-off</td><td>Every 60 minutes</td></tr>
+    <tr><td>Soccer</td><td>48 hours before each fixture</td><td>Once at 48hr mark</td></tr>
+    <tr><td>Soccer</td><td>24 hours before each fixture</td><td>Once at 24hr mark</td></tr>
+  </table>
+
+  <h3>Model update SLAs</h3>
+  <table class="data-table">
+    <tr><th>Trigger</th><th>SLA</th></tr>
+    <tr><td>Nightly scheduled run</td><td>All games updated by 06:00 UTC daily</td></tr>
+    <tr><td>Key player injury designation change</td><td>Model regenerated within 15 minutes</td></tr>
+    <tr><td>Late scratch (2 hours before game)</td><td>Model regenerated within 10 minutes</td></tr>
+    <tr><td>Weather update (6 hours before outdoor game)</td><td>Model regenerated within 20 minutes</td></tr>
+    <tr><td>Odds line moves 2+ points</td><td>Market comparison refreshed within 5 minutes</td></tr>
+  </table>
+</div>
+
+<!-- SECTION 4 — DATA QUALITY -->
+<div class="section" id="quality">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2>Data quality gate</h2>
+  </div>
+
+  <p>
+    Every model output carries a <strong style="color:var(--cold-white);">data quality score</strong> between 0.000 and 1.000. This score reflects the completeness and reliability of the inputs at the time the output was generated. It is not a confidence score — it is a data availability signal. The two metrics are independent and both are shown on every output.
+  </p>
+  <p>
+    The data quality gate enforces a hard two-tier system. There is no override.
+  </p>
+
+  <div class="dq-gate">
+    <div class="dq-tier blocked">
+      <div class="score">&lt; 0.70</div>
+      <div class="verdict">Blocked</div>
+      <p>Output is suppressed entirely. Never published. Never shown to any user. DS team alerted within 5 minutes.</p>
+    </div>
+    <div class="dq-tier flagged">
+      <div class="score">0.70 – 0.85</div>
+      <div class="verdict">Flagged</div>
+      <p>Output is published with a visible data quality warning. Use with caution — verify inputs before acting.</p>
+    </div>
+    <div class="dq-tier pass">
+      <div class="score">&gt; 0.85</div>
+      <div class="verdict">Pass</div>
+      <p>Output meets full data quality standards and is published normally with no additional warning.</p>
+    </div>
+  </div>
+
+  <p>
+    The NBA model has one specific rule: if referee crew foul-rate data is unavailable at game time, the data quality score is automatically capped at 0.84 regardless of all other inputs. This means referee-missing NBA outputs are always published with a data quality flag — never as clean passes.
+  </p>
+
+  <div class="callout">
+    <div class="callout-label">What suppression means in practice</div>
+    <p>A suppressed output is never recovered and republished with a lower score. If we do not have sufficient data quality to meet our standards, you will not see an output for that game. We would rather show nothing than show something unreliable without adequate warning.</p>
+  </div>
+</div>
+
+<!-- SECTION 5 — CLV -->
+<div class="section" id="clv">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>Closing line value — our primary performance metric</h2>
+  </div>
+
+  <p>
+    Bettors typically evaluate performance by win rate. This is the wrong metric. A bettor can win 55% of games and still lose money if they are consistently taking the wrong side of the market at bad prices. Closing line value (CLV) is the metric that actually measures whether you are finding edge.
+  </p>
+
+  <div class="clv-explainer">
+    <div class="model-section-title" style="margin-top:0;">What CLV measures</div>
+    <p>
+      The closing line — the final odds price before a game starts — is the market's most efficient estimate of the true probability of an outcome. It incorporates the last available injury information, public betting flow, and sharp money movement. Research consistently shows that bettors who regularly beat the closing line outperform those who do not, over any statistically significant sample.
+    </p>
+    <code class="clv-formula">CLV % = (1 / closing_odds_decimal) − (1 / odds_at_placement) × 100</code>
+    <p>
+      A positive CLV means you took a price better than where the market ultimately settled. A consistent positive CLV is the strongest available indicator that your edge is real — not variance.
+    </p>
+    <p>
+      ParallaxEdge uses CLV as its primary model performance target: we aim for positive CLV on more than 55% of published value bets. Every prediction in our public track record shows the CLV it achieved. Every bet you log shows the CLV you achieved. This is the number that matters.
+    </p>
+  </div>
+</div>
+
+<!-- SECTION 6 — PERFORMANCE TARGETS -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2>Performance targets</h2>
+  </div>
+
+  <p>
+    All targets are validated using walk-forward validation — a methodology that simulates real-world deployment by training on historical data and testing on subsequent unseen data, rolling forward in time. We do not use simple train/test splits that could allow future data to contaminate the training set.
+  </p>
+
+  <div class="metrics-row">
+    <div class="metric-tile">
+      <div class="m-label">Brier Score — NFL</div>
+      <div class="m-value">&lt; 0.240</div>
+      <p>Walk-forward validation, reviewed weekly. Lower is better.</p>
+    </div>
+    <div class="metric-tile">
+      <div class="m-label">Brier Score — NBA</div>
+      <div class="m-value">&lt; 0.230</div>
+      <p>Walk-forward validation, reviewed weekly.</p>
+    </div>
+    <div class="metric-tile">
+      <div class="m-label">Brier Score — Soccer</div>
+      <div class="m-value">&lt; 0.220</div>
+      <p>EPL + WC2026 + UCL. Walk-forward validation, reviewed weekly.</p>
+    </div>
+  </div>
+  <div class="metrics-row">
+    <div class="metric-tile">
+      <div class="m-label">CLV target</div>
+      <div class="m-value">&gt; 55%</div>
+      <p>Positive CLV on more than 55% of published value bets.</p>
+    </div>
+    <div class="metric-tile">
+      <div class="m-label">Calibration error</div>
+      <div class="m-value">&lt; 0.025</div>
+      <p>Monthly calibration curve review. Measures probability accuracy across deciles.</p>
+    </div>
+    <div class="metric-tile">
+      <div class="m-label">Model uptime</div>
+      <div class="m-value">99.5%</div>
+      <p>Grafana monitoring. Measured across each calendar month.</p>
+    </div>
+  </div>
+
+  <p style="margin-top:1.5rem;">
+    The Brier Score is the standard probabilistic scoring rule for binary outcomes. A score of 0.25 is equivalent to a random coin flip. Scores below 0.25 indicate genuine predictive skill. Our targets are set based on observed performance ranges for well-calibrated sports models in the academic literature — they are ambitious but not extraordinary claims.
+  </p>
+</div>
+
+<!-- SECTION 7 — SHORTCOMINGS -->
+<div class="section" id="shortcomings">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2>Where the models fall short</h2>
+  </div>
+
+  <p>
+    We publish this section because we think it's the most important one. Any analytics platform that does not disclose its limitations is either not thinking carefully about them, or choosing not to tell you. These are the known shortcomings of our current implementation.
+  </p>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">Small samples — early season</div>
+    <p>All three models require a meaningful game sample before ratings stabilise. In the first 4 weeks of the NFL season, the first 10 games of the NBA season, and the first 5 matchweeks of the EPL, model outputs carry an <code style="font-family:'IBM Plex Mono'; font-size:0.85em;">early_season</code> flag. Power ratings derived from small samples are materially less reliable. We recommend treating early-season outputs as directional signals, not high-confidence edges.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">Roster continuity — offseason and transfers</div>
+    <p>Ratings are built from historical performance. They do not automatically account for major roster changes during the offseason, mid-season trades, or transfer windows. A team that loses a key player between seasons will carry an inflated rating until the new data corrects it. We apply injury adjustments in-season, but the base ratings at the start of a new season are built on the previous season's roster — not the current one. This is a known and material limitation, particularly for EPL and WC2026 fixtures at launch.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">World Cup 2026 — limited historical data</div>
+    <p>World Cup tournaments occur every four years. Our model has access to WC2018 and WC2022 shot-level data via StatsBomb, which gives us meaningful historical xG for major international competitions. However, this sample is intrinsically smaller than club football datasets. World Cup outputs will have wider uncertainty bands than EPL outputs, and the club-proxy fallback methodology (if required) introduces additional estimation error that will be disclosed per output.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">UEFA Champions League — xG data blocker</div>
+    <p>As of launch preparation, we have not confirmed a reliable historical xG data source for Champions League fixtures. UCL outputs will not be published until the data source is confirmed, validated, and the model is backtested to our standards. If UCL outputs are delayed beyond the soft launch date, we will communicate this explicitly on the track record and model pages.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">No player prop models at launch</div>
+    <p>Player-level prop markets (anytime scorer, passing yards, assists, etc.) require a different modelling architecture — one that disaggregates team-level outputs to the player level. This is on our product roadmap but is not part of the v1 launch scope. All launch outputs are team-level game markets only.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">No live/in-game models at launch</div>
+    <p>Live betting requires sub-minute model refresh rates and real-time play-by-play ingestion — infrastructure that is not in our v1 scope. Live model outputs are a planned Pro/Elite tier feature for Year 2. All current outputs are pre-game only.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">Market efficiency limits the upside</div>
+    <p>Betting markets — particularly Pinnacle and major sharp books — are highly efficient. The margins we are targeting are measured in percentage points, not percentage multiples. Our models do not predict outcomes with certainty; they identify where we believe the market has mispriced probability. Not every flagged edge will materialise. We target consistent positive CLV over large samples — not individual game accuracy.</p>
+  </div>
+
+  <div class="shortcoming-card">
+    <div class="sc-label">Absence of proprietary data</div>
+    <p>Professional syndicates and institutional trading desks operate with proprietary data sources — private injury intelligence, travel logistics, locker room information — that are not publicly available. Our models are built entirely from public data. We are at a structural information disadvantage relative to the sharpest market participants. Our edge, where it exists, comes from model calibration and data pipeline quality — not from information others don't have.</p>
+  </div>
+</div>
+
+<!-- SECTION 8 — VERSIONING -->
+<div class="section" id="versioning">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2>Model versioning and track record integrity</h2>
+  </div>
+
+  <p>
+    Every prediction published on this platform is permanently associated with the model version that generated it. Model versions are never deleted. Historical predictions are never re-attributed to newer model versions. The track record you see reflects exactly what the model running at that time would have produced — no retroactive adjustments.
+  </p>
+
+  <h3>Version naming convention</h3>
+  <div class="version-scheme">
+    <div class="vs-cell header">Component</div>
+    <div class="vs-cell header">Meaning</div>
+    <div class="vs-cell header">Requirement to publish</div>
+    <div class="vs-cell code">sport_vX</div>
+    <div class="vs-cell">Major version — architectural change</div>
+    <div class="vs-cell">Full rebacktest + Product Lead sign-off</div>
+    <div class="vs-cell code">sport_vX.Y</div>
+    <div class="vs-cell">Minor version — new feature or input</div>
+    <div class="vs-cell">Walk-forward validation report required</div>
+    <div class="vs-cell code">sport_vX.Y.Z</div>
+    <div class="vs-cell">Patch — parameter tuning</div>
+    <div class="vs-cell">Calibration check must pass</div>
+  </div>
+
+  <p>
+    Example: <code style="font-family:'IBM Plex Mono'; font-size:0.85em; color:var(--teal);">soccer_v1.2.3</code> — soccer model, first major architecture, second feature addition, third parameter tuning pass. All versions are stored indefinitely in MLflow. The version in use at any given time is displayed on every model output.
+  </p>
+
+  <div class="callout">
+    <div class="callout-label">Track record commitment</div>
+    <p>Every prediction is published before game time with model probability and market odds at publication locked at that moment. Results, closing odds, and CLV are populated after settlement. Nothing is retroactively removed or altered. The public track record page requires no login to view.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Parallax<span>Edge</span></div>
+    <p>ParallaxEdge is a decision intelligence tool. It surfaces opportunities; it does not guarantee outcomes. Betting involves financial risk. Please gamble responsibly. If you or someone you know has a gambling problem, contact the National Problem Gambling Helpline: 1-800-522-4700.</p>
+  </div>
+  <div class="footer-updated">
+    <div>Methodology v1.0</div>
+    <div>March 2026</div>
+  </div>
+</footer>
+
+</body>
+</html>

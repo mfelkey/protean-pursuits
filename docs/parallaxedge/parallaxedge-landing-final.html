@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ParallaxEdge — Discover opportunities most of the market misses.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-navy:    #0A1628;
+  --color-navy-2:  #112038;
+  --color-navy-3:  #1A2F50;
+  --color-white:   #F0F4FA;
+  --color-white-2: #C8D4E8;
+  --color-white-3: #94A8C4;
+  --color-teal:    #00D4B4;
+  --color-teal-2:  #00B89C;
+  --color-amber:   #F5A623;
+  --color-amber-2: #E09015;
+  --font-display:  'DM Serif Display', serif;
+  --font-mono:     'IBM Plex Mono', monospace;
+  --font-body:     'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--color-navy);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 48px;
+  background: rgba(10,22,40,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(200,212,232,0.1);
+  height: 62px;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+
+.nav-logo-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.nav-logo-text .p { color: var(--color-white); }
+.nav-logo-text .e { color: var(--color-teal); }
+
+.nav-right {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-white-3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative;
+  padding: 88px 48px 0;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,180,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,180,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+}
+
+.hero-glow-l {
+  position: absolute;
+  top: -120px; left: -140px;
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(0,212,180,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-glow-r {
+  position: absolute;
+  top: -120px; right: -140px;
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(0,212,180,0.055) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-teal);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: 62px;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: var(--color-white);
+  margin-bottom: 28px;
+}
+
+.hero h1 em {
+  color: var(--color-teal);
+  font-style: italic;
+}
+
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--color-white-2);
+  line-height: 1.75;
+  max-width: 480px;
+  margin: 0 auto 56px;
+}
+
+/* ── COUNTDOWN ── */
+.countdown-wrap {
+  margin-bottom: 12px;
+}
+
+.countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+}
+
+.cd-block {
+  background: var(--color-navy-2);
+  border: 1px solid rgba(200,212,232,0.1);
+  border-radius: 8px;
+  padding: 16px 20px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.cd-num {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--color-white);
+  letter-spacing: -1px;
+  line-height: 1;
+  display: block;
+}
+
+.cd-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-white-3);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 6px;
+  display: block;
+}
+
+.cd-sep {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--color-teal);
+  opacity: 0.5;
+  padding: 0 8px;
+  margin-bottom: 18px;
+  line-height: 1;
+}
+
+.cd-event {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.cd-event .highlight { color: var(--color-amber); }
+
+/* ── FORM ── */
+.form-wrap {
+  max-width: 480px;
+  margin: 32px auto 0;
+}
+
+.email-row {
+  display: flex;
+  border: 1px solid rgba(0,212,180,0.35);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.email-input {
+  flex: 1;
+  background: rgba(17,32,56,0.9);
+  color: var(--color-white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 15px 18px;
+  border: none;
+  outline: none;
+}
+
+.email-input::placeholder { color: var(--color-white-3); }
+
+.email-submit {
+  background: rgba(0,212,180,0.3);
+  color: #05111F;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 15px 24px;
+  border: none;
+  cursor: not-allowed;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.email-submit:not(:disabled) {
+  background: var(--color-teal);
+  cursor: pointer;
+}
+.email-submit:not(:disabled):hover { background: var(--color-teal-2); }
+
+/* ── AGE GATE ── */
+.age-gate {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.age-checkbox {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border: 1px solid rgba(0,212,180,0.4);
+  border-radius: 3px;
+  background: transparent;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.age-checkbox.checked {
+  background: var(--color-teal);
+  border-color: var(--color-teal);
+}
+
+.age-checkbox.checked::after {
+  content: '';
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid #05111F;
+  border-bottom: 2px solid #05111F;
+  transform: rotate(-45deg) translateY(-1px);
+  display: block;
+}
+
+.age-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+.age-text a {
+  color: var(--color-teal);
+  text-decoration: none;
+}
+.age-text a:hover { text-decoration: underline; }
+
+.incentive {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* ── SOCIAL LINKS ── */
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 72px;
+}
+
+.social-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-navy-2);
+  border: 1px solid rgba(200,212,232,0.1);
+  border-radius: 5px;
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-white-2);
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.social-pill:hover {
+  border-color: rgba(0,212,180,0.35);
+  color: var(--color-white);
+}
+
+.social-pill svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── SPORTS STRIP ── */
+.sports-strip {
+  padding: 0 48px 72px;
+  text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.strip-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.sport-pills {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sport-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--color-navy-2);
+  border: 1px solid rgba(200,212,232,0.1);
+  border-radius: 6px;
+  padding: 12px 20px;
+  transition: border-color 0.2s ease;
+  cursor: default;
+}
+
+.sport-pill:hover { border-color: rgba(0,212,180,0.25); }
+
+.sport-icon {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-white-3);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sport-name {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-white);
+  display: block;
+}
+
+.sport-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  display: block;
+}
+
+.status-teal  { color: var(--color-teal); }
+.status-amber { color: var(--color-amber); }
+.status-muted { color: var(--color-white-3); }
+
+/* ── SIGNAL PREVIEW ── */
+.signal-preview {
+  background: var(--color-navy-2);
+  border-top: 1px solid rgba(200,212,232,0.08);
+  border-bottom: 1px solid rgba(200,212,232,0.08);
+  padding: 56px 48px;
+}
+
+.signal-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.signal-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-teal);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.signal-title {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  color: var(--color-white);
+  margin-bottom: 12px;
+}
+
+.signal-sublabel {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--color-white-3);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* Signal card */
+.signal-card {
+  background: var(--color-navy-3);
+  border: 1px solid rgba(200,212,232,0.09);
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.signal-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+
+.signal-card.high::before {
+  background: linear-gradient(90deg, #00B89C, #00D4B4);
+}
+.signal-card.med::before {
+  background: linear-gradient(90deg, #E09015, #F5A623);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.card-match {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-white);
+  line-height: 1.3;
+}
+
+.card-stage {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  margin-top: 3px;
+  letter-spacing: 0.3px;
+}
+
+.conf-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  border-radius: 2px;
+  padding: 3px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.conf-badge.high {
+  background: rgba(0,212,180,0.15);
+  border: 1px solid rgba(0,212,180,0.3);
+  color: var(--color-teal);
+}
+
+.conf-badge.med {
+  background: rgba(245,166,35,0.12);
+  border: 1px solid rgba(245,166,35,0.3);
+  color: var(--color-amber);
+}
+
+.edge-val {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.edge-val.high { color: var(--color-teal); }
+.edge-val.med  { color: var(--color-amber); }
+
+.edge-type {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+
+.conf-bar-wrap {
+  margin-bottom: 14px;
+}
+
+.conf-bar-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  margin-bottom: 5px;
+}
+
+.conf-bar-track {
+  height: 3px;
+  background: rgba(200,212,232,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.conf-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+.conf-bar-fill.high { background: linear-gradient(90deg, #00B89C, #00D4B4); }
+.conf-bar-fill.med  { background: linear-gradient(90deg, #E09015, #F5A623); }
+
+.signal-list { display: flex; flex-direction: column; gap: 7px; }
+
+.signal-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 0.3px;
+}
+
+.sig-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sig-dot.active   { background: var(--color-teal); }
+.sig-dot.inactive { background: rgba(200,212,232,0.25); }
+
+/* Locked card overlay */
+.card-locked-wrap {
+  position: relative;
+}
+
+.card-locked-wrap .signal-card {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.locked-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.lock-icon {
+  font-size: 22px;
+  color: var(--color-white-3);
+  opacity: 0.7;
+}
+
+.lock-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-white-2);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ── */
+footer {
+  padding: 24px 48px;
+  border-top: 1px solid rgba(200,212,232,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+}
+
+.footer-logo-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.footer-logo-text .p { color: var(--color-white-2); }
+.footer-logo-text .e { color: var(--color-teal); }
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--color-white-3);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.footer-links a:hover { color: var(--color-white-2); }
+
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-white-3);
+  letter-spacing: 1px;
+}
+
+/* ── SUCCESS / ERROR STATES ── */
+.form-success {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  background: rgba(0,212,180,0.06);
+  border: 1px solid rgba(0,212,180,0.2);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.form-success.visible { display: flex; }
+
+.success-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,212,180,0.15);
+  border: 1px solid rgba(0,212,180,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.success-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--color-teal);
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.success-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--color-white);
+}
+
+.success-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-white-3);
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.field-error {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #FF6B6B;
+  letter-spacing: 0.3px;
+  margin-top: -10px;
+  margin-bottom: 8px;
+  display: none;
+}
+
+.field-error.visible { display: block; }
+
+.email-row.has-error {
+  border-color: rgba(255,107,107,0.5);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 860px) {
+  .card-grid {
+    grid-template-columns: 1fr 1fr;
+    max-width: 560px;
+  }
+  .card-locked-wrap {
+    grid-column: 1 / -1;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 720px) {
+  nav {
+    padding: 16px 24px;
+  }
+
+  .hero {
+    padding: 64px 24px 0;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    letter-spacing: -1.2px;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+
+  .cd-block {
+    padding: 12px 14px;
+    min-width: 62px;
+  }
+
+  .cd-num {
+    font-size: 28px;
+  }
+
+  .cd-sep {
+    font-size: 24px;
+    padding: 0 5px;
+  }
+
+  .form-wrap {
+    padding: 0 4px;
+  }
+
+  .social-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+
+  .social-pill {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .sports-strip {
+    padding: 0 24px 56px;
+  }
+
+  .sport-pills {
+    gap: 8px;
+  }
+
+  .sport-pill {
+    padding: 10px 16px;
+  }
+
+  .signal-preview {
+    padding: 48px 24px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    max-width: 360px;
+  }
+
+  .card-locked-wrap {
+    grid-column: auto;
+    max-width: 100%;
+  }
+
+  footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+    padding: 24px;
+  }
+
+  .footer-links {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero h1 {
+    font-size: 34px;
+    letter-spacing: -0.8px;
+  }
+
+  .cd-block {
+    padding: 10px 10px;
+    min-width: 52px;
+  }
+
+  .cd-num {
+    font-size: 22px;
+  }
+
+  .cd-lbl {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .cd-sep {
+    font-size: 20px;
+    padding: 0 3px;
+  }
+
+  .email-row {
+    flex-direction: column;
+    border-radius: 8px;
+  }
+
+  .email-input {
+    border-radius: 7px 7px 0 0;
+    text-align: center;
+  }
+
+  .email-submit {
+    border-radius: 0 0 7px 7px;
+    padding: 14px 24px;
+    width: 100%;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="26" height="26" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="nav-mark"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+      <g clip-path="url(#nav-mark)">
+        <line x1="28" y1="4" x2="4"  y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+        <line x1="28" y1="4" x2="9"  y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+        <line x1="28" y1="4" x2="14" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="0.8" opacity="0.9"/>
+        <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.6"/>
+        <line x1="28" y1="4" x2="42" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.4"/>
+        <line x1="28" y1="4" x2="47" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.25"/>
+        <line x1="28" y1="4" x2="52" y2="52" stroke="#00D4B4" stroke-width="0.5" opacity="0.15"/>
+        <line x1="4"  y1="18" x2="52" y2="18" stroke="#00D4B4" stroke-width="0.4" opacity="0.2"/>
+        <line x1="4"  y1="28" x2="52" y2="28" stroke="#00D4B4" stroke-width="0.4" opacity="0.3"/>
+        <line x1="4"  y1="38" x2="52" y2="38" stroke="#00D4B4" stroke-width="0.4" opacity="0.35"/>
+        <line x1="4"  y1="48" x2="52" y2="48" stroke="#00D4B4" stroke-width="0.4" opacity="0.4"/>
+      </g>
+      <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.1" stroke-linejoin="round"/>
+      <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+    </svg>
+    <div class="nav-logo-text"><span class="p">Parallax</span><span class="e">Edge</span></div>
+  </a>
+  <div class="nav-right">COMING SUMMER 2026</div>
+</nav>
+
+<!-- Hidden Netlify form (remove if not using Netlify) -->
+<form name="waitlist" netlify netlify-honeypot="bot-field" hidden>
+  <input type="email" name="email">
+  <input type="hidden" name="age_confirmed_at">
+  <input type="hidden" name="source">
+</form>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow-l"></div>
+  <div class="hero-glow-r"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">AI-POWERED BETTING INTELLIGENCE</p>
+    <h1>Discover opportunities<br>most of the <em>market misses.</em></h1>
+    <p class="hero-sub">AI-powered signals that find value before the market does. Built for the World Cup. Built for every bettor.</p>
+
+    <!-- Countdown -->
+    <div class="countdown-wrap">
+      <div class="countdown">
+        <div class="cd-block">
+          <span class="cd-num" id="cd-days">83</span>
+          <span class="cd-lbl">Days</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-block">
+          <span class="cd-num" id="cd-hours">00</span>
+          <span class="cd-lbl">Hours</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-block">
+          <span class="cd-num" id="cd-mins">00</span>
+          <span class="cd-lbl">Mins</span>
+        </div>
+        <span class="cd-sep">:</span>
+        <div class="cd-block">
+          <span class="cd-num" id="cd-secs">00</span>
+          <span class="cd-lbl">Secs</span>
+        </div>
+      </div>
+      <p class="cd-event">Until <span class="highlight">FIFA World Cup 2026</span> Opening Match &nbsp;·&nbsp; 11 June 2026</p>
+    </div>
+
+    <!-- Form -->
+    <div class="form-wrap" id="form-wrap">
+
+      <!-- Success state -->
+      <div class="form-success" id="form-success">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <p class="success-title">You're on the list.</p>
+        <p class="success-sub">We'll email you the moment ParallaxEdge goes live. First 1,000 sign-ups get every signal free for the Group Stage.</p>
+      </div>
+
+      <!-- Form fields -->
+      <div id="email-form-fields">
+        <div class="email-row" id="email-row">
+          <input class="email-input" type="email" id="email-input" placeholder="Your email address" autocomplete="email">
+          <button class="email-submit" id="submit-btn" disabled style="color:#05111F;">Get Early Access</button>
+        </div>
+        <p class="field-error" id="field-error">Please enter a valid email address.</p>
+
+        <label class="age-gate" onclick="toggleAge()">
+          <div class="age-checkbox" id="age-checkbox"></div>
+          <span class="age-text">I confirm I am 18 years of age or older and agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>. ParallaxEdge is a betting intelligence tool intended for adults in jurisdictions where sports betting is legal.</span>
+        </label>
+
+        <p class="incentive">First 1,000 confirmed sign-ups get every AI signal, every match, free for the entire Group Stage</p>
+      </div>
+
+      <!-- Social -->
+      <div class="social-links">
+        <a href="https://x.com/parallaxedge" class="social-pill" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.747l7.73-8.835L1.254 2.25H8.08l4.261 5.632 5.903-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Follow on X
+        </a>
+        <a href="https://instagram.com/parallaxedge" class="social-pill" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Follow on Instagram
+        </a>
+        <a href="https://youtube.com/@parallaxedge" class="social-pill" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+          Watch on YouTube
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SPORTS STRIP ── -->
+<div class="sports-strip">
+  <p class="strip-label">SPORTS COVERAGE</p>
+  <div class="sport-pills">
+    <div class="sport-pill">
+      <span class="sport-icon">
+        <!-- Football / Soccer ball -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2C12 2 9.5 5.5 9.5 8.5C9.5 10 10.5 11 12 11C13.5 11 14.5 10 14.5 8.5C14.5 5.5 12 2 12 2Z" stroke="currentColor" stroke-width="1.2" fill="none"/>
+          <path d="M2.5 9.5L6 11L7 14.5L4.5 17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M21.5 9.5L18 11L17 14.5L19.5 17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M7 14.5L12 16L17 14.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M12 16L12 22" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <span class="sport-name">Football</span>
+        <span class="sport-status status-teal">Launching June 2026</span>
+      </div>
+    </div>
+    <div class="sport-pill">
+      <span class="sport-icon">
+        <!-- American football -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="12" cy="12" rx="9" ry="5.5" transform="rotate(-35 12 12)" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="7.5" y1="7.5" x2="16.5" y2="16.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="9.5" y1="10" x2="14" y2="10.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+          <line x1="10.5" y1="13" x2="15" y2="13.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <span class="sport-name">NFL</span>
+        <span class="sport-status status-amber">Season starts Sep 2026</span>
+      </div>
+    </div>
+    <div class="sport-pill">
+      <span class="sport-icon">
+        <!-- Basketball -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M12 2C12 2 8 6 8 12C8 18 12 22 12 22" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M12 2C12 2 16 6 16 12C16 18 12 22 12 22" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <span class="sport-name">NBA</span>
+        <span class="sport-status status-muted">Season starts Oct 2026</span>
+      </div>
+    </div>
+    <div class="sport-pill">
+      <span class="sport-icon" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="8" y1="1" x2="8" y2="15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <div>
+        <span class="sport-name">More sports</span>
+        <span class="sport-status status-muted">Coming soon</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SIGNAL PREVIEW ── -->
+<section class="signal-preview">
+  <div class="signal-header">
+    <p class="signal-label">SIGNAL PREVIEW</p>
+    <h2 class="signal-title">What the model sees.</h2>
+    <p class="signal-sublabel">Live intelligence cards · Available at launch</p>
+  </div>
+
+  <div class="card-grid">
+
+    <!-- Card 1 — High confidence -->
+    <div class="signal-card high">
+      <div class="card-header">
+        <div>
+          <div class="card-match">Brazil vs Argentina</div>
+          <div class="card-stage">Group Stage · 14 Jun</div>
+        </div>
+        <span class="conf-badge high">High Conf</span>
+      </div>
+      <div class="edge-val high">+7.4%</div>
+      <div class="edge-type">Brazil Win · Pre-Match Edge</div>
+      <div class="conf-bar-wrap">
+        <div class="conf-bar-row"><span>Confidence</span><span>84%</span></div>
+        <div class="conf-bar-track"><div class="conf-bar-fill high" style="width:84%"></div></div>
+      </div>
+      <div class="signal-list">
+        <div class="signal-item"><span class="sig-dot active"></span>xG Differential +1.34</div>
+        <div class="signal-item"><span class="sig-dot active"></span>Market Drift Index +0.82</div>
+        <div class="signal-item"><span class="sig-dot active"></span>Fatigue Model –0.21</div>
+      </div>
+    </div>
+
+    <!-- Card 2 — Medium confidence -->
+    <div class="signal-card med">
+      <div class="card-header">
+        <div>
+          <div class="card-match">France vs Germany</div>
+          <div class="card-stage">Group Stage · 17 Jun</div>
+        </div>
+        <span class="conf-badge med">Med Conf</span>
+      </div>
+      <div class="edge-val med">+3.1%</div>
+      <div class="edge-type">Draw · Live Odds Shift</div>
+      <div class="conf-bar-wrap">
+        <div class="conf-bar-row"><span>Confidence</span><span>52%</span></div>
+        <div class="conf-bar-track"><div class="conf-bar-fill med" style="width:52%"></div></div>
+      </div>
+      <div class="signal-list">
+        <div class="signal-item"><span class="sig-dot active"></span>Formation Advantage +0.61</div>
+        <div class="signal-item"><span class="sig-dot inactive"></span>Weather Adjustment (offline)</div>
+        <div class="signal-item"><span class="sig-dot active"></span>Referee Bias +0.14</div>
+      </div>
+    </div>
+
+    <!-- Card 3 — Locked -->
+    <div class="card-locked-wrap">
+      <div class="signal-card high">
+        <div class="card-header">
+          <div>
+            <div class="card-match">England vs Portugal</div>
+            <div class="card-stage">Group Stage · 20 Jun</div>
+          </div>
+          <span class="conf-badge high">High Conf</span>
+        </div>
+        <div class="edge-val high">+5.8%</div>
+        <div class="edge-type">Over 2.5 · In-Play Edge</div>
+        <div class="conf-bar-wrap">
+          <div class="conf-bar-row"><span>Confidence</span><span>71%</span></div>
+          <div class="conf-bar-track"><div class="conf-bar-fill high" style="width:71%"></div></div>
+        </div>
+        <div class="signal-list">
+          <div class="signal-item"><span class="sig-dot active"></span>xG Differential +1.12</div>
+          <div class="signal-item"><span class="sig-dot active"></span>Market Drift Index +0.55</div>
+          <div class="signal-item"><span class="sig-dot active"></span>Press Intensity +0.38</div>
+        </div>
+      </div>
+      <div class="locked-overlay">
+        <div class="lock-icon">◎</div>
+        <div class="lock-label">UNLOCKS AT LAUNCH</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <a href="/" class="footer-logo">
+    <svg width="18" height="18" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs><clipPath id="foot-mark"><polygon points="28,4 52,52 4,52"/></clipPath></defs>
+      <g clip-path="url(#foot-mark)">
+        <line x1="28" y1="4" x2="19" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+        <line x1="28" y1="4" x2="28" y2="52" stroke="#00D4B4" stroke-width="1"   opacity="1"/>
+        <line x1="28" y1="4" x2="37" y2="52" stroke="#00D4B4" stroke-width="0.6" opacity="0.5"/>
+      </g>
+      <polygon points="28,4 52,52 4,52" fill="none" stroke="#00D4B4" stroke-width="1.4" stroke-linejoin="round"/>
+      <circle cx="28" cy="4" r="2" fill="#00D4B4"/>
+    </svg>
+    <div class="footer-logo-text"><span class="p">Parallax</span><span class="e">Edge</span></div>
+  </a>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/responsible-gambling">Responsible Gambling</a>
+  </div>
+  <div class="footer-copy">© 2026 ParallaxEdge</div>
+</footer>
+
+<script>
+// ── COUNTDOWN ──
+const launch = new Date('2026-06-11T18:00:00Z');
+function tick() {
+  const diff = launch - new Date();
+  if (diff <= 0) {
+    ['days','hours','mins','secs'].forEach(u => document.getElementById('cd-' + u).textContent = '00');
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('cd-days').textContent  = String(d).padStart(2, '0');
+  document.getElementById('cd-hours').textContent = String(h).padStart(2, '0');
+  document.getElementById('cd-mins').textContent  = String(m).padStart(2, '0');
+  document.getElementById('cd-secs').textContent  = String(s).padStart(2, '0');
+}
+tick();
+setInterval(tick, 1000);
+
+// ── AGE GATE ──
+let ageConfirmed = false;
+function toggleAge() {
+  ageConfirmed = !ageConfirmed;
+  const cb  = document.getElementById('age-checkbox');
+  const btn = document.getElementById('submit-btn');
+  const emailVal = document.getElementById('email-input').value.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+
+  if (ageConfirmed) {
+    cb.classList.add('checked');
+    if (emailValid) {
+      btn.disabled = false;
+      btn.style.background = '#00D4B4';
+      btn.style.cursor = 'pointer';
+    }
+  } else {
+    cb.classList.remove('checked');
+    btn.disabled = true;
+    btn.style.background = 'rgba(0,212,180,0.3)';
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+// Re-evaluate button state on email input change
+document.getElementById('email-input').addEventListener('input', function() {
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.value.trim());
+  const btn = document.getElementById('submit-btn');
+  if (ageConfirmed && emailValid) {
+    btn.disabled = false;
+    btn.style.background = '#00D4B4';
+    btn.style.cursor = 'pointer';
+  } else {
+    btn.disabled = true;
+    btn.style.background = 'rgba(0,212,180,0.3)';
+    btn.style.cursor = 'not-allowed';
+  }
+  // Clear error on re-type
+  document.getElementById('field-error').classList.remove('visible');
+  document.getElementById('email-row').classList.remove('has-error');
+});
+
+// ── FORM SUBMISSION ──
+document.getElementById('submit-btn').addEventListener('click', async function(e) {
+  e.preventDefault();
+
+  const emailInput = document.getElementById('email-input');
+  const email = emailInput.value.trim();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const errorEl = document.getElementById('field-error');
+  const emailRow = document.getElementById('email-row');
+
+  // Validate
+  if (!emailValid) {
+    errorEl.classList.add('visible');
+    emailRow.classList.add('has-error');
+    emailInput.focus();
+    return;
+  }
+
+  errorEl.classList.remove('visible');
+  emailRow.classList.remove('has-error');
+
+  // Loading state
+  const btn = document.getElementById('submit-btn');
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.style.cursor = 'not-allowed';
+  btn.textContent = 'Submitting…';
+
+  try {
+    // ── SWAP THIS ENDPOINT FOR YOUR ACTUAL BACKEND ──
+    // Options:
+    //   Netlify Forms: use fetch('/') with 'form-name' in body (see commented block below)
+    //   Custom API:    POST to your endpoint with JSON body
+    //   Mailchimp:     POST to your Mailchimp subscribe endpoint
+    //
+    // Current implementation: POST to /api/waitlist (generic REST endpoint)
+    // Replace the URL and body shape to match your backend.
+
+    const response = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: email,
+        age_confirmed: true,
+        age_confirmed_at: new Date().toISOString(),
+        source: 'pre-launch-landing'
+      })
+    });
+
+    /* ── Netlify Forms alternative ──
+    const formData = new FormData();
+    formData.append('form-name', 'waitlist');
+    formData.append('email', email);
+    formData.append('age_confirmed_at', new Date().toISOString());
+    const response = await fetch('/', { method: 'POST', body: formData });
+    */
+
+    if (!response.ok) {
+      throw new Error('Server error: ' + response.status);
+    }
+
+    // Success
+    showSuccess();
+
+  } catch (err) {
+    // Error state — restore form, show inline error
+    btn.disabled = false;
+    btn.style.background = '#00D4B4';
+    btn.style.cursor = 'pointer';
+    btn.textContent = originalText;
+    errorEl.textContent = 'Something went wrong. Please try again.';
+    errorEl.classList.add('visible');
+    emailRow.classList.add('has-error');
+    console.error('Waitlist submission error:', err);
+  }
+});
+
+function showSuccess() {
+  document.getElementById('email-form-fields').style.display = 'none';
+  document.getElementById('form-success').classList.add('visible');
+}
+</script>
+</body>
+</html>
