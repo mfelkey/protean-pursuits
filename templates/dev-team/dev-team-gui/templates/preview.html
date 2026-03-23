@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev-Team · Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Mission Control / Industrial Terminal
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  /* Surface palette — deep charcoal to near-black */
+  --bg-void:     #08090c;
+  --bg-base:     #0d0f14;
+  --bg-raised:   #13161e;
+  --bg-surface:  #1a1e2a;
+  --bg-elevated: #222738;
+  --bg-hover:    #2a3048;
+
+  /* Border & line */
+  --border-dim:    #1e2235;
+  --border-subtle: #2a3048;
+  --border-medium: #3d4463;
+  --border-bright: #5568a8;
+
+  /* Text */
+  --text-primary:   #e8ecf4;
+  --text-secondary: #9ba3bf;
+  --text-dim:       #5e6580;
+  --text-ghost:     #3d4463;
+
+  /* Accent — electric blue command line feel */
+  --accent:        #4d7fff;
+  --accent-bright: #6b9aff;
+  --accent-dim:    #2d5cd6;
+  --accent-glow:   rgba(77, 127, 255, 0.15);
+  --accent-spark:  rgba(77, 127, 255, 0.4);
+
+  /* Phase colors */
+  --phase-orch:    #8b5cf6;
+  --phase-plan:    #4d7fff;
+  --phase-tspec:   #f59e0b;
+  --phase-build:   #10b981;
+  --phase-verify:  #06b6d4;
+  --phase-mobile:  #0d9488;
+
+  /* Status */
+  --status-done:    #10b981;
+  --status-active:  #4d7fff;
+  --status-pending: #3d4463;
+  --status-error:   #ef4444;
+  --status-checkpoint: #f59e0b;
+
+  /* Fonts */
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
+  --font-sans: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-void);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay for atmosphere */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.03) 2px,
+    rgba(0,0,0,0.03) 4px
+  );
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
+
+/* ── Layout ── */
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: 56px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Top Bar ── */
+.topbar {
+  grid-column: 1 / -1;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-dim);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--accent-bright);
+  letter-spacing: -0.5px;
+}
+
+.topbar-logo .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-done);
+  box-shadow: 0 0 8px var(--status-done);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-dim);
+}
+
+.topbar-project-select {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  min-width: 240px;
+}
+.topbar-project-select:focus { outline: 1px solid var(--accent); }
+.topbar-project-select option { background: var(--bg-raised); }
+
+.topbar-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.topbar-status .label { color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1px; font-size: 9px; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--bg-base);
+  border-right: 1px solid var(--border-dim);
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.sidebar-section-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+  padding: 16px 20px 6px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.sidebar-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+.sidebar-item.active {
+  background: var(--accent-glow);
+  border-left-color: var(--accent);
+  color: var(--accent-bright);
+}
+.sidebar-item .icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
+
+/* ── Main Content ── */
+.main {
+  overflow-y: auto;
+  padding: 28px 32px;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(77, 127, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
+    var(--bg-void);
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Section Headers ── */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-header h2 {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+.section-header .tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--accent-bright);
+  background: var(--accent-glow);
+  border: 1px solid rgba(77, 127, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PIPELINE TRACKER — The visual heart of Mission Control
+   ═══════════════════════════════════════════════════════════════ */
+.pipeline-track {
+  margin-bottom: 36px;
+}
+
+.pipeline-phase-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.pipeline-phase-header:first-child { margin-top: 0; }
+
+.phase-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  color: white;
+}
+.phase-badge.orchestrate { background: var(--phase-orch); }
+.phase-badge.plan { background: var(--phase-plan); }
+.phase-badge.test_spec { background: var(--phase-tspec); }
+.phase-badge.build { background: var(--phase-build); }
+.phase-badge.test { background: var(--phase-tspec); }
+.phase-badge.verify { background: var(--phase-verify); }
+.phase-badge.mobile_plan { background: var(--phase-mobile); }
+.phase-badge.mobile_test { background: var(--phase-tspec); }
+.phase-badge.mobile_build { background: var(--phase-build); }
+.phase-badge.mobile_verify { background: var(--phase-verify); }
+.phase-badge.mobile { background: var(--phase-mobile); }
+
+.phase-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-dim);
+}
+
+.pipeline-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.step-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--status-pending);
+  transition: background 0.3s;
+}
+.step-card.done::before { background: var(--status-done); }
+.step-card.active::before { background: var(--status-active); animation: active-pulse 1.5s infinite; }
+.step-card.checkpoint::before { background: var(--status-checkpoint); }
+
+@keyframes active-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.step-card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.step-card .step-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.step-card .step-icon {
+  font-size: 16px;
+}
+
+.step-card .step-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-pending);
+}
+.step-card.done .step-status { background: var(--status-done); box-shadow: 0 0 6px var(--status-done); }
+.step-card.active .step-status { background: var(--status-active); box-shadow: 0 0 6px var(--status-active); }
+
+.step-card .step-name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.step-card .step-artifact {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+}
+
+.step-card .step-checkpoint-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--status-checkpoint);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Step card expanded — command + details */
+.step-expand {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+.step-card.expanded .step-expand {
+  max-height: 200px;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid var(--border-dim);
+}
+
+.step-command {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+.copy-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+.copy-btn.copied { border-color: var(--status-done); color: var(--status-done); }
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENT CARDS — Reference Guide
+   ═══════════════════════════════════════════════════════════════ */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 14px;
+}
+
+.agent-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.agent-card:hover {
+  border-color: var(--border-medium);
+}
+
+.agent-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.agent-card-header:hover { background: var(--bg-surface); }
+
+.agent-card-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.agent-card-icon.plan { background: rgba(77, 127, 255, 0.12); }
+.agent-card-icon.test_spec { background: rgba(245, 158, 11, 0.12); }
+.agent-card-icon.build { background: rgba(16, 185, 129, 0.12); }
+.agent-card-icon.test { background: rgba(245, 158, 11, 0.12); }
+.agent-card-icon.verify { background: rgba(6, 182, 212, 0.12); }
+.agent-card-icon.mobile_plan { background: rgba(13, 148, 136, 0.12); }
+.agent-card-icon.mobile_test { background: rgba(245, 158, 11, 0.12); }
+.agent-card-icon.mobile_build { background: rgba(16, 185, 129, 0.12); }
+.agent-card-icon.mobile_verify { background: rgba(6, 182, 212, 0.12); }
+.agent-card-icon.mobile { background: rgba(13, 148, 136, 0.12); }
+
+.agent-card-title {
+  flex: 1;
+}
+.agent-card-title h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.agent-card-title .subtitle {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.agent-card-tier {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-dim);
+}
+
+.agent-card-chevron {
+  color: var(--text-ghost);
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+.agent-card.expanded .agent-card-chevron { transform: rotate(90deg); }
+
+.agent-card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.agent-card.expanded .agent-card-body {
+  max-height: 400px;
+}
+
+.agent-card-content {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agent-desc {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.agent-io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.agent-io-box {
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.agent-io-box .label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+  margin-bottom: 6px;
+}
+.agent-io-box .value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.agent-io-box .artifact-tag {
+  display: inline-block;
+  background: var(--accent-glow);
+  color: var(--accent-bright);
+  border: 1px solid rgba(77, 127, 255, 0.2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  margin: 1px 2px;
+}
+
+.agent-file-path {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  background: var(--bg-void);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-dim);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROJECT VIEWER
+   ═══════════════════════════════════════════════════════════════ */
+.project-overview {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+}
+.stat-card .stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+  margin-bottom: 8px;
+}
+.stat-card .stat-value {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.stat-card .stat-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.project-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.detail-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+.detail-panel h3 {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-dim);
+}
+
+.detail-panel.full-width {
+  grid-column: 1 / -1;
+}
+
+.artifact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.artifact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-void);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-dim);
+}
+.artifact-row .art-type {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-bright);
+  min-width: 80px;
+}
+.artifact-row .art-agent {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  flex: 1;
+}
+.artifact-row .art-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-ghost);
+}
+
+.checkpoint-list { display: flex; flex-direction: column; gap: 6px; }
+.checkpoint-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-void);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-dim);
+}
+.checkpoint-row .cp-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+.checkpoint-row .cp-status {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+.cp-status.approved { background: rgba(16, 185, 129, 0.15); color: var(--status-done); border: 1px solid rgba(16, 185, 129, 0.3); }
+.cp-status.rejected { background: rgba(239, 68, 68, 0.15); color: var(--status-error); border: 1px solid rgba(239, 68, 68, 0.3); }
+.cp-status.pending  { background: rgba(245, 158, 11, 0.15); color: var(--status-checkpoint); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+.audit-log {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.audit-entry {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  display: flex;
+  gap: 10px;
+}
+.audit-entry:nth-child(odd) { background: var(--bg-void); }
+.audit-entry .ts { color: var(--text-ghost); min-width: 150px; flex-shrink: 0; }
+.audit-entry .ev { color: var(--text-secondary); }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHECKPOINT REVIEW INTERFACE
+   ═══════════════════════════════════════════════════════════════ */
+.checkpoint-review {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 20px;
+}
+
+.checkpoint-review h3 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.checkpoint-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+.btn-approve {
+  background: var(--status-done);
+  color: white;
+}
+.btn-approve:hover { background: #0d9668; transform: translateY(-1px); }
+.btn-reject {
+  background: var(--bg-surface);
+  color: var(--status-error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.btn-reject:hover { background: rgba(239, 68, 68, 0.1); }
+
+.reject-reason {
+  width: 100%;
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  resize: vertical;
+  min-height: 60px;
+  display: none;
+}
+.reject-reason:focus { outline: 1px solid var(--accent); }
+.reject-reason.visible { display: block; }
+
+/* ═══════════════════════════════════════════════════════════════
+   COMMAND CHEAT SHEET
+   ═══════════════════════════════════════════════════════════════ */
+.cheat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 10px;
+}
+
+.cheat-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cheat-card .cheat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.cheat-card .cheat-cmd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-bright);
+  word-break: break-all;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EMPTY STATES & LOADING
+   ═══════════════════════════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+.empty-state h3 {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: 12px;
+  color: var(--text-dim);
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.2s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── No-project info banner ── */
+.info-banner {
+  background: var(--accent-glow);
+  border: 1px solid rgba(77, 127, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.info-banner .info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.info-banner .info-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
+.info-banner .info-text strong { color: var(--accent-bright); }
+
+/* ═══════════════════════════════════════════════════════════════
+   NEW PROJECT FORM
+   ═══════════════════════════════════════════════════════════════ */
+.new-project-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+.np-field { margin-bottom: 16px; }
+
+.np-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.np-required { color: var(--status-error); }
+.np-optional { font-weight: 400; color: var(--text-ghost); font-size: 10px; }
+
+.np-input, .np-textarea, .np-select {
+  width: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 10px 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.np-input:focus, .np-textarea:focus, .np-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.np-input::placeholder, .np-textarea::placeholder {
+  color: var(--text-ghost);
+}
+
+.np-textarea {
+  min-height: 180px;
+  resize: vertical;
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+.np-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235e6580'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.np-select option { background: var(--bg-raised); }
+
+.np-char-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-ghost);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.np-options-row {
+  display: flex;
+  gap: 14px;
+}
+
+.np-checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.np-checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.np-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.btn-create {
+  background: var(--accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 13px;
+}
+.btn-create:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
+.btn-create:active { transform: translateY(0); }
+.btn-create .btn-icon { font-size: 14px; }
+
+.btn-secondary {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+}
+.btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.btn.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Result card after creation */
+.np-result {
+  margin-top: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  animation: fadeSlideIn 0.3s ease;
+}
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.np-result.success { border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.06); }
+.np-result.error { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.06); }
+
+.np-result-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.np-result-header .icon { font-size: 18px; }
+.np-result-header .title {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.np-result-id {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--accent-bright);
+  background: var(--accent-glow);
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 10px;
+}
+.np-result-next {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.np-result-cmd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.np-result-cmd .num {
+  color: var(--text-ghost);
+  font-weight: 700;
+  min-width: 18px;
+}
+
+/* Guide cards — right column */
+.np-guide-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.np-guide-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.np-guide-card h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-dim);
+  background: var(--bg-surface);
+}
+.np-guide-body {
+  padding: 14px 16px;
+}
+.np-guide-body p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.np-guide-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.np-check {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  padding: 3px 0;
+}
+
+/* Example cards — clickable */
+.np-example {
+  padding: 10px 12px;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.np-example:last-child { margin-bottom: 0; }
+.np-example:hover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+.np-example-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent-bright);
+  margin-bottom: 4px;
+}
+.np-example-text {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.np-example:hover .np-example-text { color: var(--text-secondary); }
+
+/* Next steps */
+.np-next-steps { padding: 10px 16px; }
+.np-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.np-step-row code {
+  font-size: 10px;
+  background: var(--bg-void);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+.np-step-num {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-ghost);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: 56px auto 1fr;
+  }
+  .sidebar {
+    display: flex;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-dim);
+    padding: 0 8px;
+  }
+  .sidebar-section-label { display: none; }
+  .sidebar-item {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 14px;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .sidebar-item.active { border-bottom-color: var(--accent); border-left: none; }
+  .main { padding: 20px 16px; }
+  .project-overview { grid-template-columns: 1fr; }
+  .project-detail-grid { grid-template-columns: 1fr; }
+  .agent-grid { grid-template-columns: 1fr; }
+  .new-project-layout { grid-template-columns: 1fr; }
+  .np-options-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ═══ TOP BAR ═══ -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="dot"></div>
+      dev-team
+    </div>
+    <div class="topbar-divider"></div>
+    <select class="topbar-project-select" id="projectSelect">
+      <option value="">— Select a project —</option>
+    </select>
+    <div class="topbar-status">
+      <div><span class="label">Status</span><br><span id="topStatus">No project</span></div>
+      <div><span class="label">Classification</span><br><span id="topClass">—</span></div>
+      <div><span class="label">Artifacts</span><br><span id="topArtifacts">0</span></div>
+    </div>
+  </div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <div class="sidebar">
+    <div class="sidebar-section-label">Actions</div>
+    <div class="sidebar-item" data-panel="newproject">
+      <span class="icon">＋</span> New Project
+    </div>
+    <div class="sidebar-section-label">Views</div>
+    <div class="sidebar-item active" data-panel="pipeline">
+      <span class="icon">▸</span> Pipeline Tracker
+    </div>
+    <div class="sidebar-item" data-panel="agents">
+      <span class="icon">◆</span> Agent Reference
+    </div>
+    <div class="sidebar-item" data-panel="project">
+      <span class="icon">◇</span> Project Status
+    </div>
+    <div class="sidebar-item" data-panel="checkpoints">
+      <span class="icon">⏸</span> Checkpoints
+    </div>
+    <div class="sidebar-item" data-panel="commands">
+      <span class="icon">›_</span> Commands
+    </div>
+  </div>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <div class="main">
+
+    <!-- ── New Project Panel ── -->
+    <div class="panel" id="panel-newproject">
+      <div class="section-header">
+        <h2>New Project</h2>
+        <span class="tag">Describe → Build</span>
+      </div>
+
+      <div class="new-project-layout">
+        <!-- Left: The form -->
+        <div class="np-form-area">
+          <div class="np-field">
+            <label class="np-label">Project Title <span class="np-optional">(optional — auto-generated if blank)</span></label>
+            <input type="text" class="np-input" id="npTitle" placeholder="e.g. VA project Trip Dashboard">
+          </div>
+
+          <div class="np-field">
+            <label class="np-label">Describe what you want <span class="np-required">*</span></label>
+            <textarea class="np-textarea" id="npDescription" placeholder="Tell the agents what to build. Be specific about features, data sources, deployment targets, and user types. The more detail you give, the better the output."></textarea>
+            <div class="np-char-count"><span id="npCharCount">0</span> characters — aim for 200+</div>
+          </div>
+
+          <div class="np-options-row">
+            <div class="np-field" style="flex:1;">
+              <label class="np-label">Complexity hint</label>
+              <select class="np-select" id="npComplexity">
+                <option value="LOW">Low — simple CRUD, few screens</option>
+                <option value="MEDIUM" selected>Medium — multiple modules, auth, API</option>
+                <option value="HIGH">High — multi-platform, data pipeline, ML</option>
+              </select>
+            </div>
+            <div class="np-field" style="flex:1;">
+              <label class="np-label">Involves data analysis?</label>
+              <select class="np-select" id="npDataRequired">
+                <option value="false">No — software only (DEV crew)</option>
+                <option value="true">Yes — analyze data first (JOINT crew)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="np-field">
+            <label class="np-label np-checkbox-label">
+              <input type="checkbox" id="npRunClassify">
+              <span>Auto-run Orchestrator after creation <span class="np-optional">(Phase 2 — requires classify.py)</span></span>
+            </label>
+          </div>
+
+          <div class="np-actions">
+            <button class="btn btn-create" id="npSubmit" onclick="createProject()">
+              <span class="btn-icon">▸</span> Create Project
+            </button>
+            <button class="btn btn-secondary" onclick="clearProjectForm()">Clear</button>
+          </div>
+
+          <!-- Result area -->
+          <div class="np-result" id="npResult" style="display:none;"></div>
+        </div>
+
+        <!-- Right: Tips & examples -->
+        <div class="np-guide-area">
+          <div class="np-guide-card">
+            <h4>💡 What makes a good description?</h4>
+            <div class="np-guide-body">
+              <p>The Orchestrator and Product Manager work directly from your text. The more specific you are, the better every downstream agent performs.</p>
+              <div class="np-guide-checklist">
+                <div class="np-check">✓ What the app does (features, screens)</div>
+                <div class="np-check">✓ Who uses it (user types, roles)</div>
+                <div class="np-check">✓ What data it works with</div>
+                <div class="np-check">✓ Where it's deployed (web, mobile, both)</div>
+                <div class="np-check">✓ Any constraints (accessibility, offline, auth)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="np-guide-card">
+            <h4>📝 Example descriptions</h4>
+            <div class="np-guide-body">
+              <div class="np-example" onclick="useExample(this)">
+                <div class="np-example-label">Simple web app</div>
+                <div class="np-example-text">Build an interactive dashboard for tracking monthly project trip data with filters for trip type, date range, provider, and geographic region. The dashboard should display summary statistics, trend charts, and a data table with export functionality. Deploy as a containerized web app with a React frontend and Node.js API backend. Users are VA administrators who need WCAG 2.1 AA accessibility.</div>
+              </div>
+              <div class="np-example" onclick="useExample(this)">
+                <div class="np-example-label">Data + app (JOINT)</div>
+                <div class="np-example-text">Analyze our project trip dataset to identify patterns in response times, costs, and geographic distribution. Build statistical models to predict trip costs based on distance, type, and time of day. Then build a web dashboard and cross-platform mobile app that surfaces these insights with interactive filters. The mobile app should work offline with cached data and support both iOS and Android.</div>
+              </div>
+              <div class="np-example" onclick="useExample(this)">
+                <div class="np-example-label">API + automation</div>
+                <div class="np-example-text">Build a REST API and automated reporting system for VA project trip data. The API should support CRUD operations, role-based access control, rate limiting, and webhook notifications when new data is uploaded. Generate weekly PDF reports with summary statistics and anomaly detection. Deploy with CI/CD pipelines and infrastructure-as-code. Include comprehensive API documentation and a Postman collection.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="np-guide-card">
+            <h4>⚡ What happens next</h4>
+            <div class="np-guide-body np-next-steps">
+              <div class="np-step-row"><span class="np-step-num">1</span> Project JSON file created in <code>logs/</code></div>
+              <div class="np-step-row"><span class="np-step-num">2</span> Run <strong>Classify</strong> — Orchestrator structures your description</div>
+              <div class="np-step-row"><span class="np-step-num">3</span> Run <strong>Route</strong> — assigns to the right crew (DEV / DS / JOINT)</div>
+              <div class="np-step-row"><span class="np-step-num">4</span> Run agents from the <strong>Pipeline Tracker</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Pipeline Tracker Panel ── -->
+    <div class="panel active" id="panel-pipeline">
+      <div class="section-header">
+        <h2>Pipeline Tracker</h2>
+        <span class="tag">Live Status</span>
+      </div>
+      <div id="pipelineContent"></div>
+    </div>
+
+    <!-- ── Agent Reference Panel ── -->
+    <div class="panel" id="panel-agents">
+      <div class="section-header">
+        <h2>Agent Reference</h2>
+        <span class="tag">20+ Agents</span>
+      </div>
+      <div id="agentContent"></div>
+    </div>
+
+    <!-- ── Project Status Panel ── -->
+    <div class="panel" id="panel-project">
+      <div class="section-header">
+        <h2>Project Status</h2>
+        <span class="tag">Context Viewer</span>
+      </div>
+      <div id="projectContent"></div>
+    </div>
+
+    <!-- ── Checkpoints Panel ── -->
+    <div class="panel" id="panel-checkpoints">
+      <div class="section-header">
+        <h2>Checkpoint Review</h2>
+        <span class="tag">Approve / Reject</span>
+      </div>
+      <div id="checkpointContent"></div>
+    </div>
+
+    <!-- ── Commands Panel ── -->
+    <div class="panel" id="panel-commands">
+      <div class="section-header">
+        <h2>Command Cheat Sheet</h2>
+        <span class="tag">Click to Copy</span>
+      </div>
+      <div id="commandContent"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// APP STATE & DATA
+// ═══════════════════════════════════════════════════════════════
+
+const state = {
+  pipeline: null,
+  agents: null,
+  projects: [],
+  currentProject: null,
+  completedSteps: new Set(),
+  activePanel: 'pipeline',
+};
+
+// ── API calls ────────────────────────────────────────────────
+
+async function fetchJSON(url) {
+  // STANDALONE PREVIEW — embedded data, no server needed
+  const EMBEDDED_PIPELINE = {"web": [{"id": "classify", "name": "Orchestrator \u2014 Classify", "phase": "orchestrate", "command": "python agents/orchestrator/classify.py", "produces": "Project Context", "checkpoint": false, "icon": "\ud83c\udfaf"}, {"id": "route", "name": "Orchestrator \u2014 Route", "phase": "orchestrate", "command": "python agents/orchestrator/router.py", "produces": "Routing Decision", "checkpoint": false, "icon": "\ud83d\udd00"}, {"id": "product_mgr", "name": "Product Manager", "phase": "plan", "command": "python agents/dev/strategy/product_manager.py", "produces": "PRD", "checkpoint": true, "icon": "\ud83d\udccb"}, {"id": "biz_analyst", "name": "Business Analyst", "phase": "plan", "command": "python agents/dev/strategy/business_analyst.py", "produces": "BAD", "checkpoint": false, "icon": "\ud83d\udcca"}, {"id": "scrum_master", "name": "Scrum Master", "phase": "plan", "command": "python agents/dev/strategy/scrum_master.py", "produces": "Sprint Plan", "checkpoint": false, "icon": "\ud83c\udfc3"}, {"id": "architect", "name": "Technical Architect", "phase": "plan", "command": "python agents/dev/strategy/technical_architect.py", "produces": "TAD", "checkpoint": true, "icon": "\ud83c\udfd7\ufe0f"}, {"id": "security", "name": "Security Reviewer", "phase": "plan", "command": "python agents/dev/strategy/security_reviewer.py", "produces": "SRR", "checkpoint": true, "icon": "\ud83d\udd12"}, {"id": "ux_designer", "name": "UX/UI Designer", "phase": "plan", "command": "python agents/dev/strategy/ux_designer.py", "produces": "UXD", "checkpoint": false, "icon": "\ud83c\udfa8"}, {"id": "ux_content", "name": "UX Content Guide", "phase": "plan", "command": "python agents/dev/strategy/ux_content_guide.py", "produces": "Content Guide", "checkpoint": true, "icon": "\u270d\ufe0f"}, {"id": "senior_dev", "name": "Senior Developer", "phase": "test_spec", "command": "python agents/dev/build/senior_developer.py", "produces": "TIP", "checkpoint": false, "icon": "\ud83d\udc68\u200d\ud83d\udcbb"}, {"id": "qa_lead", "name": "QA Lead", "phase": "test_spec", "command": "python agents/dev/quality/qa_lead.py", "produces": "MTP", "checkpoint": false, "icon": "\ud83e\uddea"}, {"id": "test_auto", "name": "Test Automation Engineer", "phase": "test_spec", "command": "python agents/dev/quality/test_automation_engineer.py", "produces": "TAR", "checkpoint": true, "icon": "\ud83e\udd16"}, {"id": "backend_dev", "name": "Backend Developer", "phase": "build", "command": "python agents/dev/build/backend_developer.py", "produces": "BIR", "checkpoint": false, "icon": "\u2699\ufe0f"}, {"id": "frontend_dev", "name": "Frontend Developer", "phase": "build", "command": "python agents/dev/build/frontend_developer.py", "produces": "FIR", "checkpoint": false, "icon": "\ud83d\udda5\ufe0f"}, {"id": "dba", "name": "Database Administrator", "phase": "build", "command": "python agents/dev/build/database_admin.py", "produces": "DBAR", "checkpoint": false, "icon": "\ud83d\uddc4\ufe0f"}, {"id": "devops", "name": "DevOps Engineer", "phase": "build", "command": "python agents/dev/build/devops_engineer.py", "produces": "DIR", "checkpoint": true, "icon": "\ud83d\ude80"}, {"id": "pen_test", "name": "Penetration Tester", "phase": "verify", "command": "python agents/dev/security/penetration_tester.py", "produces": "PTR", "checkpoint": true, "icon": "\ud83d\udd13"}, {"id": "verify", "name": "Test Verification", "phase": "verify", "command": "python agents/dev/quality/test_verify.py", "produces": "Verification Report", "checkpoint": true, "icon": "\u2705"}], "mobile": [{"id": "mobile_ux", "name": "Mobile UX Designer", "phase": "mobile_plan", "command": "python agents/mobile/ux/mobile_ux_designer.py", "produces": "MUXD", "checkpoint": false, "icon": "\ud83d\udcf1"}, {"id": "mobile_qa", "name": "Mobile QA Specialist", "phase": "mobile_test", "command": "python agents/mobile/qa/mobile_qa_specialist.py", "produces": "Mobile Test Plan", "checkpoint": true, "icon": "\u2705"}, {"id": "ios_dev", "name": "iOS Developer", "phase": "mobile_build", "command": "python agents/mobile/ios/ios_developer.py", "produces": "IIR", "checkpoint": false, "icon": "\ud83c\udf4e"}, {"id": "android_dev", "name": "Android Developer", "phase": "mobile_build", "command": "python agents/mobile/android/android_developer.py", "produces": "AIR", "checkpoint": false, "icon": "\ud83e\udd16"}, {"id": "rn_arch_p1", "name": "RN Architect (Part 1)", "phase": "mobile_build", "command": "python agents/mobile/rn/react_native_architect_part1.py", "produces": "RNAD P1", "checkpoint": false, "icon": "\u269b\ufe0f"}, {"id": "rn_arch_p2", "name": "RN Architect (Part 2)", "phase": "mobile_build", "command": "python agents/mobile/rn/react_native_architect_part2.py", "produces": "RNAD P2", "checkpoint": false, "icon": "\u269b\ufe0f"}, {"id": "rn_dev", "name": "RN Developer", "phase": "mobile_build", "command": "python agents/mobile/rn/react_native_developer.py", "produces": "RN Guide", "checkpoint": false, "icon": "\u269b\ufe0f"}, {"id": "ios_patch", "name": "iOS Developer (Patch)", "phase": "mobile_build", "command": "python agents/mobile/ios/ios_developer_patch.py", "produces": "IIR Patch", "checkpoint": false, "icon": "\ud83c\udf4e"}, {"id": "ios_a11y", "name": "iOS Accessibility Patch", "phase": "mobile_build", "command": "python agents/mobile/ios/ios_accessibility_patch.py", "produces": "IIR A11y", "checkpoint": false, "icon": "\u267f"}, {"id": "mobile_devops", "name": "Mobile DevOps Engineer", "phase": "mobile_build", "command": "python agents/mobile/devops/mobile_devops_engineer.py", "produces": "MDIR", "checkpoint": false, "icon": "\ud83d\udce6"}, {"id": "mobile_pen_test", "name": "Mobile Penetration Tester", "phase": "mobile_verify", "command": "python agents/mobile/security/mobile_penetration_tester.py", "produces": "Mobile PTR", "checkpoint": true, "icon": "\ud83d\udd13"}, {"id": "mobile_verify", "name": "Mobile Test Verification", "phase": "mobile_verify", "command": "python agents/mobile/qa/mobile_test_verify.py", "produces": "Mobile Verification Report", "checkpoint": true, "icon": "\u2705"}]};
+  const EMBEDDED_AGENTS = {"product_mgr": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/product_manager.py", "consumes": ["Project Spec"], "produces": "PRD", "description": "Turns your project description into a detailed requirements document \u2014 user stories, acceptance criteria, scope boundaries."}, "biz_analyst": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/business_analyst.py", "consumes": ["PRD"], "produces": "BAD", "description": "Goes deeper than the PRD. Maps stakeholders, process flows, data dictionaries. Answers every question the PRD leaves open."}, "scrum_master": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/scrum_master.py", "consumes": ["PRD", "BAD"], "produces": "Sprint Plan", "description": "Breaks requirements into sprints \u2014 prioritized backlog, story points, what gets built first and why."}, "architect": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/technical_architect.py", "consumes": ["PRD", "BAD", "Sprint"], "produces": "TAD", "description": "Designs the whole system \u2014 technologies, data flows, deployment targets, component interactions."}, "security": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/security_reviewer.py", "consumes": ["PRD", "TAD"], "produces": "SRR", "description": "Reviews architecture for security holes, compliance gaps, privacy risks. Can block the project if rated RED."}, "ux_designer": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/ux_designer.py", "consumes": ["PRD", "BAD", "SRR"], "produces": "UXD", "description": "Designs every screen, interaction, and user journey. Writes all UI text \u2014 developers never make up copy."}, "ux_content": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/strategy/ux_content_guide.py", "consumes": ["UXD"], "produces": "Content Guide", "description": "Produces the definitive guide for every label, button, tooltip, and error message in the application."}, "senior_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/build/senior_developer.py", "consumes": ["PRD", "TAD", "UXD"], "produces": "TIP", "description": "Translates architecture into a concrete coding plan \u2014 project structure, module boundaries, coding standards, implementation order. In TDD mode, this plan also defines testable interfaces that the QA Lead and Test Automation Engineer use to write tests before implementation begins."}, "qa_lead": {"tier": "T1", "model": "qwen2.5:72b", "file": "dev/quality/qa_lead.py", "consumes": ["PRD", "TIP", "TAD", "UXD"], "produces": "MTP", "description": "Designs the master test plan BEFORE code is written. Defines acceptance criteria, test cases, and coverage targets that build agents must satisfy. Every user story gets testable pass/fail conditions."}, "test_auto": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/quality/test_automation_engineer.py", "consumes": ["MTP", "TIP", "TAD"], "produces": "TAR", "description": "Writes test code (unit stubs, API contract tests, E2E scenarios, accessibility checks) BEFORE implementation. Build agents receive these tests and must write code that passes them. Tests define the contract."}, "backend_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/build/backend_developer.py", "consumes": ["TIP", "TAD", "MTP", "TAR"], "produces": "BIR", "description": "Builds the server side \u2014 APIs, database access, authentication, business logic. Receives pre-written test suites and must produce code that passes all test cases defined in the MTP and TAR."}, "frontend_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/build/frontend_developer.py", "consumes": ["TIP", "UXD", "MTP", "TAR", "Content Guide"], "produces": "FIR", "description": "Builds the user interface \u2014 pages, components, state management, API integration. Must satisfy all frontend test cases, component tests, and accessibility checks defined in the TAR."}, "dba": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/build/database_admin.py", "consumes": ["BIR", "TAD", "SRR"], "produces": "DBAR", "description": "Reviews and optimizes the database schema \u2014 indexes, migrations, backups, capacity planning."}, "devops": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/build/devops_engineer.py", "consumes": ["TIP", "TAD", "SRR", "TAR"], "produces": "DIR", "description": "Sets up build, test, and deploy infrastructure \u2014 Docker, CI/CD, infrastructure-as-code, secrets management. CI pipeline must run the pre-written test suite and gate deployments on test pass."}, "pen_test": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/security/penetration_tester.py", "consumes": ["SRR", "BIR", "FIR", "DIR", "DBAR"], "produces": "PTR", "description": "Performs static security analysis of all built code against the SRR threat model. Probes for OWASP Top 10 vulnerabilities: SQL injection, XSS, auth bypass, IDOR, SSRF, secrets in code, misconfigured CORS, open debug endpoints, insecure deserialization, and missing rate limits. Produces a Penetration Test Report (PTR) rated \ud83d\udfe2 PASS / \ud83d\udfe1 CONDITIONAL / \ud83d\udd34 FAIL with specific file:line references for every finding. \ud83d\udd34 FAIL blocks release."}, "verify": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "dev/quality/test_verify.py", "consumes": ["TAR", "BIR", "FIR", "DIR"], "produces": "Verification Report", "description": "Runs the pre-written test suite against the built code. Reports pass/fail per test case, coverage metrics, and any regressions. This is the final TDD gate \u2014 if tests fail, build agents must iterate."}, "mobile_ux": {"tier": "T1", "model": "qwen2.5:72b", "file": "mobile/ux/mobile_ux_designer.py", "consumes": ["PRD"], "produces": "MUXD", "description": "Designs the mobile experience for iOS, Android, and React Native \u2014 all three tracks from one document."}, "mobile_qa": {"tier": "T1", "model": "qwen2.5:72b", "file": "mobile/qa/mobile_qa_specialist.py", "consumes": ["MUXD", "PRD", "TAD"], "produces": "Mobile Test Plan", "description": "Writes the mobile test plan and test code BEFORE mobile implementation begins. Defines Jest unit tests, RNTL component tests, Detox E2E scenarios, and accessibility checks that all mobile build agents must satisfy."}, "ios_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/ios/ios_developer.py", "consumes": ["MUXD", "PRD", "Mobile Test Plan"], "produces": "IIR", "description": "Builds the native iOS app in Swift/SwiftUI. Receives pre-written XCTest cases and must produce code that passes all test assertions, including VoiceOver accessibility tests."}, "android_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/android/android_developer.py", "consumes": ["MUXD", "PRD", "Mobile Test Plan"], "produces": "AIR", "description": "Builds the native Android app in Kotlin/Compose. Receives pre-written JUnit5/Espresso tests and must produce code that passes all test assertions, including TalkBack accessibility tests."}, "rn_arch_p1": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/rn/react_native_architect_part1.py", "consumes": ["MUXD", "Mobile Test Plan"], "produces": "RNAD P1", "description": "Designs React Native architecture \u2014 navigation, state management, API layer, component hierarchy. Architecture must support the test contracts defined in the Mobile Test Plan."}, "rn_arch_p2": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/rn/react_native_architect_part2.py", "consumes": ["RNAD P1"], "produces": "RNAD P2", "description": "Completes React Native architecture \u2014 testing strategy, deployment config, performance optimization (Part 2)."}, "rn_dev": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/rn/react_native_developer.py", "consumes": ["RNAD P1", "RNAD P2", "Mobile Test Plan"], "produces": "RN Guide", "description": "Builds the cross-platform app in React Native/Expo/TypeScript. Must satisfy all Jest, RNTL, and Detox test cases from the Mobile Test Plan."}, "mobile_devops": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/devops/mobile_devops_engineer.py", "consumes": ["RN Guide", "SRR", "Mobile Test Plan"], "produces": "MDIR", "description": "Sets up mobile build pipelines, code signing, EAS Build, Fastlane, and store submission automation. CI must run mobile test suite and gate on pass."}, "mobile_pen_test": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/security/mobile_penetration_tester.py", "consumes": ["SRR", "IIR", "AIR", "RN Guide", "MDIR"], "produces": "Mobile PTR", "description": "Performs static security analysis of all mobile code. Probes for OWASP Mobile Top 10: insecure data storage, weak auth, certificate pinning bypass, unprotected IPC, code tampering vectors, reverse engineering exposure, debug flags in release builds, hardcoded secrets, insecure WebView configs, and missing root/jailbreak detection. Rates \ud83d\udfe2 PASS / \ud83d\udfe1 CONDITIONAL / \ud83d\udd34 FAIL with platform-specific findings (iOS, Android, RN)."}, "mobile_verify": {"tier": "T2", "model": "qwen2.5-coder:32b", "file": "mobile/qa/mobile_test_verify.py", "consumes": ["Mobile Test Plan", "IIR", "AIR", "RN Guide", "MDIR"], "produces": "Mobile Verification Report", "description": "Runs the pre-written mobile test suite against all built mobile artifacts. Reports pass/fail per platform (iOS, Android, RN), coverage, and accessibility compliance. Final TDD gate for mobile."}};
+  const EMBEDDED_PROJECTS = [{"id": "PROJ-TEMPLATE", "status": "BUILD_IN_PROGRESS", "classification": "JOINT", "title": "VA project Trip Analysis System", "created_at": "2026-02-20T14:30:00Z", "artifact_count": 9, "checkpoint_count": 4}];
+  const EMBEDDED_PROJECT = {"project_id": "PROJ-TEMPLATE", "created_at": "2026-02-20T14:30:00Z", "status": "BUILD_IN_PROGRESS", "classification": "JOINT", "original_request": "Analyze our VA project trip data to find patterns in response times, costs, and geographic distribution, then build an interactive dashboard and cross-platform mobile app for trip analysis with filters for type, date range, and provider.", "structured_spec": {"title": "VA project Trip Analysis System", "description": "A comprehensive system that analyzes VA project trip data and presents findings through an interactive web dashboard and cross-platform mobile application.", "business_goal": "Enable VA administrators to identify patterns in project usage, optimize costs, and improve response times through data-driven insights.", "deliverables": ["Data analysis pipeline with statistical models", "Interactive web dashboard (React + Node.js)", "Cross-platform mobile app (React Native/Expo)", "REST API for trip data access", "Automated deployment pipeline"], "success_criteria": ["Dashboard loads in under 2 seconds with 100k+ trip records", "Mobile app works offline with cached data", "All filters (type, date, provider, region) functional", "WCAG 2.1 AA accessibility compliance", "Deployment-agnostic infrastructure"], "estimated_complexity": "HIGH", "data_required": true, "primary_crew": "JOINT", "handoff_direction": "DS \u2192 DEV"}, "assigned_crew": "DEV", "artifacts": [{"name": "Product Requirements Document", "type": "PRD", "path": "dev/requirements/PROJ-TEMPLATE_PRD.md", "created_at": "2026-02-20T15:12:00Z", "agent": "Product Manager"}, {"name": "Business Analysis Document", "type": "BAD", "path": "dev/requirements/PROJ-TEMPLATE_BAD.md", "created_at": "2026-02-20T16:45:00Z", "agent": "Business Analyst"}, {"name": "Sprint Planning Document", "type": "Sprint Plan", "path": "dev/requirements/PROJ-TEMPLATE_SPRINT.md", "created_at": "2026-02-20T17:30:00Z", "agent": "Scrum Master"}, {"name": "Technical Architecture Document", "type": "TAD", "path": "dev/architecture/PROJ-TEMPLATE_TAD.md", "created_at": "2026-02-20T19:15:00Z", "agent": "Technical Architect"}, {"name": "Security Review Report", "type": "SRR", "path": "dev/security/PROJ-TEMPLATE_SRR.md", "created_at": "2026-02-20T20:45:00Z", "agent": "Security Reviewer"}, {"name": "User Experience Document", "type": "UXD", "path": "dev/design/PROJ-TEMPLATE_UXD.md", "created_at": "2026-02-21T09:30:00Z", "agent": "UX/UI Designer"}, {"name": "UI Content Guide", "type": "Content Guide", "path": "dev/design/PROJ-TEMPLATE_CONTENT.md", "created_at": "2026-02-21T10:15:00Z", "agent": "UX Content Guide"}, {"name": "Technical Implementation Plan", "type": "TIP", "path": "dev/build/PROJ-TEMPLATE_TIP.md", "created_at": "2026-02-21T12:00:00Z", "agent": "Senior Developer"}, {"name": "Backend Implementation Report", "type": "BIR", "path": "dev/build/PROJ-TEMPLATE_BIR.md", "created_at": "2026-02-21T15:30:00Z", "agent": "Backend Developer"}], "checkpoints": [{"name": "CP-1: Requirements Review", "timestamp": "2026-02-20T15:20:00Z", "action": "APPROVED", "reviewer": "Mike"}, {"name": "CP-2: Architecture Review", "timestamp": "2026-02-20T19:30:00Z", "action": "APPROVED", "reviewer": "Mike"}, {"name": "CP-3: Security Gate", "timestamp": "2026-02-20T21:00:00Z", "action": "APPROVED", "reviewer": "Mike", "note": "SRR rated GREEN \u2014 no critical findings"}, {"name": "CP-4: Design Review", "timestamp": "2026-02-21T10:30:00Z", "action": "APPROVED", "reviewer": "Mike"}], "handoffs": [{"from": "DS_CREW", "to": "DEV_CREW", "timestamp": "2026-02-20T14:45:00Z", "package": {"artifacts": ["EDA Report", "Statistical Model", "Feature Matrix"], "validated": true}}], "audit_log": [{"timestamp": "2026-02-20T14:30:00Z", "event": "PROJECT_CREATED", "detail": "Classified as JOINT (DS \u2192 DEV)"}, {"timestamp": "2026-02-20T14:35:00Z", "event": "ROUTED", "detail": "Assigned to DS Crew first"}, {"timestamp": "2026-02-20T14:45:00Z", "event": "HANDOFF_COMPLETE", "detail": "DS \u2192 DEV handoff validated, 3 artifacts transferred"}, {"timestamp": "2026-02-20T15:12:00Z", "event": "ARTIFACT_CREATED", "detail": "PRD generated by Product Manager"}, {"timestamp": "2026-02-20T15:20:00Z", "event": "CHECKPOINT_APPROVED", "detail": "CP-1: Requirements Review approved"}, {"timestamp": "2026-02-20T16:45:00Z", "event": "ARTIFACT_CREATED", "detail": "BAD generated by Business Analyst"}, {"timestamp": "2026-02-20T17:30:00Z", "event": "ARTIFACT_CREATED", "detail": "Sprint Plan generated by Scrum Master"}, {"timestamp": "2026-02-20T19:15:00Z", "event": "ARTIFACT_CREATED", "detail": "TAD generated by Technical Architect"}, {"timestamp": "2026-02-20T19:30:00Z", "event": "CHECKPOINT_APPROVED", "detail": "CP-2: Architecture Review approved"}, {"timestamp": "2026-02-20T20:45:00Z", "event": "ARTIFACT_CREATED", "detail": "SRR generated by Security Reviewer \u2014 rated GREEN"}, {"timestamp": "2026-02-20T21:00:00Z", "event": "CHECKPOINT_APPROVED", "detail": "CP-3: Security Gate approved"}, {"timestamp": "2026-02-21T09:30:00Z", "event": "ARTIFACT_CREATED", "detail": "UXD generated by UX/UI Designer"}, {"timestamp": "2026-02-21T10:15:00Z", "event": "ARTIFACT_CREATED", "detail": "Content Guide generated by UX Content Guide"}, {"timestamp": "2026-02-21T10:30:00Z", "event": "CHECKPOINT_APPROVED", "detail": "CP-4: Design Review approved"}, {"timestamp": "2026-02-21T12:00:00Z", "event": "ARTIFACT_CREATED", "detail": "TIP generated by Senior Developer"}, {"timestamp": "2026-02-21T15:30:00Z", "event": "ARTIFACT_CREATED", "detail": "BIR generated by Backend Developer"}, {"timestamp": "2026-02-21T15:35:00Z", "event": "STATUS_UPDATE", "detail": "Frontend Developer next in queue"}]};
+  const EMBEDDED_STATUS = {"project_id": "PROJ-TEMPLATE", "completed_steps": ["classify", "route", "product_mgr", "biz_analyst", "scrum_master", "architect", "security", "ux_designer", "ux_content", "senior_dev", "backend_dev"], "total_web_steps": 16, "total_mobile_steps": 10};
+
+  if (url === '/api/pipeline') return EMBEDDED_PIPELINE;
+  if (url === '/api/agents') return EMBEDDED_AGENTS;
+  if (url === '/api/projects') return EMBEDDED_PROJECTS;
+  if (url.includes('/status')) return EMBEDDED_STATUS;
+  if (url.includes('/api/projects/')) return EMBEDDED_PROJECT;
+  return null;
+}
+
+async function loadPipeline() {
+  state.pipeline = await fetchJSON('/api/pipeline');
+}
+
+async function loadAgents() {
+  state.agents = await fetchJSON('/api/agents');
+}
+
+async function loadProjects() {
+  state.projects = await fetchJSON('/api/projects') || [];
+  renderProjectSelect();
+}
+
+async function loadProject(id) {
+  if (!id) { state.currentProject = null; updateAll(); return; }
+  state.currentProject = await fetchJSON(`/api/projects/${id}`);
+  const status = await fetchJSON(`/api/projects/${id}/status`);
+  state.completedSteps = new Set(status?.completed_steps || []);
+  updateAll();
+}
+
+// ── Toast ────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Clipboard ────────────────────────────────────────────────
+
+function copyCmd(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓';
+    btn.classList.add('copied');
+    showToast(`Copied: ${text.slice(0, 50)}…`);
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDERERS
+// ═══════════════════════════════════════════════════════════════
+
+function renderProjectSelect() {
+  const sel = document.getElementById('projectSelect');
+  sel.innerHTML = '<option value="">— Select a project —</option>';
+  state.projects.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = `${p.id} — ${p.title || 'Untitled'} [${p.status}]`;
+    sel.appendChild(opt);
+  });
+}
+
+function updateTopBar() {
+  const p = state.currentProject;
+  document.getElementById('topStatus').textContent = p ? p.status : 'No project';
+  document.getElementById('topClass').textContent = p ? p.classification : '—';
+  document.getElementById('topArtifacts').textContent = p ? (p.artifacts?.length || 0) : '0';
+}
+
+// ── Pipeline Tracker ─────────────────────────────────────────
+
+function renderPipeline() {
+  const container = document.getElementById('pipelineContent');
+  if (!state.pipeline) { container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>Loading pipeline data…</h3></div>'; return; }
+
+  let html = '';
+
+  if (!state.currentProject) {
+    html += `<div class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <div class="info-text">Select a project from the top bar to see live status. The pipeline below shows the full agent sequence — click any card to see its command.</div>
+    </div>`;
+  }
+
+  const pipelineOrder = ['web', 'mobile'];
+  const phaseLabels = {
+    orchestrate: 'Orchestration',
+    plan: 'Planning',
+    test_spec: 'Test Spec — TDD',
+    build: 'Build (against tests)',
+    verify: 'Verify',
+    mobile_plan: 'Mobile UX',
+    mobile_test: 'Mobile Test Spec — TDD',
+    mobile_build: 'Mobile Build (against tests)',
+    mobile_verify: 'Mobile Verify',
+    mobile: 'Mobile',
+  };
+
+  pipelineOrder.forEach(pipelineName => {
+    const steps = state.pipeline[pipelineName];
+    if (!steps) return;
+
+    // Group by phase
+    const phases = {};
+    steps.forEach(s => {
+      if (!phases[s.phase]) phases[s.phase] = [];
+      phases[s.phase].push(s);
+    });
+
+    Object.entries(phases).forEach(([phase, phaseSteps]) => {
+      html += `<div class="pipeline-phase-header">
+        <span class="phase-badge ${phase}">${phaseLabels[phase] || phase}</span>
+        <span class="phase-line"></span>
+      </div>`;
+
+      html += '<div class="pipeline-steps">';
+      phaseSteps.forEach(step => {
+        const done = state.completedSteps.has(step.id);
+        const classes = ['step-card'];
+        if (done) classes.push('done');
+        if (step.checkpoint) classes.push('checkpoint');
+
+        html += `<div class="${classes.join(' ')}" onclick="toggleStep(this)" data-cmd="${step.command}">
+          ${step.checkpoint ? '<span class="step-checkpoint-badge">⏸ Gate</span>' : ''}
+          <div class="step-top">
+            <span class="step-icon">${step.icon}</span>
+            <span class="step-status"></span>
+          </div>
+          <div class="step-name">${step.name}</div>
+          <div class="step-artifact">→ ${step.produces}</div>
+          <div class="step-expand">
+            <div class="step-command">
+              <span style="flex:1">${step.command}</span>
+              <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('${step.command}', this)">copy</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleStep(el) {
+  el.classList.toggle('expanded');
+}
+
+// ── Agent Reference ──────────────────────────────────────────
+
+function renderAgents() {
+  const container = document.getElementById('agentContent');
+  if (!state.agents) { container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>Loading agent data…</h3></div>'; return; }
+
+  // Group agents by phase
+  const phaseMap = {};
+  if (state.pipeline) {
+    Object.values(state.pipeline).flat().forEach(step => {
+      if (state.agents[step.id]) {
+        if (!phaseMap[step.phase]) phaseMap[step.phase] = [];
+        phaseMap[step.phase].push({ ...state.agents[step.id], _id: step.id, _icon: step.icon, _phase: step.phase });
+      }
+    });
+  }
+
+  const phaseLabels = { orchestrate: 'Orchestration', plan: 'Planning', test_spec: 'Test Spec — TDD', build: 'Build (against tests)', verify: 'Verify', mobile_plan: 'Mobile UX', mobile_test: 'Mobile Test Spec — TDD', mobile_build: 'Mobile Build (against tests)', mobile_verify: 'Mobile Verify', mobile: 'Mobile' };
+  let html = '';
+
+  Object.entries(phaseLabels).forEach(([phase, label]) => {
+    const agents = phaseMap[phase];
+    if (!agents || agents.length === 0) return;
+
+    html += `<div class="pipeline-phase-header">
+      <span class="phase-badge ${phase}">${label}</span>
+      <span class="phase-line"></span>
+    </div>`;
+    html += '<div class="agent-grid">';
+
+    agents.forEach(agent => {
+      html += `<div class="agent-card" onclick="this.classList.toggle('expanded')">
+        <div class="agent-card-header">
+          <div class="agent-card-icon ${agent._phase}">${agent._icon}</div>
+          <div class="agent-card-title">
+            <h4>${agent._id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace(/Rn /g, 'RN ').replace(/Ios /g, 'iOS ').replace(/Ux /g, 'UX ').replace(/Qa /g, 'QA ').replace(/Dba/g, 'DBA')}</h4>
+            <span class="subtitle">→ ${agent.produces}</span>
+          </div>
+          <span class="agent-card-tier">${agent.tier}</span>
+          <span class="agent-card-chevron">▸</span>
+        </div>
+        <div class="agent-card-body">
+          <div class="agent-card-content">
+            <div class="agent-desc">${agent.description}</div>
+            <div class="agent-io">
+              <div class="agent-io-box">
+                <div class="label">Consumes</div>
+                <div class="value">${agent.consumes.map(c => `<span class="artifact-tag">${c}</span>`).join(' ')}</div>
+              </div>
+              <div class="agent-io-box">
+                <div class="label">Produces</div>
+                <div class="value"><span class="artifact-tag">${agent.produces}</span></div>
+              </div>
+            </div>
+            <div class="agent-io">
+              <div class="agent-io-box">
+                <div class="label">Model</div>
+                <div class="value">${agent.model}</div>
+              </div>
+              <div class="agent-io-box">
+                <div class="label">File</div>
+                <div class="value" style="font-size:10px;">${agent.file}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ── Project Status ───────────────────────────────────────────
+
+function renderProject() {
+  const container = document.getElementById('projectContent');
+  const p = state.currentProject;
+
+  if (!p) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="icon">📂</div>
+      <h3>No Project Selected</h3>
+      <p>Select a project from the dropdown in the top bar, or start a new one with:<br><code style="color:var(--accent-bright);font-size:11px;">python agents/orchestrator/classify.py</code></p>
+    </div>`;
+    return;
+  }
+
+  const spec = p.structured_spec || {};
+  const artifacts = p.artifacts || [];
+  const checkpoints = p.checkpoints || [];
+  const auditLog = p.audit_log || [];
+
+  let html = `
+    <div class="project-overview">
+      <div class="stat-card">
+        <div class="stat-label">Project ID</div>
+        <div class="stat-value" style="font-size:16px;">${p.project_id}</div>
+        <div class="stat-sub">${spec.title || 'Untitled'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Status</div>
+        <div class="stat-value" style="font-size:16px;">${p.status}</div>
+        <div class="stat-sub">${p.classification} classification</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Progress</div>
+        <div class="stat-value">${artifacts.length}<span style="font-size:14px;color:var(--text-dim);"> artifacts</span></div>
+        <div class="stat-sub">${checkpoints.length} checkpoints reached</div>
+      </div>
+    </div>
+
+    <div class="project-detail-grid">
+      <div class="detail-panel">
+        <h3>Structured Spec</h3>
+        ${spec.description ? `<p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">${spec.description}</p>` : ''}
+        ${spec.deliverables ? `<div style="margin-bottom:8px;"><strong style="font-size:10px;color:var(--text-ghost);letter-spacing:1px;">DELIVERABLES</strong><br>${spec.deliverables.map(d => `<span style="display:inline-block;font-size:11px;color:var(--text-secondary);background:var(--bg-void);border:1px solid var(--border-dim);padding:2px 8px;border-radius:3px;margin:2px;">${d}</span>`).join('')}</div>` : ''}
+        ${spec.success_criteria ? `<div><strong style="font-size:10px;color:var(--text-ghost);letter-spacing:1px;">SUCCESS CRITERIA</strong><br>${spec.success_criteria.map(c => `<div style="font-size:11px;color:var(--text-dim);padding:2px 0;">✓ ${c}</div>`).join('')}</div>` : ''}
+      </div>
+
+      <div class="detail-panel">
+        <h3>Artifacts (${artifacts.length})</h3>
+        <div class="artifact-list">
+          ${artifacts.length === 0 ? '<div style="color:var(--text-ghost);font-size:12px;">No artifacts yet</div>' :
+            artifacts.map(a => `<div class="artifact-row">
+              <span class="art-type">${a.type || '?'}</span>
+              <span class="art-agent">${a.agent || '—'}</span>
+              <span class="art-time">${a.created_at ? new Date(a.created_at).toLocaleString() : ''}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="detail-panel full-width">
+        <h3>Audit Log (${auditLog.length} events)</h3>
+        <div class="audit-log">
+          ${auditLog.length === 0 ? '<div style="color:var(--text-ghost);font-size:12px;">No events recorded</div>' :
+            auditLog.slice(-50).reverse().map(e => `<div class="audit-entry">
+              <span class="ts">${e.timestamp ? new Date(e.timestamp).toLocaleString() : ''}</span>
+              <span class="ev">${e.event || ''} ${e.detail ? '— ' + e.detail : ''}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+
+  container.innerHTML = html;
+}
+
+// ── Checkpoints ──────────────────────────────────────────────
+
+function renderCheckpoints() {
+  const container = document.getElementById('checkpointContent');
+  const p = state.currentProject;
+
+  // Define all checkpoint gates
+  const gates = [
+    { id: 'CP-1', name: 'Requirements Review', agent: 'Product Manager → PRD', check: 'Are the user stories right? Is the scope right?' },
+    { id: 'CP-2', name: 'Architecture Review', agent: 'Technical Architect → TAD', check: 'Does the technology make sense? Is the system design achievable?' },
+    { id: 'CP-3', name: 'Security Gate', agent: 'Security Reviewer → SRR', check: 'Is the rating acceptable (🟢/🟡/🔴)? Are security requirements reasonable?' },
+    { id: 'CP-4', name: 'Design Review', agent: 'UX Designer → UXD + Content Guide', check: 'Does the UI make sense? Is the language clear? All screens covered?' },
+    { id: 'CP-5', name: 'Test Spec Review (TDD)', agent: 'Test Automation → TAR', check: 'Do the tests cover all acceptance criteria? Are test contracts well-defined before build begins?' },
+    { id: 'CP-6', name: 'Build Complete', agent: 'DevOps Engineer → DIR', check: 'Spot-check the code. Does it reference the test contracts? Search for TODO or placeholder.' },
+    { id: 'CP-7', name: 'Penetration Test', agent: 'Penetration Tester → PTR', check: 'Is the PTR rated 🟢 PASS or 🟡 CONDITIONAL? Are all CRITICAL/HIGH findings addressed? Any 🔴 FAIL blocks release.' },
+    { id: 'CP-8', name: 'Verification Gate (TDD)', agent: 'Test Verification → Report', check: 'Do all pre-written tests pass? Coverage targets met? No regressions?' },
+  ];
+
+  let html = '';
+
+  if (!p) {
+    html += `<div class="info-banner">
+      <span class="info-icon">ℹ️</span>
+      <div class="info-text">Select a project to see checkpoint status. Below is the reference for what each checkpoint validates.</div>
+    </div>`;
+  }
+
+  const checkpoints = p?.checkpoints || [];
+
+  html += '<div class="checkpoint-list" style="margin-bottom:24px;">';
+  gates.forEach(gate => {
+    const match = checkpoints.find(c => c.name?.includes(gate.id) || c.name?.includes(gate.name));
+    const status = match ? (match.action || match.status || 'APPROVED').toUpperCase() : 'PENDING';
+    const statusClass = status === 'APPROVED' ? 'approved' : status === 'REJECTED' ? 'rejected' : 'pending';
+
+    html += `<div class="checkpoint-row">
+      <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--status-checkpoint);min-width:40px;">${gate.id}</span>
+      <span class="cp-name">${gate.name}</span>
+      <span style="font-size:11px;color:var(--text-dim);flex:1;">${gate.check}</span>
+      <span class="cp-status ${statusClass}">${status}</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Active checkpoint review (Phase 2 ready)
+  html += `<div class="checkpoint-review">
+    <h3>⏸ Review Active Checkpoint</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">When a checkpoint fires, review the artifact file, then approve or reject here.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-ghost);">Quick check:</span>
+      <button class="copy-btn" onclick="copyCmd('grep -ri \"todo\\\\|placeholder\\\\|implement here\\\\|TBD\" dev/requirements/ dev/build/ dev/quality/', this)" style="font-size:11px;padding:5px 10px;">Copy: grep for TODOs</button>
+      <button class="copy-btn" onclick="copyCmd('cat FLAGS.md', this)" style="font-size:11px;padding:5px 10px;">Copy: check FLAGS.md</button>
+    </div>
+    <div class="checkpoint-actions">
+      <button class="btn btn-approve" onclick="handleCheckpoint('APPROVE')">✓ Approve</button>
+      <button class="btn btn-reject" onclick="document.getElementById('rejectReason').classList.toggle('visible')">✗ Reject</button>
+    </div>
+    <textarea class="reject-reason" id="rejectReason" placeholder="Reason for rejection (helps guide the re-run)…"></textarea>
+  </div>`;
+
+  container.innerHTML = html;
+}
+
+async function handleCheckpoint(action) {
+  const reason = document.getElementById('rejectReason')?.value || '';
+  const projectId = state.currentProject?.project_id;
+  if (!projectId) { showToast('No project selected'); return; }
+
+  const res = await fetch(`/api/checkpoint/${projectId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, reason })
+  });
+  const data = await res.json();
+  showToast(`${action}: ${data.message}`);
+}
+
+// ── Commands ─────────────────────────────────────────────────
+
+function renderCommands() {
+  const container = document.getElementById('commandContent');
+
+  const sections = [
+    {
+      title: 'Startup',
+      commands: [
+        { label: 'Activate virtualenv', cmd: 'cd ~/dev-team && source .venv/bin/activate' },
+        { label: 'Check Ollama is running', cmd: 'curl http://localhost:11434/api/tags' },
+        { label: 'Start Ollama', cmd: 'sudo systemctl start ollama' },
+        { label: 'Check GPU/RAM', cmd: 'ollama ps' },
+      ]
+    },
+    {
+      title: 'Git',
+      commands: [
+        { label: 'Commit (replace XXXXX)', cmd: 'git add -A && git commit -m "PROJ-XXXXX: Agent → Artifact complete"' },
+        { label: 'Tag release', cmd: 'git tag PROJ-XXXXX-v1.0' },
+      ]
+    },
+    {
+      title: 'Troubleshooting',
+      commands: [
+        { label: 'Grep for placeholders', cmd: 'grep -ri "todo\\|placeholder\\|implement here\\|TBD" dev/' },
+        { label: 'Check FLAGS.md', cmd: 'cat FLAGS.md' },
+        { label: 'Archive & start over', cmd: 'mkdir -p logs/archive && mv logs/PROJ-*.json logs/archive/ && python agents/orchestrator/classify.py' },
+        { label: 'Restart Ollama', cmd: 'sudo systemctl restart ollama && curl http://localhost:11434/api/tags' },
+      ]
+    }
+  ];
+
+  let html = '';
+
+  sections.forEach(section => {
+    html += `<div class="pipeline-phase-header">
+      <span class="phase-badge plan">${section.title}</span>
+      <span class="phase-line"></span>
+    </div>`;
+    html += '<div class="cheat-grid">';
+    section.commands.forEach(c => {
+      html += `<div class="cheat-card">
+        <div>
+          <div class="cheat-label">${c.label}</div>
+          <div class="cheat-cmd">${c.cmd}</div>
+        </div>
+        <button class="copy-btn" onclick="copyCmd(\`${c.cmd.replace(/`/g, '\\`')}\`, this)">copy</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  // Full pipeline commands
+  if (state.pipeline) {
+    ['web', 'mobile'].forEach(pipelineName => {
+      const steps = state.pipeline[pipelineName];
+      if (!steps) return;
+      const label = pipelineName.charAt(0).toUpperCase() + pipelineName.slice(1) + ' Pipeline';
+      const phaseClass = pipelineName === 'web' ? 'build' : 'mobile';
+
+      html += `<div class="pipeline-phase-header" style="margin-top:20px;">
+        <span class="phase-badge ${phaseClass}">${label}</span>
+        <span class="phase-line"></span>
+      </div>`;
+      html += '<div class="cheat-grid">';
+      steps.forEach((s, i) => {
+        html += `<div class="cheat-card">
+          <div>
+            <div class="cheat-label">${i + 1}. ${s.name} ${s.checkpoint ? '⏸' : ''}</div>
+            <div class="cheat-cmd">${s.command}</div>
+          </div>
+          <button class="copy-btn" onclick="copyCmd('${s.command}', this)">copy</button>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEW PROJECT
+// ═══════════════════════════════════════════════════════════════
+
+// Character counter
+document.getElementById('npDescription')?.addEventListener('input', (e) => {
+  document.getElementById('npCharCount').textContent = e.target.value.length;
+});
+
+function useExample(el) {
+  const text = el.querySelector('.np-example-text').textContent;
+  const label = el.querySelector('.np-example-label').textContent;
+  document.getElementById('npDescription').value = text;
+  document.getElementById('npTitle').value = '';
+  document.getElementById('npCharCount').textContent = text.length;
+  // Auto-set complexity/data based on label
+  if (label.toLowerCase().includes('joint') || label.toLowerCase().includes('data')) {
+    document.getElementById('npComplexity').value = 'HIGH';
+    document.getElementById('npDataRequired').value = 'true';
+  } else if (label.toLowerCase().includes('simple')) {
+    document.getElementById('npComplexity').value = 'MEDIUM';
+    document.getElementById('npDataRequired').value = 'false';
+  }
+  showToast('Example loaded — edit it to fit your needs');
+}
+
+function clearProjectForm() {
+  document.getElementById('npTitle').value = '';
+  document.getElementById('npDescription').value = '';
+  document.getElementById('npComplexity').value = 'MEDIUM';
+  document.getElementById('npDataRequired').value = 'false';
+  document.getElementById('npRunClassify').checked = false;
+  document.getElementById('npCharCount').textContent = '0';
+  document.getElementById('npResult').style.display = 'none';
+}
+
+async function createProject() {
+  const description = document.getElementById('npDescription').value.trim();
+  if (!description) {
+    showToast('Please enter a project description');
+    document.getElementById('npDescription').focus();
+    return;
+  }
+
+  const title = document.getElementById('npTitle').value.trim();
+  const complexity = document.getElementById('npComplexity').value;
+  const dataRequired = document.getElementById('npDataRequired').value === 'true';
+  const runClassify = document.getElementById('npRunClassify').checked;
+
+  const btn = document.getElementById('npSubmit');
+  btn.classList.add('loading');
+  btn.innerHTML = '<span class="btn-icon">⏳</span> Creating…';
+
+  try {
+    // STANDALONE PREVIEW: Simulate project creation
+    const fakeId = 'PROJ-' + Math.random().toString(16).substr(2, 8).toUpperCase();
+    const res = { ok: true };
+    const data = {
+      project_id: fakeId,
+      status: 'created',
+      message: 'Project ' + fakeId + ' created (preview simulation).',
+      path: 'logs/' + fakeId + '.json'
+    };
+
+    const resultEl = document.getElementById('npResult');
+    resultEl.style.display = 'block';
+
+    if (res.ok) {
+      resultEl.className = 'np-result success';
+      resultEl.innerHTML = `
+        <div class="np-result-header">
+          <span class="icon">✅</span>
+          <span class="title">Project Created</span>
+        </div>
+        <div class="np-result-id">${data.project_id}</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">${data.message}</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-bottom:12px;">File: ${data.path}</div>
+        <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">Next steps:</div>
+        <div class="np-result-next">
+          <div class="np-result-cmd">
+            <span class="num">1</span>
+            <span style="flex:1;">python agents/orchestrator/classify.py</span>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/orchestrator/classify.py', this)">copy</button>
+          </div>
+          <div class="np-result-cmd">
+            <span class="num">2</span>
+            <span style="flex:1;">python agents/orchestrator/router.py</span>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/orchestrator/router.py', this)">copy</button>
+          </div>
+          <div class="np-result-cmd">
+            <span class="num">3</span>
+            <span style="flex:1;">python agents/dev/strategy/product_manager.py</span>
+            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/dev/strategy/product_manager.py', this)">copy</button>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn btn-secondary" onclick="selectNewProject('${data.project_id}')" style="font-size:11px;padding:8px 14px;">
+            Open in Pipeline Tracker →
+          </button>
+          <button class="btn btn-secondary" onclick="clearProjectForm()" style="font-size:11px;padding:8px 14px;">
+            Create Another
+          </button>
+        </div>
+      `;
+
+      // Refresh project list
+      await loadProjects();
+      showToast(`Project ${data.project_id} created!`);
+    } else {
+      resultEl.className = 'np-result error';
+      resultEl.innerHTML = `
+        <div class="np-result-header">
+          <span class="icon">❌</span>
+          <span class="title">Creation Failed</span>
+        </div>
+        <div style="font-size:12px;color:var(--status-error);">${data.error || 'Unknown error'}</div>
+      `;
+    }
+  } catch (e) {
+    const resultEl = document.getElementById('npResult');
+    resultEl.style.display = 'block';
+    resultEl.className = 'np-result error';
+    resultEl.innerHTML = `
+      <div class="np-result-header">
+        <span class="icon">⚠️</span>
+        <span class="title">Connection Error</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);">Could not reach the server. Make sure <code>python app.py</code> is running.</div>
+    `;
+  }
+
+  btn.classList.remove('loading');
+  btn.innerHTML = '<span class="btn-icon">▸</span> Create Project';
+}
+
+function selectNewProject(projectId) {
+  // Select the project and switch to pipeline view
+  const sel = document.getElementById('projectSelect');
+  sel.value = projectId;
+  loadProject(projectId);
+  // Switch to pipeline panel
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelector('[data-panel="pipeline"]').classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-pipeline').classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UPDATE & NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+
+function updateAll() {
+  updateTopBar();
+  renderPipeline();
+  renderAgents();
+  renderProject();
+  renderCheckpoints();
+  renderCommands();
+}
+
+// Sidebar navigation
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+    const panel = item.dataset.panel;
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${panel}`).classList.add('active');
+    state.activePanel = panel;
+  });
+});
+
+// Project select
+document.getElementById('projectSelect').addEventListener('change', (e) => {
+  loadProject(e.target.value);
+});
+
+// ── Initialize ───────────────────────────────────────────────
+
+async function init() {
+  await Promise.all([loadPipeline(), loadAgents(), loadProjects()]);
+  updateAll();
+  // Auto-refresh projects every 30s
+  setInterval(loadProjects, 30000);
+}
+
+init();
+</script>
+</body>
+</html>
