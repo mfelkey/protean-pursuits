@@ -19,3 +19,6 @@
 [submodule "teams/qa-team"]
 	path = teams/qa-team
 	url = git@github.com:mfelkey/qa-team.git
+[submodule "teams/training-team"]
+	path = teams/training-team
+	url = https://github.com/mfelkey/training-team.git
