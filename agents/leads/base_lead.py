@@ -1,78 +1,109 @@
 """
 agents/leads/base_lead.py
 
-Generic Team Lead base — all 7 team leads inherit from this.
-Each lead accepts work from the Project Manager, briefs their agents,
-tracks their deliverables, and reports status upward.
+Protean Pursuits — Team Lead base class
+
+Each Team Lead bridges the PP Project Manager and the embedded
+team orchestrator in teams/<team-name>/.
+
+Standalone team repos remain fully independent — they run directly
+from their own directory without any PP dependency.
 """
 
 import os
+import sys
 import json
+import subprocess
 from datetime import datetime
 from dotenv import load_dotenv
-from crewai import Agent, Task, Crew, Process, LLM
-from agents.orchestrator.orchestrator import log_event, save_context, escalate_blocker
+from crewai import Agent, LLM
 
 load_dotenv("config/.env")
 
+TEAMS_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "teams")
+)
 
-def build_team_lead(team_name: str, role_description: str, backstory: str,
-                    tier: str = "TIER1") -> Agent:
-    """Generic factory for any Team Lead agent."""
-    model_key = "TIER1_MODEL" if tier == "TIER1" else "TIER2_MODEL"
+
+def get_team_path(team_name: str) -> str:
+    return os.path.join(TEAMS_DIR, team_name)
+
+
+def team_exists(team_name: str) -> bool:
+    path = get_team_path(team_name)
+    return os.path.isdir(path) and bool(os.listdir(path))
+
+
+def invoke_team_flow(team_name: str, flow_script: str,
+                     args: list, context: dict) -> dict:
+    """Invoke a team flow script as a subprocess and log the result."""
+    from core.notifications import notify_human
+    from core.context import log_event, save_context, add_artifact
+
+    team_path = get_team_path(team_name)
+    if not team_exists(team_name):
+        msg = (f"Submodule not populated: {team_name}. "
+               f"Run: git submodule update --init --recursive")
+        print(f"❌ {msg}")
+        notify_human(f"Team unavailable — {team_name}", msg)
+        log_event(context, "TEAM_UNAVAILABLE", team_name)
+        return context
+
+    script_path = os.path.join(team_path, flow_script)
+    if not os.path.exists(script_path):
+        print(f"❌ Flow not found: {script_path}")
+        log_event(context, "FLOW_NOT_FOUND", script_path)
+        return context
+
+    key = team_name.upper().replace("-", "_")
+    cmd = [sys.executable, script_path] + args
+    print(f"\n🚀 [{team_name}] {' '.join(cmd)}\n")
+    log_event(context, f"{key}_STARTED", " ".join(args))
+
+    try:
+        result = subprocess.run(cmd, cwd=team_path, text=True, timeout=7200)
+        if result.returncode == 0:
+            log_event(context, f"{key}_COMPLETE")
+            context["status"] = f"{key}_COMPLETE"
+        else:
+            log_event(context, f"{key}_ERROR", f"exit {result.returncode}")
+            notify_human(f"Team run failed — {team_name}",
+                         f"Project: {context['project_name']}\n"
+                         f"Exit: {result.returncode}\nArgs: {' '.join(args)}")
+    except subprocess.TimeoutExpired:
+        log_event(context, f"{key}_TIMEOUT")
+        notify_human(f"Team timed out — {team_name}",
+                     f"Project: {context['project_name']}")
+
+    # Collect output artifacts
+    from core.context import add_artifact
+    team_output = os.path.join(team_path, "output")
+    if os.path.isdir(team_output):
+        for root, _, files in os.walk(team_output):
+            for fname in sorted(files):
+                if fname.endswith(".md") and not fname.startswith("."):
+                    add_artifact(context, fname, key,
+                                 os.path.join(root, fname),
+                                 f"{team_name} orchestrator", "COMPLETE")
+
+    save_context(context)
+    return context
+
+
+def build_team_lead(team_name: str, role: str, goal: str,
+                    backstory: str) -> Agent:
     llm = LLM(
-        model=os.getenv(model_key, "ollama/qwen3:32b"),
+        model=os.getenv("TIER1_MODEL", "ollama/qwen3:32b"),
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         timeout=1800
     )
     return Agent(
-        role=f"{team_name} Team Lead",
-        goal=role_description,
-        backstory=backstory,
-        llm=llm,
-        verbose=True,
-        allow_delegation=True
+        role=role, goal=goal,
+        backstory=(
+            backstory +
+            f"\n\nYou delegate all specialist work to the embedded {team_name} "
+            f"orchestrator at teams/{team_name}/. You translate PP briefs into "
+            f"flow invocations, monitor execution, and report back to the PM."
+        ),
+        llm=llm, verbose=True, allow_delegation=True
     )
-
-
-def run_sprint_deliverable(context: dict, team_name: str, agent: Agent,
-                            sprint_number: int, deliverable_name: str,
-                            deliverable_brief: str, output_dir: str) -> dict:
-    """
-    Generic sprint deliverable runner for any Team Lead.
-    The lead produces the deliverable, saves it, and updates context.
-    """
-    task = Task(
-        description=deliverable_brief,
-        expected_output=f"Complete {deliverable_name} deliverable.",
-        agent=agent
-    )
-
-    crew = Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=True)
-    print(f"\n🔨 [{team_name}] Sprint {sprint_number} — {deliverable_name}...\n")
-    result = crew.kickoff()
-
-    os.makedirs(output_dir, exist_ok=True)
-    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    safe_name = deliverable_name.replace(" ", "_").upper()
-    output_path = f"{output_dir}/{context['project_id']}_S{sprint_number:02d}_{safe_name}_{timestamp}.md"
-
-    with open(output_path, "w") as f:
-        f.write(str(result))
-
-    context["artifacts"].append({
-        "name": deliverable_name,
-        "type": safe_name,
-        "team": team_name,
-        "sprint": sprint_number,
-        "path": output_path,
-        "status": "COMPLETE",
-        "created_at": datetime.utcnow().isoformat(),
-        "created_by": f"{team_name} Team Lead"
-    })
-    log_event(context, f"{team_name.upper()}_DELIVERABLE_COMPLETE",
-              f"Sprint {sprint_number}: {deliverable_name}")
-    save_context(context)
-
-    print(f"\n💾 [{team_name}] {deliverable_name} saved: {output_path}")
-    return context, output_path

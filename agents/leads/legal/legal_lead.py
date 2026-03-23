@@ -1,26 +1,33 @@
-"""agents/leads/legal/legal_lead.py — Legal/Compliance Team Lead"""
-import sys
-sys.path.insert(0, "/home/mfelkey/protean-pursuits")
-from agents.leads.base_lead import build_team_lead, run_sprint_deliverable
+"""agents/leads/legal/legal_lead.py — Legal Team Lead"""
+import sys; sys.path.insert(0, "/home/mfelkey/protean-pursuits")
+from agents.leads.base_lead import build_team_lead, invoke_team_flow
 
 def build_legal_lead():
     return build_team_lead(
-        team_name="Legal",
-        role_description=(
-            "Lead the legal and compliance team to identify, document, and mitigate "
-            "legal and regulatory risk across all project deliverables — producing "
-            "compliance frameworks, policy drafts, and review flags for human counsel."
-        ),
+        team_name="legal-team",
+        role="Legal Team Lead",
+        goal="Manage legal risk and produce legal outputs by coordinating the embedded legal-team orchestrator.",
         backstory=(
-            "You are a Legal Operations Lead and Compliance Specialist with 12 years "
-            "of experience supporting technology companies across privacy law, "
-            "intellectual property, commercial contracts, and regulatory compliance. "
-            "You are not a licensed attorney — you produce structured legal analysis, "
-            "policy drafts, and compliance checklists for review by qualified counsel. "
-            "You identify jurisdiction-specific requirements (GDPR, CCPA, CAN-SPAM, "
-            "UKGC, etc.), draft policy documents (Privacy Policy, Terms of Service, "
-            "Responsible Gambling), flag IP and data licensing risks, and produce "
-            "pre-launch compliance checklists. Every document you produce is clearly "
-            "marked as requiring legal counsel review before publication."
+            "You are a General Counsel equivalent with 20 years of experience. "
+            "You interface between PP project requirements and the legal-team — "
+            "translating legal needs into legal flow invocations and reporting "
+            "risk levels and required actions back to the Project Manager."
         )
     )
+
+def run_legal_deliverable(context: dict, mode: str,
+                           doc_type: str = None,
+                           jurisdiction: str = "US",
+                           industry: str = None,
+                           brief: str = "") -> dict:
+    args = ["--mode", mode, "--name", context["project_name"],
+            "--jurisdiction", jurisdiction]
+    if doc_type:
+        args += ["--type", doc_type]
+    if industry:
+        args += ["--industry", industry]
+    if context.get("project_id"):
+        args += ["--project-id", context["project_id"]]
+    if brief:
+        args += ["--brief", brief]
+    return invoke_team_flow("legal-team", "flows/legal_flow.py", args, context)

@@ -1,24 +1,22 @@
 """agents/leads/marketing/marketing_lead.py — Marketing Team Lead"""
-import sys
-sys.path.insert(0, "/home/mfelkey/protean-pursuits")
-from agents.leads.base_lead import build_team_lead, run_sprint_deliverable
+import sys; sys.path.insert(0, "/home/mfelkey/protean-pursuits")
+from agents.leads.base_lead import build_team_lead, invoke_team_flow
 
 def build_marketing_lead():
     return build_team_lead(
-        team_name="Marketing",
-        role_description=(
-            "Lead the marketing team to plan and execute go-to-market strategy — "
-            "brand, content, social, video, email, and performance analytics — "
-            "delivering campaigns that drive acquisition, conversion, and retention."
-        ),
+        team_name="marketing-team",
+        role="Marketing Team Lead",
+        goal="Execute go-to-market strategy by coordinating the embedded marketing-team orchestrator.",
         backstory=(
-            "You are a VP of Marketing with 15 years of experience building "
-            "go-to-market programmes for SaaS, fintech, and consumer products. "
-            "You bridge strategy and execution: you can write a positioning document "
-            "and also review a social post for brand voice compliance. "
-            "You coordinate with Design on creative assets and with Dev on landing "
-            "pages and tracking instrumentation. You own the Marketing Plan, content "
-            "calendar, campaign briefs, and performance reports. You enforce brand "
-            "voice and compliance rules across every agent output."
+            "You are a VP of Marketing with 15 years of experience. You interface "
+            "between PP project requirements and the marketing-team — translating "
+            "GTM strategy into campaign flow invocations and reporting results "
+            "back to the Project Manager."
         )
     )
+
+def run_marketing_deliverable(context: dict, campaign_name: str,
+                               campaign_type: str = "FULL") -> dict:
+    args = ["--campaign", campaign_name, "--type", campaign_type]
+    return invoke_team_flow("marketing-team", "flows/marketing_flow.py",
+                            args, context)

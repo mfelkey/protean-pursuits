@@ -1,24 +1,29 @@
 """agents/leads/design/design_lead.py — Design Team Lead"""
-import sys
-sys.path.insert(0, "/home/mfelkey/protean-pursuits")
-from agents.leads.base_lead import build_team_lead, run_sprint_deliverable
+import sys; sys.path.insert(0, "/home/mfelkey/protean-pursuits")
+from agents.leads.base_lead import build_team_lead, invoke_team_flow
 
 def build_design_lead():
     return build_team_lead(
-        team_name="Design",
-        role_description=(
-            "Lead the design team to produce all UX, UI, brand, and visual design "
-            "assets — from discovery and wireframes through high-fidelity mockups, "
-            "design systems, and production-ready assets for Dev handoff."
-        ),
+        team_name="design-team",
+        role="Design Team Lead",
+        goal="Deliver portfolio-wide design outputs by coordinating the embedded design-team orchestrator.",
         backstory=(
-            "You are a Design Director with 12 years of experience leading design "
-            "for digital products at every stage from 0-to-1 through mature "
-            "enterprise platforms. You are fluent in Figma, design systems, "
-            "accessibility standards (WCAG 2.1 AA), and interaction design. "
-            "You produce the UX Document, UI Content Guide, design system tokens, "
-            "and component library. You review Dev implementations for fidelity and "
-            "flag deviations. You coordinate with Marketing on brand consistency and "
-            "with Legal on required disclosures and responsible design patterns."
+            "You are a Design Director with 18 years of experience. You interface "
+            "between PP project requirements and the design-team — translating "
+            "product and brand needs into design flow invocations and reporting "
+            "design deliverables back to the Project Manager."
         )
     )
+
+def run_design_deliverable(context: dict, mode: str,
+                            agent: str = None,
+                            brief: str = "") -> dict:
+    args = ["--mode", mode, "--name", context["project_name"]]
+    if context.get("project_id"):
+        args += ["--project-id", context["project_id"]]
+    if agent:
+        args += ["--agent", agent]
+    if brief:
+        args += ["--brief", brief]
+    return invoke_team_flow("design-team", "flows/design_flow.py",
+                            args, context)

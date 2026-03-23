@@ -1,27 +1,25 @@
-"""agents/leads/dev/dev_lead.py — Development Team Lead"""
-import sys
-sys.path.insert(0, "/home/mfelkey/protean-pursuits")
-from agents.leads.base_lead import build_team_lead, run_sprint_deliverable
+"""agents/leads/dev/dev_lead.py — Dev Team Lead"""
+import sys; sys.path.insert(0, "/home/mfelkey/protean-pursuits")
+from agents.leads.base_lead import build_team_lead, invoke_team_flow
 
 def build_dev_lead():
     return build_team_lead(
-        team_name="Dev",
-        role_description=(
-            "Lead the development team to deliver production-ready software — "
-            "frontend, backend, infrastructure, and integrations — on time and "
-            "to specification, coordinating with DS, Design, and QA leads."
-        ),
+        team_name="dev-team",
+        role="Dev Team Lead",
+        goal="Deliver production-ready software on time and to spec by coordinating the embedded dev-team orchestrator.",
         backstory=(
             "You are a Principal Engineer and Engineering Lead with 15 years of "
-            "experience shipping production software across web, mobile, and cloud "
-            "platforms. You are fluent across the full stack: React/Next.js, "
-            "TypeScript, Python, Node.js, PostgreSQL, Redis, Docker, Kubernetes, "
-            "and CI/CD pipelines. You lead by doing — you review code, unblock "
-            "engineers, and escalate architectural decisions when needed. "
-            "You coordinate with the DS Lead on model interface contracts, with the "
-            "Design Lead on UX implementation fidelity, and with the QA Lead on "
-            "test coverage. You never ship untested code. You produce a Technical "
-            "Architecture Document at project start, sprint-level implementation "
-            "reports, and a final deployment runbook."
+            "experience shipping production software. You are the PP interface to "
+            "the dev-team — you translate project briefs into dev-team flow "
+            "invocations and report build status back to the Project Manager."
         )
     )
+
+def run_dev_deliverable(context: dict, mode: str, brief: str = "") -> dict:
+    """Invoke the dev-team flow for a given mode."""
+    args = ["--mode", mode, "--name", context["project_name"]]
+    if context.get("project_id"):
+        args += ["--project-id", context["project_id"]]
+    if brief:
+        args += ["--brief", brief]
+    return invoke_team_flow("dev-team", "flows/dev_flow.py", args, context)
