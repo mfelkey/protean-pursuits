@@ -61,18 +61,16 @@ def slugify(text: str) -> str:
 
 
 def clean_for_pdf(text: str) -> str:
-    """Escape special chars for ReportLab XML."""
+    """Convert markdown to ReportLab-safe XML."""
+    # First escape all raw & < > 
+    text = text.replace('&', '&amp;')
+    text = text.replace('<', '&lt;')
+    text = text.replace('>', '&gt;')
+    # Now apply markdown → XML safely
     text = re.sub(r'\*\*\*(.*?)\*\*\*', r'<b><i>\1</i></b>', text)
     text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
-    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+    # Skip italic — * too common in non-markdown text
     text = re.sub(r'`(.*?)`', r'<font name="Courier">\1</font>', text)
-    text = re.sub(r'&(?!amp;|lt;|gt;|quot;)', '&amp;', text)
-    text = text.replace('<', '&lt;').replace('>', '&gt;') \
-               .replace('&amp;lt;', '<').replace('&amp;gt;', '>') \
-               .replace('&lt;b&gt;', '<b>').replace('&lt;/b&gt;', '</b>') \
-               .replace('&lt;i&gt;', '<i>').replace('&lt;/i&gt;', '</i>') \
-               .replace('&lt;font', '<font').replace('&lt;/font&gt;', '</font>') \
-               .replace('name=&quot;', 'name="').replace('&quot;&gt;', '">')
     return text.strip()
 
 
