@@ -297,8 +297,9 @@ def publish_document(md_path: str, team: str, title: str,
     dest_md   = PARALLAXEDGE_DOCS / f"{base_name}.md"
     dest_pdf  = PARALLAXEDGE_DOCS / f"{base_name}.pdf"
 
-    # Copy .md
-    shutil.copy2(md_path, dest_md)
+    # Copy .md (skip if source and destination are the same file)
+    if md_path.resolve() != dest_md.resolve():
+        shutil.copy2(md_path, dest_md)
 
     # Generate PDF
     try:
