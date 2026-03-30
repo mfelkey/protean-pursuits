@@ -1,5 +1,5 @@
 """
-agents/dev/finance/financial_statements.py
+agents/finance/financial_statements.py
 
 Finance specialist — Financial Statements Report (FSR)
 
@@ -8,7 +8,7 @@ Income Statement, Cash Flow Statement, Balance Sheet.
 Driven by CEA, ROI, ICM, and PRI inputs.
 
 Run standalone:
-  python agents/dev/finance/financial_statements.py
+  python agents/finance/financial_statements.py
 """
 
 import sys

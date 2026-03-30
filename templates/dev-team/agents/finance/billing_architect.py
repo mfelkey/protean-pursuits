@@ -1,5 +1,5 @@
 """
-agents/dev/finance/billing_architect.py
+agents/finance/billing_architect.py
 
 Finance specialist — Billing & Payment Feature Spec (BPS)
 
@@ -12,7 +12,7 @@ When billing_integration=true in the project context, BPS is passed to
 the Backend and Frontend developers as an authoritative upstream spec.
 
 Run standalone:
-  python agents/dev/finance/billing_architect.py
+  python agents/finance/billing_architect.py
 """
 
 import sys

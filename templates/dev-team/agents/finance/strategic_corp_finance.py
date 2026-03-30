@@ -1,5 +1,5 @@
 """
-agents/dev/finance/strategic_corp_finance.py
+agents/finance/strategic_corp_finance.py
 
 Finance specialist — Strategic Corporate Finance Report (SCF)
 
@@ -9,7 +9,7 @@ financial risk register, and a two-page executive summary.
 Runs last in the Finance sequence.
 
 Run standalone:
-  python agents/dev/finance/strategic_corp_finance.py
+  python agents/finance/strategic_corp_finance.py
 """
 
 import sys

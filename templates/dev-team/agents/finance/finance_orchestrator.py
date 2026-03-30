@@ -1,5 +1,5 @@
 """
-agents/dev/finance/finance_orchestrator.py
+agents/finance/finance_orchestrator.py
 
 Protean Pursuits — Finance Group Orchestrator
 
@@ -20,11 +20,11 @@ All Finance outputs are advisory. RED ratings surface as FLAGS — they never
 block the pipeline automatically. You decide at CP-4.5 whether to proceed.
 
 Run:
-  python agents/dev/finance/finance_orchestrator.py
+  python agents/finance/finance_orchestrator.py
   (must be run from the dev-team root with a PROJ-*.json in logs/)
 
 Single-agent shortcut:
-  python agents/dev/finance/cost_analyst.py   # just the CEA
+  python agents/finance/cost_analyst.py   # just the CEA
 """
 
 import sys
@@ -374,13 +374,13 @@ def run_finance_crew(context: dict) -> dict:
     synthesises the FSP, and fires CP-4.5.
     Returns updated context.
     """
-    from agents.dev.finance.cost_analyst          import build_cost_analyst,          run_cost_analysis
-    from agents.dev.finance.roi_analyst           import build_roi_analyst,           run_roi_analysis
-    from agents.dev.finance.infra_finance_modeler import build_infra_finance_modeler, run_infra_model
-    from agents.dev.finance.billing_architect     import build_billing_architect,     run_billing_spec
-    from agents.dev.finance.pricing_specialist    import build_pricing_specialist,    run_pricing_model
-    from agents.dev.finance.financial_statements  import build_financial_statements,  run_financial_statements
-    from agents.dev.finance.strategic_corp_finance import build_strategic_corp_finance, run_strategic_corp_finance
+    from agents.finance.cost_analyst          import build_cost_analyst,          run_cost_analysis
+    from agents.finance.roi_analyst           import build_roi_analyst,           run_roi_analysis
+    from agents.finance.infra_finance_modeler import build_infra_finance_modeler, run_infra_model
+    from agents.finance.billing_architect     import build_billing_architect,     run_billing_spec
+    from agents.finance.pricing_specialist    import build_pricing_specialist,    run_pricing_model
+    from agents.finance.financial_statements  import build_financial_statements,  run_financial_statements
+    from agents.finance.strategic_corp_finance import build_strategic_corp_finance, run_strategic_corp_finance
 
     project_id   = context["project_id"]
     project_name = context["project_name"]

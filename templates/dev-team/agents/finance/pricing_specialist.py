@@ -1,5 +1,5 @@
 """
-agents/dev/finance/pricing_specialist.py
+agents/finance/pricing_specialist.py
 
 Finance specialist — Pricing Strategy & Model (PRI)
 
@@ -8,7 +8,7 @@ competitive positioning, margin analysis, sensitivity analysis.
 Skipped automatically for internal tooling projects.
 
 Run standalone:
-  python agents/dev/finance/pricing_specialist.py
+  python agents/finance/pricing_specialist.py
 """
 
 import sys

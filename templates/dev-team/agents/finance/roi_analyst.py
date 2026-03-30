@@ -1,5 +1,5 @@
 """
-agents/dev/finance/roi_analyst.py
+agents/finance/roi_analyst.py
 
 Finance specialist — ROI & Business Case Analysis (ROI)
 
@@ -7,7 +7,7 @@ Builds the investment case: expected returns, payback period, NPV, IRR,
 break-even, and risk-adjusted scenarios. Answers: is this worth building?
 
 Run standalone:
-  python agents/dev/finance/roi_analyst.py
+  python agents/finance/roi_analyst.py
 """
 
 import sys

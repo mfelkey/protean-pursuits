@@ -1,5 +1,5 @@
 """
-agents/dev/finance/cost_analyst.py
+agents/finance/cost_analyst.py
 
 Finance specialist — Cost Estimates & Budget Document (CEA)
 
@@ -8,7 +8,7 @@ tooling, infrastructure, and third-party services. Always runs first;
 feeds into ROI, ICM, and FSR.
 
 Run standalone:
-  python agents/dev/finance/cost_analyst.py
+  python agents/finance/cost_analyst.py
 """
 
 import sys

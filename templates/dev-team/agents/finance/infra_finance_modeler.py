@@ -1,5 +1,5 @@
 """
-agents/dev/finance/infra_finance_modeler.py
+agents/finance/infra_finance_modeler.py
 
 Finance specialist — Infrastructure Cost Model (ICM)
 
@@ -8,7 +8,7 @@ line-item infrastructure costs, scaling curves, cloud vs on-prem trade-offs,
 and a month-by-month projection for years 1–3.
 
 Run standalone:
-  python agents/dev/finance/infra_finance_modeler.py
+  python agents/finance/infra_finance_modeler.py
 """
 
 import sys
