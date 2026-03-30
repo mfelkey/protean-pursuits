@@ -22,3 +22,6 @@
 [submodule "teams/training-team"]
 	path = teams/training-team
 	url = https://github.com/mfelkey/training-team.git
+[submodule "teams/hr-team"]
+	path = teams/hr-team
+	url = git@github.com:mfelkey/hr-team.git
