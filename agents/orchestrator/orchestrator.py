@@ -216,13 +216,14 @@ def escalate_blocker(context: dict, blocker_id: str, severity: str,
 # ── Repo spin-up from template ────────────────────────────────────────────────
 
 TEAM_TEMPLATES = {
-    "dev": "templates/dev_team",
-    "ds": "templates/ds_team",
-    "marketing": "templates/marketing_team",
-    "design": "templates/design_team",
-    "qa": "templates/qa_team",
-    "legal": "templates/legal_team",
-    "strategy": "templates/strategy_team",
+    "dev":       "templates/dev-team",
+    "ds":        "templates/ds-team",
+    "marketing": "templates/marketing-team",
+    "design":    "templates/design-team",
+    "qa":        "templates/qa-team",
+    "legal":     "templates/legal-team",
+    "strategy":  "templates/strategy-team",
+    "video":     "templates/video-team",
 }
 
 
