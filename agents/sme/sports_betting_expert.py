@@ -45,7 +45,7 @@ def build_sports_betting_expert():
     )
 
 
-def run_sme_consult(context: dict, question: str) -> tuple:
+def run_sme_consult(context: dict, question: str, caller: str = None) -> tuple:
     """Direct single-SME call. Returns (result_text, updated_context)."""
     from agents.sme.sme_orchestrator import run_sme_consult as _run
-    return _run(context, "sports_betting", question)
+    return _run(context, "sports_betting", question, caller=caller)

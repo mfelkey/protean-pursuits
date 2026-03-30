@@ -44,6 +44,6 @@ def build_nba_ncaa_basketball_expert():
     )
 
 
-def run_sme_consult(context: dict, question: str) -> tuple:
+def run_sme_consult(context: dict, question: str, caller: str = None) -> tuple:
     from agents.sme.sme_orchestrator import run_sme_consult as _run
-    return _run(context, "nba_ncaa_basketball", question)
+    return _run(context, "nba_ncaa_basketball", question, caller=caller)

@@ -76,6 +76,54 @@ def _get_registry():
         "lpga":                        build_lpga_expert,
     }
 
+# ── Authorised callers ─────────────────────────────────────────────────────────
+
+# Only these caller identifiers may invoke SME agents.
+# Dev-team agents are explicitly excluded.
+AUTHORISED_CALLERS = {
+    "pp_orchestrator",
+    "project_manager",
+    "strategy",
+    "strategy_team",
+    "legal",
+    "legal_team",
+}
+
+# Dev-team caller identifiers — always rejected
+DEV_TEAM_CALLERS = {
+    "dev_team", "dev-team", "backend_developer", "frontend_developer",
+    "senior_developer", "devops_engineer", "database_admin",
+    "qa_lead", "test_automation_engineer", "test_verify",
+    "technical_architect", "scalability_architect", "performance_auditor",
+    "performance_planner", "penetration_tester", "accessibility_specialist",
+    "scrum_master", "ux_designer", "ux_content_guide", "business_analyst",
+    "security_reviewer", "mobile_ios", "mobile_android", "mobile_react_native",
+    "mobile_devops", "mobile_qa",
+}
+
+
+def validate_caller(caller: str) -> None:
+    """
+    Raise PermissionError if the caller is a dev-team agent or not authorised.
+    caller should be a snake_case identifier matching AUTHORISED_CALLERS.
+    Pass caller=None to skip the check (e.g. direct human invocation from CLI).
+    """
+    if caller is None:
+        return
+    caller_lower = caller.lower().replace("-", "_")
+    if caller_lower in DEV_TEAM_CALLERS:
+        raise PermissionError(
+            f"SME agents are not available to dev-team agents (caller: '{caller}'). "
+            f"SME consultations must be requested through the PP Orchestrator, "
+            f"Project Manager, Strategy, or Legal."
+        )
+    if caller_lower not in AUTHORISED_CALLERS:
+        raise PermissionError(
+            f"Unauthorised SME caller: '{caller}'. "
+            f"Authorised callers: {sorted(AUTHORISED_CALLERS)}."
+        )
+
+
 # Keywords used for auto-routing when no sme_keys are specified
 _ROUTING_KEYWORDS = {
     "sports_betting":              ["sportsbook", "operator economics", "wagering industry",
@@ -283,11 +331,17 @@ def build_sme_orchestrator() -> Agent:
 
 # ── Single-SME direct call ─────────────────────────────────────────────────────
 
-def run_sme_consult(context: dict, sme_key: str, question: str) -> tuple:
+def run_sme_consult(context: dict, sme_key: str, question: str,
+                    caller: str = None) -> tuple:
     """
     Call a single SME directly. Returns (result_text, updated_context).
     Use this when the calling agent knows exactly which SME it needs.
+
+    caller — snake_case identifier of the invoking agent/team, e.g.
+             'pp_orchestrator', 'project_manager', 'strategy', 'legal'.
+             Dev-team callers are rejected with PermissionError.
     """
+    validate_caller(caller)
     from agents.sme.base_sme import SME_STANDARDS
 
     registry = _get_registry()
@@ -323,13 +377,16 @@ Question / brief from calling agent:
 # ── Multi-SME orchestrated call ────────────────────────────────────────────────
 
 def run_sme_crew(context: dict, sme_keys: list, question: str,
-                 timeout_hours: int = 48) -> dict:
+                 caller: str = None, timeout_hours: int = 48) -> dict:
     """
     Route to one or more SMEs, synthesise, fire HITL review.
 
     sme_keys — list of SME registry keys to call.
                 Pass [] to auto-detect from question keywords.
+    caller   — snake_case identifier of the invoking agent/team.
+                Dev-team callers are rejected with PermissionError.
     """
+    validate_caller(caller)
     from agents.sme.base_sme import SME_STANDARDS
 
     registry = _get_registry()

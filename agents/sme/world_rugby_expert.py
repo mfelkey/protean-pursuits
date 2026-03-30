@@ -51,6 +51,6 @@ def build_world_rugby_expert():
     )
 
 
-def run_sme_consult(context: dict, question: str) -> tuple:
+def run_sme_consult(context: dict, question: str, caller: str = None) -> tuple:
     from agents.sme.sme_orchestrator import run_sme_consult as _run
-    return _run(context, "world_rugby", question)
+    return _run(context, "world_rugby", question, caller=caller)
