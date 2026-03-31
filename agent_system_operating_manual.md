@@ -670,7 +670,41 @@ python flows/intake\_flow.py --mode brief --name "My Project" --prd docs/my\_prd
 
 `python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md --budget 150000`
 
-**DS-only work:** For focused data science briefs, route directly through `intake_flow.py --teams ds` rather than letting the Orchestrator auto-classify. A dedicated `ds_flow.py` entrypoint is planned but not yet implemented in the repo.
+**DS-only work — use `ds_flow.py` directly:** For focused data science tasks (briefs, evaluations, analyses), bypass `intake_flow.py` entirely and call `templates/ds-team/flows/ds_flow.py` from your cloned ds-team instance. This runs a single Lead Data Scientist agent and saves output to `output/reports/`.
+
+## DS Team Flow — `flows/ds_flow.py`
+
+Run from inside a cloned ds-team instance (not the PP root). Notifications go via Pushover (`PUSHOVER_USER_KEY` + `PUSHOVER_API_TOKEN` in `config/.env`).
+
+**Run modes:**
+
+| Mode | What it does | Status |
+| --- | --- | --- |
+| `brief` | On-demand task — single Lead Data Scientist agent | ✅ Implemented |
+| `evaluation` | Evaluate a data source, tool, or approach | ✅ Implemented (routes to `run_brief`) |
+| `analysis` | Analytical report or investigation | ✅ Implemented (routes to `run_brief`) |
+| `model` | Full model development pipeline | 🔜 Coming soon |
+| `pipeline` | Data pipeline design and implementation | 🔜 Coming soon |
+
+# On-demand brief
+python3 flows/ds\_flow.py --mode brief --name "My DS Task" --brief "Evaluate StatsBomb open data for WC2026 xG modeling..."
+# Data source / tool evaluation
+python3 flows/ds\_flow.py --mode evaluation --name "Open-Meteo vs Tomorrow.io" --brief "Compare weather API options for match-day weather features..."
+# Analytical investigation
+python3 flows/ds\_flow.py --mode analysis --name "Q1 Model Drift Analysis" --brief "Investigate xG model degradation observed in Jan-Mar results..."
+# Attach to an existing PP project context
+python3 flows/ds\_flow.py --mode brief --name "My DS Task" --brief "..." --project-id PROJ-A1B2C3D4
+
+**Output:** Saved to `output/reports/{RUN-ID}_BRIEF_{timestamp}.md`. Auto-published to `parallaxedge/docs/` via `core.doc_publisher` if available; falls back to a manual `scripts/publish.py` prompt.
+
+**Output structure every DS brief produces:**
+
+1. EXECUTIVE SUMMARY — recommendation in 2–3 sentences
+2. DETAILED EVALUATION — findings for each option
+3. RECOMMENDATION — clear GO/NO-GO with rationale
+4. IMPLEMENTATION NOTES — specific steps, libraries, requirements if GO
+5. RISK FLAGS — concerns or caveats
+6. PRD IMPACT — any schema or interface contract changes required
 
 ## Standard dev-team run
 

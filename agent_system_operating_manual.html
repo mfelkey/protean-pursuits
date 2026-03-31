@@ -840,8 +840,46 @@ python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.m
 </div>
 
 <div class="tip">
-  <strong>DS-only work:</strong> For focused data science briefs, route directly through <code>intake_flow.py --teams ds</code> rather than letting the Orchestrator auto-classify. A dedicated <code>ds_flow.py</code> entrypoint is planned but not yet implemented in the repo.
+  <strong>DS-only work — use <code>ds_flow.py</code> directly:</strong> For focused data science tasks (briefs, evaluations, analyses), bypass <code>intake_flow.py</code> entirely and call <code>templates/ds-team/flows/ds_flow.py</code> from your cloned ds-team instance. This runs a single Lead Data Scientist agent and saves output to <code>output/reports/</code>.
 </div>
+
+<h2>DS Team Flow — <code>flows/ds_flow.py</code></h2>
+
+<p>Run from inside a cloned ds-team instance (not the PP root). Notifications go via Pushover (<code>PUSHOVER_USER_KEY</code> + <code>PUSHOVER_API_TOKEN</code> in <code>config/.env</code>).</p>
+
+<p><strong>Run modes:</strong></p>
+<table>
+  <tr><th>Mode</th><th>What it does</th><th>Status</th></tr>
+  <tr><td><code>brief</code></td><td>On-demand task — single Lead Data Scientist agent</td><td>✅ Implemented</td></tr>
+  <tr><td><code>evaluation</code></td><td>Evaluate a data source, tool, or approach</td><td>✅ Implemented (routes to <code>run_brief</code>)</td></tr>
+  <tr><td><code>analysis</code></td><td>Analytical report or investigation</td><td>✅ Implemented (routes to <code>run_brief</code>)</td></tr>
+  <tr><td><code>model</code></td><td>Full model development pipeline</td><td>🔜 Coming soon</td></tr>
+  <tr><td><code>pipeline</code></td><td>Data pipeline design and implementation</td><td>🔜 Coming soon</td></tr>
+</table>
+
+<div class="cmd"><span class="c"># On-demand brief</span>
+python3 flows/ds_flow.py --mode brief     --name "My DS Task"     --brief "Evaluate StatsBomb open data for WC2026 xG modeling..."
+
+<span class="c"># Data source / tool evaluation</span>
+python3 flows/ds_flow.py --mode evaluation     --name "Open-Meteo vs Tomorrow.io"     --brief "Compare weather API options for match-day weather features..."
+
+<span class="c"># Analytical investigation</span>
+python3 flows/ds_flow.py --mode analysis     --name "Q1 Model Drift Analysis"     --brief "Investigate xG model degradation observed in Jan-Mar results..."
+
+<span class="c"># Attach to an existing PP project context</span>
+python3 flows/ds_flow.py --mode brief     --name "My DS Task"     --brief "..."     --project-id PROJ-A1B2C3D4</div>
+
+<p><strong>Output:</strong> Saved to <code>output/reports/{RUN-ID}_BRIEF_{timestamp}.md</code>. Auto-published to <code>parallaxedge/docs/</code> via <code>core.doc_publisher</code> if available; falls back to a manual <code>scripts/publish.py</code> prompt.</p>
+
+<p><strong>Output structure every DS brief produces:</strong></p>
+<ol>
+  <li>EXECUTIVE SUMMARY — recommendation in 2–3 sentences</li>
+  <li>DETAILED EVALUATION — findings for each option</li>
+  <li>RECOMMENDATION — clear GO/NO-GO with rationale</li>
+  <li>IMPLEMENTATION NOTES — specific steps, libraries, requirements if GO</li>
+  <li>RISK FLAGS — concerns or caveats</li>
+  <li>PRD IMPACT — any schema or interface contract changes required</li>
+</ol>
 
 <h2>Standard dev-team run</h2>
 <div class="cmd"><span class="c"># 1. Start Ollama (if not running as a service)</span>
