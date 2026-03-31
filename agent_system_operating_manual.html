@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Protean Pursuits — Agent System Operating Manual</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+  :root {
+    --blue:      #1a56db;
+    --blue-dim:  #1e3a6e;
+    --blue-lt:   #dbeafe;
+    --green:     #059669;
+    --amber:     #d97706;
+    --red:       #dc2626;
+    --purple:    #7c3aed;
+    --teal:      #0d9488;
+    --slate:     #1e293b;
+    --ink:       #0f172a;
+    --mid:       #475569;
+    --rule:      #e2e8f0;
+    --surface:   #f8fafc;
+    --mono: 'IBM Plex Mono', 'SF Mono', 'Courier New', monospace;
+    --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+    --serif: 'DM Serif Display', Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 28px 80px;
+    line-height: 1.75;
+    color: var(--ink);
+    font-size: 10.5pt;
+  }
+
+  /* Cover */
+  .cover {
+    text-align: center;
+    padding: 72px 0 56px;
+    border-bottom: 3px solid var(--blue);
+    margin-bottom: 48px;
+  }
+  .cover .eyebrow {
+    font-family: var(--mono);
+    font-size: 8pt;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 18px;
+  }
+  .cover h1 {
+    font-family: var(--serif);
+    font-size: 36pt;
+    font-weight: 400;
+    border: none;
+    margin: 0 0 8px;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+  .cover .subtitle { font-size: 12pt; color: var(--mid); margin-top: 12px; line-height: 1.6; }
+  .cover .stack { margin-top: 18px; font-family: var(--mono); font-size: 8.5pt; color: #94a3b8; letter-spacing: 1.5px; }
+  .cover .version { margin-top: 28px; font-size: 9pt; color: #94a3b8; }
+
+  /* Headings */
+  h1 {
+    font-family: var(--serif);
+    font-size: 22pt;
+    font-weight: 400;
+    border-bottom: 3px solid var(--blue);
+    padding-bottom: 10px;
+    margin-top: 56px;
+    color: var(--blue);
+  }
+  h2 { font-size: 13pt; font-weight: 600; color: var(--blue-dim); border-bottom: 1px solid var(--rule); padding-bottom: 5px; margin-top: 36px; }
+  h3 { font-size: 11pt; font-weight: 600; color: var(--ink); margin-top: 24px; margin-bottom: 6px; }
+  p { margin: 10px 0 14px; }
+
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 8px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--blue); color: #fff; font-weight: 600; font-size: 9pt; }
+  tr:nth-child(even) td { background: var(--surface); }
+
+  /* Code */
+  code { font-family: var(--mono); font-size: 9pt; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 3px; padding: 1px 5px; }
+  pre { font-family: var(--mono); font-size: 9pt; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 14px 18px; overflow-x: auto; white-space: pre-wrap; margin: 14px 0; line-height: 1.6; }
+
+  /* Dark command blocks */
+  .cmd { background: var(--slate); color: #e2e8f0; padding: 16px 20px; border-radius: 8px; margin: 14px 0; font-family: var(--mono); font-size: 9pt; line-height: 1.75; overflow-x: auto; white-space: pre; }
+  .cmd .c { color: #64748b; }
+  .cmd .cp { color: #fbbf24; font-weight: 600; }
+  .cmd .hi { color: #86efac; }
+
+  /* Pipeline diagrams */
+  .pipeline { background: var(--surface); border: 2px solid var(--rule); border-radius: 10px; padding: 22px 24px; margin: 18px 0; font-family: var(--mono); font-size: 8.5pt; line-height: 1.7; overflow-x: auto; white-space: pre; }
+
+  /* Callouts */
+  .tip  { background: #eff6ff; border-left: 4px solid var(--blue);  padding: 14px 20px; margin: 18px 0; border-radius: 0 8px 8px 0; }
+  .warn { background: #fffbeb; border-left: 4px solid var(--amber); padding: 14px 20px; margin: 18px 0; border-radius: 0 8px 8px 0; }
+  .stop { background: #fef2f2; border-left: 4px solid var(--red);   padding: 14px 20px; margin: 18px 0; border-radius: 0 8px 8px 0; }
+  .info { background: #f0fdf4; border-left: 4px solid var(--green); padding: 14px 20px; margin: 18px 0; border-radius: 0 8px 8px 0; }
+  .tip strong { color: var(--blue); } .warn strong { color: #92400e; } .stop strong { color: var(--red); } .info strong { color: var(--green); }
+
+  /* Agent cards */
+  .agent-card { border: 1px solid var(--rule); border-radius: 10px; padding: 16px 20px; margin: 12px 0; background: #fff; }
+  .agent-card h4 { margin: 0 0 6px; font-size: 11pt; font-weight: 600; color: var(--blue); }
+  .agent-card .what { color: var(--ink); margin: 4px 0; font-size: 10pt; }
+  .agent-card .io { font-size: 9pt; color: var(--mid); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .agent-card .skip { font-size: 8.5pt; font-family: var(--mono); color: var(--amber); margin-top: 6px; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: 7.5pt; font-weight: 700; font-family: var(--mono); color: #fff; vertical-align: middle; letter-spacing: 0.5px; text-transform: uppercase; }
+  .b-plan    { background: var(--blue);   }
+  .b-build   { background: var(--green);  }
+  .b-test    { background: var(--amber);  }
+  .b-mobile  { background: var(--teal);   }
+  .b-finance { background: var(--purple); }
+  .b-sme     { background: #be185d;       }
+  .b-hr      { background: #0e7490;       }
+  .b-retrofit{ background: #64748b;       }
+
+  /* TOC */
+  .toc { margin: 20px 0 48px; }
+  .toc ol { padding-left: 22px; }
+  .toc li { margin: 5px 0; }
+  .toc a { color: var(--blue); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc .part-label { font-family: var(--mono); font-size: 8pt; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #94a3b8; display: block; margin: 20px 0 8px; }
+
+  /* Part headers */
+  .part-header { text-align: center; margin: 56px 0 32px; padding: 28px; background: linear-gradient(135deg,#eff6ff 0%,#f8fafc 100%); border-radius: 12px; border: 1px solid var(--rule); }
+  .part-header .part-num { font-family: var(--mono); font-size: 8pt; letter-spacing: 3px; text-transform: uppercase; color: var(--blue); margin-bottom: 6px; }
+  .part-header h2 { font-family: var(--serif); font-size: 18pt; font-weight: 400; border: none; color: var(--ink); margin: 0; padding: 0; }
+  .part-header p { color: var(--mid); font-size: 10pt; margin: 8px 0 0; }
+
+  /* Cheat grid */
+  .cheat { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .cheat-item { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; }
+  .cheat-item .label { font-weight: 600; font-size: 9.5pt; color: var(--blue); margin-bottom: 4px; }
+  .cheat-item code { font-size: 8pt; }
+
+  .page-break { page-break-before: always; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════ COVER -->
+<div class="cover">
+  <div class="eyebrow">Protean Pursuits</div>
+  <h1>Agent System<br>Operating Manual</h1>
+  <div class="subtitle">Your AI team of teams — 70+ agents that turn a plain-English<br>project description into architecture, code, tests, and deployment.</div>
+  <div class="stack">CrewAI · Ollama · ChromaDB · qwen3 · GitHub</div>
+  <div class="version">Version 3.0 — March 2026 &nbsp;·&nbsp; Reflects commit <code>fdaabc3</code> and beyond</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ TOC -->
+<h2>Contents</h2>
+<div class="toc">
+<ol>
+  <span class="part-label">Part I — Use It</span>
+  <li><a href="#s1">How It Works — The Big Picture</a></li>
+  <li><a href="#s2">What Kind of Project Am I Running?</a></li>
+  <li><a href="#s3">Meet the Teams</a></li>
+  <li><a href="#s4">Agent Groups (Finance, SME, HR)</a></li>
+  <li><a href="#s5">Run Your First Project</a></li>
+  <li><a href="#s6">Command Cheat Sheet</a></li>
+  <li><a href="#s7">Checkpoints — When It Asks You Something</a></li>
+  <li><a href="#s8">When Things Go Wrong</a></li>
+  <span class="part-label">Part II — Customize It</span>
+  <li><a href="#s9">Change Models, Tune Agents, Add New Ones</a></li>
+  <li><a href="#s10">Day-to-Day Operations</a></li>
+  <span class="part-label">Part III — Reference</span>
+  <li><a href="#app-a">Appendix A — Full Agent Roster</a></li>
+  <li><a href="#app-b">Appendix B — Artifact Registry</a></li>
+  <li><a href="#app-c">Appendix C — Context Object Schema</a></li>
+  <li><a href="#app-d">Appendix D — Conflict Resolution &amp; Escalation</a></li>
+  <li><a href="#app-e">Appendix E — Quality Standards</a></li>
+  <li><a href="#app-f">Appendix F — Model Tier Reference</a></li>
+</ol>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §1 -->
+<h1 id="s1">1. How It Works</h1>
+
+<p>You describe what you want in plain English. Protean Pursuits routes it through a hierarchy of AI agents — each an expert at a specific job — in a fixed sequence. You approve the work at key checkpoints. At the end you have a full set of documents, architecture, code, and tests.</p>
+
+<h3>The orchestration hierarchy</h3>
+<div class="pipeline">
+YOU ──→ Plain-English project description
+          │
+          ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │  PP ORCHESTRATOR  (agents/orchestrator/orchestrator.py)  │
+  │  Discovery interview · PRD auto-gen · Team assignment    │
+  │  Cross-project memory · Blocker escalation               │
+  └────────────────────┬─────────────────────────────────────┘
+                       │
+                       ▼
+  ┌──────────────────────────────────────────────────────────┐
+  │  PROJECT MANAGER  (agents/project_manager/)              │
+  │  Sprint planning · Timeline · Cross-team deps · Status   │
+  └──┬────────────────────────────────────────────────┬──────┘
+     │                                                │
+     ▼                                                ▼
+  Team Lead                                      Team Lead
+  (agents/leads/dev/)                        (agents/leads/hr/)  …etc
+     │                                                │
+     ▼                                                ▼
+  Team Orchestrator                          Team Orchestrator
+     │                                                │
+     ▼                                                ▼
+  Specialist Agents                          Specialist Agents
+</div>
+
+<h3>Three rules the system never breaks</h3>
+<ol>
+  <li><strong>Nothing starts without a clear spec.</strong> The PP Orchestrator turns your request into a structured project (PRD) before any team touches it — either via a discovery interview or from a brief you supply directly.</li>
+  <li><strong>Nothing passes a checkpoint without your approval.</strong> The system sends SMS + email, then waits. No agent ships anything autonomously.</li>
+  <li><strong>Everything is logged.</strong> Every decision, artifact, and approval is written to a project context JSON file and to git history.</li>
+</ol>
+
+<div class="tip"><strong>Notification setup:</strong> SMS goes via AT&amp;T email-to-text gateway. Email goes via Outlook SMTP. Configure <code>HUMAN_PHONE_NUMBER</code>, <code>HUMAN_EMAIL</code>, <code>OUTLOOK_ADDRESS</code>, and <code>OUTLOOK_PASSWORD</code> in <code>config/.env</code>.</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §2 -->
+<div class="page-break"></div>
+<h1 id="s2">2. What Kind of Project Am I Running?</h1>
+
+<p>The PP Orchestrator classifies your request into one of three types and routes accordingly. You don't pick — it figures it out from your description.</p>
+
+<div class="pipeline">
+                  What does your project need?
+                            │
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+    Software only?    Data analysis     Both?
+    (app, API,        only? (EDA,       (analyze data,
+     dashboard,       ML model,         then build an
+     automation)      stats, reports)   app from results)
+            │               │               │
+            ▼               ▼               ▼
+        DEV crew        DS crew         JOINT
+     30+ agents run   14+ agents run  DS runs first,
+     full web +       data pipeline   hands off to Dev
+     mobile pipeline                  with a formal
+                                      package
+</div>
+
+<table>
+  <tr><th>If you say…</th><th>It becomes</th><th>What runs</th></tr>
+  <tr><td>"Build me a dashboard for tracking orders"</td><td><strong>DEV</strong></td><td>Full dev pipeline: requirements → architecture → code → tests</td></tr>
+  <tr><td>"Analyze last year's sales data and show me patterns"</td><td><strong>DS</strong></td><td>Data science pipeline: EDA → analysis → models → reporting</td></tr>
+  <tr><td>"Analyze our trip data, then build a dashboard from the results"</td><td><strong>JOINT</strong></td><td>DS pipeline first → handoff package → DEV pipeline second</td></tr>
+</table>
+
+<div class="tip"><strong>Be specific.</strong> "Build a dashboard" produces vague output. "Build an interactive dashboard showing monthly trip data with filters for type, date range, and provider, deployed as a containerized web app" gives agents much better starting material.</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §3 -->
+<div class="page-break"></div>
+<h1 id="s3">3. Meet the Teams</h1>
+
+<p>Protean Pursuits has <strong>9 active teams</strong>, each with its own orchestrator, specialists, flow, and output directory. Every team follows the same internal structure: <code>agents/ flows/ config/ output/ memory/ docs/</code>.</p>
+
+<h2>Dev Team — Core Software Pipeline</h2>
+<p>The primary software engineering team. Runs a sequential pipeline from requirements through deployable code and tests. All agents read env vars for model selection — no model names are hardcoded.</p>
+
+<h3>🔵 Planning Agents <span class="badge b-plan">Tier 1</span></h3>
+
+<div class="agent-card">
+  <h4>Product Manager</h4>
+  <div class="what">Turns your project description into a detailed requirements document — user stories, acceptance criteria, scope boundaries, and a clear definition of done.</div>
+  <div class="io">📥 Project spec → 📄 <strong>PRD</strong> (Product Requirements Document)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Business Analyst</h4>
+  <div class="what">Goes deeper than the PRD. Maps stakeholders, draws process flows, builds data dictionaries. Answers every structural question the PRD leaves open.</div>
+  <div class="io">📥 PRD → 📄 <strong>BAD</strong> (Business Analysis Document)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Scrum Master</h4>
+  <div class="what">Breaks requirements into sprints — prioritized backlog, story points, sprint sequencing, and definition of ready.</div>
+  <div class="io">📥 PRD + BAD → 📄 <strong>Sprint Plan</strong></div>
+</div>
+
+<div class="agent-card">
+  <h4>Technical Architect</h4>
+  <div class="what">Designs the whole system — technologies, data flows, deployment model, component boundaries, and integration points. Deployment-agnostic: uses <code>DEPLOY_TARGET</code> env var, never cloud provider names in code.</div>
+  <div class="io">📥 PRD + BAD + Sprint Plan → 📄 <strong>TAD</strong> (Technical Architecture Document)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Security Reviewer</h4>
+  <div class="what">Reviews the architecture for security holes, compliance gaps, and privacy risks. A 🔴 RED rating hard-blocks the pipeline — build agents cannot run until the finding is resolved.</div>
+  <div class="io">📥 PRD + TAD → 📄 <strong>SRR</strong> rated 🟢 GREEN / 🟡 AMBER / 🔴 RED</div>
+</div>
+
+<div class="agent-card">
+  <h4>UX/UI Designer</h4>
+  <div class="what">Designs every screen, interaction, and user journey. Defines the complete information architecture.</div>
+  <div class="io">📥 PRD + BAD + SRR → 📄 <strong>UXD</strong> (User Experience Document)</div>
+</div>
+
+<div class="agent-card">
+  <h4>UX Content Guide</h4>
+  <div class="what">Writes every label, button, tooltip, placeholder, and error message. Developers never make up UI text — they copy it from here.</div>
+  <div class="io">📥 UXD → 📄 <strong>UI Content Guide</strong></div>
+</div>
+
+<h3>🟢 Build Agents <span class="badge b-build">Tier 2</span></h3>
+
+<div class="agent-card">
+  <h4>Senior Developer</h4>
+  <div class="what">Translates architecture into a concrete coding plan — project structure, module boundaries, coding standards, implementation order. This is the bible the other developers follow.</div>
+  <div class="io">📥 PRD + TAD + UXD → 📄 <strong>TIP</strong> (Technical Implementation Plan)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Backend Developer</h4>
+  <div class="what">Builds server-side code — APIs, authentication, business logic, data access. Complete working code, no placeholders, no TODOs.</div>
+  <div class="io">📥 TIP + TAD → 📄 <strong>BIR</strong> (Backend Implementation Report) + code</div>
+</div>
+
+<div class="agent-card">
+  <h4>Frontend Developer</h4>
+  <div class="what">Builds the user interface — pages, components, state management, API integration. Uses exact text from the Content Guide.</div>
+  <div class="io">📥 TIP + UXD + BIR + Content Guide → 📄 <strong>FIR</strong> (Frontend Implementation Report) + code</div>
+</div>
+
+<div class="agent-card">
+  <h4>Database Administrator</h4>
+  <div class="what">Reviews and optimizes the schema — indexes, migrations, backups, capacity planning. Developers do not modify the database without this agent's sign-off.</div>
+  <div class="io">📥 BIR + TAD + SRR → 📄 <strong>DBAR</strong> (Database Administration Report)</div>
+</div>
+
+<div class="agent-card">
+  <h4>DevOps Engineer</h4>
+  <div class="what">Sets up everything for build, test, and deploy — Docker, CI/CD pipelines, infrastructure-as-code, secrets management. Deployment-agnostic output.</div>
+  <div class="io">📥 TIP + TAD + SRR → 📄 <strong>DIR</strong> (DevOps Implementation Report)</div>
+</div>
+
+<h3>🟠 Quality Agents</h3>
+
+<div class="agent-card">
+  <h4>QA Lead <span class="badge b-plan">Tier 1</span></h4>
+  <div class="what">Reads every document the team produced and designs the test plan — what to test, how, and what "done" means.</div>
+  <div class="io">📥 PRD + TIP + BIR + FIR + UXD → 📄 <strong>MTP</strong> (Master Test Plan)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Test Automation Engineer <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Writes the actual test code — unit tests, API tests, E2E tests, accessibility tests. Real code that runs: Jest, Playwright, axe-core, k6.</div>
+  <div class="io">📥 MTP + BIR + FIR + TIP → 📄 <strong>TAR</strong> (Test Automation Report) + test code</div>
+</div>
+
+<h3>📱 Mobile Agents <span style="font-size:10pt;color:#888;">(activates automatically when project includes a mobile app)</span></h3>
+
+<div class="agent-card">
+  <h4>Mobile UX Designer <span class="badge b-mobile">Tier 1</span></h4>
+  <div class="what">Designs the mobile experience — iOS, Android, and React Native all work from this one document.</div>
+  <div class="io">📥 PRD → 📄 <strong>MUXD</strong> (Mobile UX Document)</div>
+</div>
+
+<div class="agent-card">
+  <h4>iOS Developer <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Builds the native iOS app in Swift/SwiftUI with VoiceOver accessibility and secure storage.</div>
+  <div class="io">📥 MUXD + PRD → 📄 <strong>IIR</strong> (iOS Implementation Report) + Swift code</div>
+</div>
+
+<div class="agent-card">
+  <h4>Android Developer <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Builds the native Android app in Kotlin/Jetpack Compose with TalkBack and encrypted storage.</div>
+  <div class="io">📥 MUXD + PRD → 📄 <strong>AIR</strong> (Android Implementation Report) + Kotlin code</div>
+</div>
+
+<div class="agent-card">
+  <h4>RN Architect <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Designs the React Native/Expo/TypeScript architecture in two parts. Part 2 receives Part 1's actual output as context — not the raw spec — to prevent re-generation loops.</div>
+  <div class="io">📥 MUXD + PRD → 📄 <strong>RNAD P1</strong> + <strong>RNAD P2</strong></div>
+</div>
+
+<div class="agent-card">
+  <h4>RN Developer <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Produces the cross-platform implementation guide. Receives RNAD P1 output — not the raw spec — as context injection.</div>
+  <div class="io">📥 RNAD + MUXD → 📄 <strong>RN Guide</strong></div>
+</div>
+
+<div class="agent-card">
+  <h4>Mobile DevOps Engineer <span class="badge b-build">Tier 2</span></h4>
+  <div class="what">Build pipelines, code signing, TestFlight/Play Console automation, EAS Build, Fastlane, GitHub Actions for mobile.</div>
+  <div class="io">📥 IIR / AIR / RN Guide → 📄 <strong>MDIR</strong> (Mobile DevOps Report)</div>
+</div>
+
+<div class="agent-card">
+  <h4>Mobile QA Specialist <span class="badge b-plan">Tier 1</span></h4>
+  <div class="what">Writes the mobile test suite — XCTest, JUnit5/Espresso, Detox. Tests accessibility on real device flows.</div>
+  <div class="io">📥 MTP + IIR + AIR + RN Guide → Mobile test suite</div>
+</div>
+
+<h3>🔁 Retrofit Agents <span class="badge b-retrofit">Tier 2</span></h3>
+<p>Re-process existing artifacts to strip provider-specific content and make the system deployment-agnostic. These agents process <em>finalized</em> documents — they are deliberately excluded from RAG injection.</p>
+
+<table>
+  <tr><th>Agent</th><th>File</th><th>Input</th><th>Output</th></tr>
+  <tr><td>TAD Retrofit</td><td><code>dev/build/tad_retrofit.py</code></td><td>TAD</td><td>TAD-R</td></tr>
+  <tr><td>BIR Retrofit</td><td><code>dev/build/backend_developer_retrofit.py</code></td><td>BIR</td><td>BIR-R</td></tr>
+  <tr><td>DIR Retrofit</td><td><code>dev/build/devops_engineer_retrofit.py</code></td><td>DIR</td><td>DIR-R</td></tr>
+  <tr><td>SRR Retrofit</td><td><code>dev/build/srr_retrofit.py</code></td><td>SRR</td><td>SRR-R</td></tr>
+  <tr><td>MTP Retrofit</td><td><code>dev/quality/qa_lead_retrofit.py</code></td><td>MTP</td><td>MTP-R</td></tr>
+  <tr><td>Reconciliation</td><td><code>dev/reconciliation.py</code></td><td>All -R artifacts</td><td>Gap report</td></tr>
+</table>
+
+<h3>📚 Docs Agents</h3>
+
+<div class="agent-card">
+  <h4>API Documentation &amp; DevEx Writer</h4>
+  <div class="what">Produces API reference docs, README, developer guides, SDK quickstarts, and onboarding content.</div>
+  <div class="io">Location: <code>templates/dev-team/agents/docs/devex_writer.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Technical Writer</h4>
+  <div class="what">Produces user guides, admin guides, runbooks, release notes, KB articles, and internal onboarding content.</div>
+  <div class="io">Location: <code>templates/dev-team/agents/docs/technical_writer.py</code></div>
+</div>
+
+<h3>RAG Memory (ChromaDB)</h3>
+<p>Planning and build agents are RAG-wired via ChromaDB. The Knowledge Curator populates the store from four sources: GitHub releases, ArXiv papers, NVD/OWASP security feeds, and VA/CMS policy bulletins. Run manually:</p>
+<div class="cmd"><span class="c"># Tech/security sources</span>
+python agents/shared/knowledge_curator/curator.py --source github --source security
+
+<span class="c"># Research + policy sources</span>
+python agents/shared/knowledge_curator/curator.py --source arxiv --source va_cms</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ OTHER TEAMS -->
+<div class="page-break"></div>
+<h2 id="ds-team">DS Team — Data Science Pipeline</h2>
+
+<p>Handles analytical workflows from initial framing through final reporting. Features <strong>complexity-adaptive filtering</strong> — the pipeline depth scales automatically to LOW / MEDIUM / HIGH complexity classifications. LOW projects skip agents and checkpoints that aren't needed.</p>
+
+<p>Anti-hallucination discipline is enforced via a <code>validators.py</code> module with six checks: source grounding, fabricated statistics detection, confidence marker enforcement, section completeness, forbidden content filtering, and upstream consistency. All DS agent outputs require <code>[ASSUMPTION]</code> and <code>[VERIFY]</code> tags where applicable.</p>
+
+<div class="tip"><strong>DS → DEV handoff (JOINT projects):</strong> The DS team produces a formal handoff package. The DEV team receives it as authoritative upstream context and does not re-run the analysis.</div>
+
+
+<h2 id="design-team">Design Team</h2>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>Design Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>UX Researcher</td><td><code>agents/ux_research/ux_research_agent.py</code></td></tr>
+  <tr><td>Wireframing Specialist</td><td><code>agents/wireframing/wireframing_agent.py</code></td></tr>
+  <tr><td>UI Designer</td><td><code>agents/ui_design/ui_design_agent.py</code></td></tr>
+  <tr><td>Brand Identity Specialist</td><td><code>agents/brand_identity/brand_identity_agent.py</code></td></tr>
+  <tr><td>Design System Architect</td><td><code>agents/design_system/design_system_agent.py</code></td></tr>
+  <tr><td>Motion &amp; Animation Designer</td><td><code>agents/motion_animation/motion_agent.py</code></td></tr>
+  <tr><td>Accessibility Specialist</td><td><code>agents/accessibility/accessibility_agent.py</code></td></tr>
+  <tr><td>Usability Analyst</td><td><code>agents/usability/usability_agent.py</code></td></tr>
+</table>
+<p>HITL gate type: <code>DESIGN_REVIEW</code>. All outputs require your approval before assets are handed to the Dev team.</p>
+
+
+<h2 id="legal-team">Legal Team</h2>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>Legal Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Contract Drafter</td><td><code>agents/contract_drafting/contract_agent.py</code></td></tr>
+  <tr><td>Document Reviewer</td><td><code>agents/document_review/review_agent.py</code></td></tr>
+  <tr><td>Corporate Entity Specialist</td><td><code>agents/corporate_entity/corporate_agent.py</code></td></tr>
+  <tr><td>IP &amp; Licensing Specialist</td><td><code>agents/ip_licensing/ip_agent.py</code></td></tr>
+  <tr><td>Privacy &amp; Data Counsel</td><td><code>agents/privacy_data/privacy_agent.py</code></td></tr>
+  <tr><td>Regulatory Compliance Specialist</td><td><code>agents/regulatory_compliance/compliance_agent.py</code></td></tr>
+  <tr><td>Employment &amp; Contractor Counsel</td><td><code>agents/employment_contractor/employment_agent.py</code></td></tr>
+  <tr><td>Litigation &amp; Dispute Specialist</td><td><code>agents/litigation_dispute/litigation_agent.py</code></td></tr>
+</table>
+<p>HITL gate type: <code>LEGAL_REVIEW</code>. Legal is an <strong>authorized SME caller</strong> — it may invoke the SME Group directly.</p>
+
+
+<h2 id="marketing-team">Marketing Team</h2>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>Marketing Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Marketing Analyst</td><td><code>agents/analyst/analyst_agent.py</code></td></tr>
+  <tr><td>Copywriter</td><td><code>agents/copywriter/copywriter_agent.py</code></td></tr>
+  <tr><td>Email Specialist</td><td><code>agents/email/email_agent.py</code></td></tr>
+  <tr><td>Social Media Specialist</td><td><code>agents/social/social_agent.py</code></td></tr>
+  <tr><td>Video Producer</td><td><code>agents/video/video_agent.py</code></td></tr>
+</table>
+<p>The Copywriter produces: landing pages, paid ads, app store listings, push notifications, in-product copy, campaign messaging, and brand copy. HITL gate types: <code>POST</code>, <code>EMAIL</code>, <code>VIDEO</code>.</p>
+
+
+<h2 id="strategy-team">Strategy Team</h2>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>Strategy Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Brand Positioning Strategist</td><td><code>agents/brand_positioning/brand_agent.py</code></td></tr>
+  <tr><td>Business Model Designer</td><td><code>agents/business_model/business_model_agent.py</code></td></tr>
+  <tr><td>Competitive Intelligence Analyst</td><td><code>agents/competitive_intel/competitive_intel_agent.py</code></td></tr>
+  <tr><td>Financial Strategist</td><td><code>agents/financial_strategy/financial_strategy_agent.py</code></td></tr>
+  <tr><td>GTM Strategist</td><td><code>agents/gtm/gtm_agent.py</code></td></tr>
+  <tr><td>OKR Planner</td><td><code>agents/okr_planning/okr_agent.py</code></td></tr>
+  <tr><td>Partnership Strategist</td><td><code>agents/partnership/partnership_agent.py</code></td></tr>
+  <tr><td>Product Strategist</td><td><code>agents/product_strategy/product_strategy_agent.py</code></td></tr>
+  <tr><td>Risk &amp; Scenario Planner</td><td><code>agents/risk_scenario/risk_agent.py</code></td></tr>
+  <tr><td>Talent &amp; Org Designer</td><td><code>agents/talent_org/talent_agent.py</code></td></tr>
+  <tr><td>Technology Strategist</td><td><code>agents/technology_strategy/tech_strategy_agent.py</code></td></tr>
+</table>
+<p>HITL gate types: <code>STRATEGY</code>, <code>OKR_CYCLE</code>, <code>COMPETITIVE</code>. Strategy is an <strong>authorized SME caller</strong>.</p>
+
+
+<h2 id="qa-team">QA Team (Standalone)</h2>
+<p>A cross-team QA crew that operates independently of the Dev team's internal quality phase. Can be engaged to audit any team's deliverables.</p>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>QA Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Functional Testing Specialist</td><td><code>agents/functional_testing/functional_agent.py</code></td></tr>
+  <tr><td>Performance Testing Specialist</td><td><code>agents/performance_testing/performance_agent.py</code></td></tr>
+  <tr><td>Security Testing Specialist</td><td><code>agents/security_testing/security_agent.py</code></td></tr>
+  <tr><td>Accessibility Auditor</td><td><code>agents/accessibility_audit/accessibility_audit_agent.py</code></td></tr>
+  <tr><td>Data Quality Analyst</td><td><code>agents/data_quality/data_quality_agent.py</code></td></tr>
+  <tr><td>Legal Completeness Reviewer</td><td><code>agents/legal_completeness/legal_qa_agent.py</code></td></tr>
+  <tr><td>Marketing Compliance Reviewer</td><td><code>agents/marketing_compliance/marketing_qa_agent.py</code></td></tr>
+  <tr><td>Test Case Developer</td><td><code>agents/test_case_development/test_case_agent.py</code></td></tr>
+</table>
+<p>HITL gate type: <code>QA_SIGN_OFF</code>.</p>
+
+
+<h2 id="video-team">Video Team</h2>
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>Video Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Script Writer</td><td><code>agents/script/script_writer.py</code></td></tr>
+  <tr><td>Visual Director</td><td><code>agents/visual/visual_director.py</code></td></tr>
+  <tr><td>Audio Producer</td><td><code>agents/audio/audio_producer.py</code></td></tr>
+  <tr><td>Avatar Producer</td><td><code>agents/avatar/avatar_producer.py</code></td></tr>
+  <tr><td>Tool Intelligence Analyst</td><td><code>agents/tool_intelligence/tool_analyst.py</code></td></tr>
+  <tr><td>API Engineer</td><td><code>agents/production/api_engineer.py</code></td></tr>
+  <tr><td>Compliance Reviewer</td><td><code>agents/compliance/compliance_reviewer.py</code></td></tr>
+</table>
+<p>HITL gate type: <code>VIDEO</code>.</p>
+
+
+<!-- ══════════════════════════════════════════════════════════ §4 AGENT GROUPS -->
+<div class="page-break"></div>
+<h1 id="s4">4. Agent Groups</h1>
+
+<p>Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.</p>
+
+<h2>Finance Group <span class="badge b-finance">Dev Team Sub-Crew</span></h2>
+
+<p><strong>Not a standalone team.</strong> Runs as a sub-crew of the Dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it <strong>never auto-blocks the pipeline</strong>. Fires checkpoint CP-4.5 on FSP completion.</p>
+
+<p><strong>Auto-detection rules:</strong></p>
+<ul>
+  <li>Billing Architect (<code>BPS</code>) is skipped if no billing/payment/subscription language is found in the PRD</li>
+  <li>Pricing Specialist (<code>PRI</code>) is skipped for internal tooling projects</li>
+</ul>
+
+<table>
+  <tr><th>Agent</th><th>File</th><th>Artifact</th><th>Notes</th></tr>
+  <tr><td>Finance Orchestrator</td><td><code>finance_orchestrator.py</code></td><td>FSP</td><td>Sequences crew, cross-checks, synthesises, fires CP-4.5</td></tr>
+  <tr><td>Cost Analyst</td><td><code>cost_analyst.py</code></td><td>CEA</td><td>Always runs first</td></tr>
+  <tr><td>ROI Analyst</td><td><code>roi_analyst.py</code></td><td>ROI</td><td>Always runs</td></tr>
+  <tr><td>Infrastructure Finance Modeler</td><td><code>infra_finance_modeler.py</code></td><td>ICM</td><td>TAD → cost lines, scaling curves, 3-year projections</td></tr>
+  <tr><td>Billing Architect</td><td><code>billing_architect.py</code></td><td>BPS</td><td>⚠️ Skipped if no billing language in PRD</td></tr>
+  <tr><td>Pricing Specialist</td><td><code>pricing_specialist.py</code></td><td>PRI</td><td>⚠️ Skipped for internal tool projects</td></tr>
+  <tr><td>Financial Statements Modeler</td><td><code>financial_statements.py</code></td><td>FSR</td><td>Income statement, cash flow, balance sheet (3-year)</td></tr>
+  <tr><td>Strategic Corp Finance Specialist</td><td><code>strategic_corp_finance.py</code></td><td>SCF</td><td>Always runs last</td></tr>
+</table>
+
+<p>All Finance artifacts open with <code>FINANCE RATING: 🟢/🟡/🔴</code> and end with an <code>OPEN QUESTIONS</code> section.</p>
+<p>Location: <code>templates/dev-team/agents/finance/</code></p>
+
+
+<h2>SME Group <span class="badge b-sme">Access-Controlled</span></h2>
+
+<p>Project-agnostic domain specialists callable from any current or future Protean Pursuits project. The SME Orchestrator routes queries, synthesises multi-expert responses, and fires a HITL review gate on any multi-SME output.</p>
+
+<div class="stop"><strong>⛔ Authorized callers only:</strong> <code>pp_orchestrator</code>, <code>project_manager</code>, <code>strategy</code>, <code>legal</code>. Dev-team agents are explicitly blocked — a <code>PermissionError</code> is raised at runtime via <code>validate_caller()</code>.</div>
+
+<p><strong>Three invocation patterns:</strong></p>
+<ol>
+  <li>Single SME direct: <code>run_sme_consult(context, "pga", question, caller="project_manager")</code></li>
+  <li>Multi-SME orchestrated: <code>run_sme_crew(context, ["pga", "lpga"], question, caller="strategy")</code></li>
+  <li>Auto-detect from keywords: <code>run_sme_crew(context, [], question, caller="pp_orchestrator")</code></li>
+</ol>
+
+<table>
+  <tr><th>Registry Key</th><th>Domain</th></tr>
+  <tr><td><code>sports_betting</code></td><td>Cross-sport industry authority — all regulated markets worldwide</td></tr>
+  <tr><td><code>world_football</code></td><td>All global leagues, confederations, Asian handicap</td></tr>
+  <tr><td><code>nba_ncaa_basketball</code></td><td>NBA + March Madness</td></tr>
+  <tr><td><code>nfl_ncaa_football</code></td><td>NFL + CFP, college football</td></tr>
+  <tr><td><code>mlb</code></td><td>MLB + NPB + KBO + CPBL</td></tr>
+  <tr><td><code>nhl_ncaa_hockey</code></td><td>NHL + NCAA + KHL + Euro leagues</td></tr>
+  <tr><td><code>mma</code></td><td>UFC + Bellator + ONE + Rizin</td></tr>
+  <tr><td><code>tennis</code></td><td>ATP + WTA + Challengers + ITF</td></tr>
+  <tr><td><code>world_rugby</code></td><td>Union + League — Six Nations, NRL, State of Origin</td></tr>
+  <tr><td><code>cricket</code></td><td>Test + ODI + T20 + IPL — all formats, all nations</td></tr>
+  <tr><td><code>wnba_ncaa_womens_basketball</code></td><td>WNBA + NCAA women's</td></tr>
+  <tr><td><code>thoroughbred_horse_racing</code></td><td>US + UK/IRE + AUS + HK + JPN + FR + DXB</td></tr>
+  <tr><td><code>harness_racing</code></td><td>Standardbred worldwide — Hambletonian, V75, PMU</td></tr>
+  <tr><td><code>mens_boxing</code></td><td>All four sanctioning bodies, all 17 weight classes</td></tr>
+  <tr><td><code>pga</code></td><td>PGA Tour + DP World Tour + LIV + all majors + Ryder Cup</td></tr>
+  <tr><td><code>lpga</code></td><td>LPGA + JLPGA + KLPGA + women's majors + Solheim Cup</td></tr>
+</table>
+
+<p>Every SME output opens with <code>DOMAIN ASSESSMENT: HIGH/MEDIUM/LOW</code> and ends with <code>CROSS-TEAM FLAGS</code> and <code>OPEN QUESTIONS</code>.</p>
+<p>Location: <code>agents/sme/</code></p>
+
+
+<h2>HR Team <span class="badge b-hr">Standalone Team</span></h2>
+
+<p>A fully standalone team with its own template and live submodule at <code>teams/hr-team/</code> (<code>github.com/mfelkey/hr-team</code>). Lead: <code>agents/leads/hr/hr_lead.py</code>.</p>
+
+<div class="stop">
+  <strong>Humans-only workforce model.</strong> The HR team will never recommend replacing a person with AI. All outputs require human approval before any action affecting a person is taken. No exceptions.
+</div>
+
+<p><strong>Run modes:</strong> <code>RECRUIT | ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE</code></p>
+<p><strong>Mandatory cross-team flags on every output:</strong> Legal / Finance / Strategy / QA</p>
+
+<table>
+  <tr><th>Agent</th><th>File</th></tr>
+  <tr><td>HR Orchestrator</td><td><code>agents/hr/orchestrator/orchestrator.py</code></td></tr>
+  <tr><td>Recruiting Specialist</td><td><code>agents/hr/recruiting/recruiting_agent.py</code></td></tr>
+  <tr><td>Onboarding Specialist</td><td><code>agents/hr/onboarding/onboarding_agent.py</code></td></tr>
+  <tr><td>Performance &amp; Compensation Specialist</td><td><code>agents/hr/performance_comp/performance_comp_agent.py</code></td></tr>
+  <tr><td>Policy &amp; Compliance Specialist</td><td><code>agents/hr/policy_compliance/policy_compliance_agent.py</code></td></tr>
+  <tr><td>Culture &amp; Engagement Specialist</td><td><code>agents/hr/culture_engagement/culture_engagement_agent.py</code></td></tr>
+  <tr><td>Benefits Specialist</td><td><code>agents/hr/benefits/benefits_agent.py</code></td></tr>
+</table>
+<p>HITL gate type: <code>HR action gate</code> — fires before any action affecting a person.</p>
+
+
+<!-- ══════════════════════════════════════════════════════════ §5 -->
+<div class="page-break"></div>
+<h1 id="s5">5. Run Your First Project</h1>
+
+<h2>Prerequisites</h2>
+<table>
+  <tr><th>Tool</th><th>Install</th><th>Verify</th></tr>
+  <tr><td>Ollama</td><td><code>curl -fsSL https://ollama.com/install.sh | sh</code></td><td><code>curl http://localhost:11434/api/tags</code></td></tr>
+  <tr><td>qwen3:32b</td><td><code>ollama pull qwen3:32b</code></td><td>Appears in tags list</td></tr>
+  <tr><td>qwen3-coder:30b</td><td><code>ollama pull qwen3-coder:30b</code></td><td>Appears in tags list</td></tr>
+  <tr><td>nomic-embed-text</td><td><code>ollama pull nomic-embed-text</code></td><td>Appears in tags list</td></tr>
+  <tr><td>Python 3.10+</td><td>System package manager</td><td><code>python3 --version</code></td></tr>
+  <tr><td>CrewAI</td><td><code>pip install "crewai[tools]"</code></td><td><code>python -c "import crewai"</code></td></tr>
+  <tr><td>ChromaDB</td><td><code>pip install chromadb</code></td><td><code>python -c "import chromadb"</code></td></tr>
+</table>
+
+<h2>First-time environment setup</h2>
+<div class="cmd">cd ~/projects/protean-pursuits
+cp config/.env.template config/.env
+<span class="c"># Edit config/.env — set these at minimum:</span>
+TIER1_MODEL=ollama/qwen3:32b
+TIER2_MODEL=ollama/qwen3-coder:30b
+EMBED_MODEL=nomic-embed-text
+OLLAMA_BASE_URL=http://localhost:11434
+HUMAN_EMAIL=you@example.com
+HUMAN_PHONE_NUMBER=+15551234567
+OUTLOOK_ADDRESS=you@outlook.com
+OUTLOOK_PASSWORD=your-app-password</div>
+
+<h2>Standard dev-team run</h2>
+<div class="cmd"><span class="c"># 1. Start Ollama (if not running as a service)</span>
+ollama serve &amp;
+
+<span class="c"># 2. Navigate to your project directory (a cloned/renamed dev-team instance)</span>
+cd ~/projects/my-project
+
+<span class="c"># 3. Classify your project</span>
+python agents/orchestrator/classify.py
+
+<span class="c"># 4. Planning phase — runs in sequence</span>
+python agents/dev/strategy/product_manager.py
+<span class="cp">⏸️  CP-1: Review PRD — type APPROVE or REJECT</span>
+python agents/dev/strategy/business_analyst.py
+python agents/dev/strategy/scrum_master.py
+python agents/dev/strategy/technical_architect.py
+<span class="cp">⏸️  CP-2: Review architecture</span>
+python agents/dev/strategy/security_reviewer.py
+<span class="cp">⏸️  CP-3: Review security rating</span>
+python agents/dev/strategy/ux_designer.py
+python agents/dev/strategy/ux_content_guide.py
+<span class="cp">⏸️  CP-4: Review UX &amp; content</span>
+
+<span class="c"># 5. (Optional) Finance Group</span>
+python agents/finance/finance_orchestrator.py
+<span class="cp">⏸️  CP-4.5: Review Finance Summary Package</span>
+
+<span class="c"># 6. Build phase</span>
+python agents/dev/build/senior_developer.py
+python agents/dev/build/backend_developer.py
+python agents/dev/build/frontend_developer.py
+python agents/dev/build/database_admin.py
+python agents/dev/build/devops_engineer.py
+<span class="cp">⏸️  CP-5: Review implementation reports</span>
+
+<span class="c"># 7. Quality phase</span>
+python agents/dev/quality/qa_lead.py
+python agents/dev/quality/test_automation_engineer.py
+<span class="cp">⏸️  CP-6: Approve test results — final release gate</span></div>
+
+<h2>Mobile add-on (after CP-4)</h2>
+<div class="cmd">python agents/mobile/ux/mobile_ux_designer.py
+python agents/mobile/ios/ios_developer.py      <span class="c"># iOS only</span>
+python agents/mobile/android/android_developer.py  <span class="c"># Android only</span>
+python agents/mobile/rn/react_native_architect_part1.py  <span class="c"># RN</span>
+python agents/mobile/rn/react_native_architect_part2.py
+python agents/mobile/rn/react_native_developer.py
+python agents/mobile/devops/mobile_devops_engineer.py
+python agents/mobile/qa/mobile_qa_specialist.py</div>
+
+<h2>Retrofit run (deployment-agnostic cleanup)</h2>
+<div class="cmd">python agents/dev/build/tad_retrofit.py
+python agents/dev/build/backend_developer_retrofit.py
+python agents/dev/build/devops_engineer_retrofit.py
+python agents/dev/build/srr_retrofit.py
+python agents/dev/quality/qa_lead_retrofit.py
+python agents/dev/reconciliation.py</div>
+
+<h2>HR team run</h2>
+<div class="cmd">cd ~/projects/hr-team
+python flows/hr_flow.py --mode RECRUIT    <span class="c"># or ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE</span></div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §6 -->
+<div class="page-break"></div>
+<h1 id="s6">6. Command Cheat Sheet</h1>
+
+<div class="cheat">
+  <div class="cheat-item">
+    <div class="label">Check Ollama is running</div>
+    <code>curl http://localhost:11434/api/tags</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">List downloaded models</div>
+    <code>ollama list</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Pull a new model</div>
+    <code>ollama pull &lt;model-name&gt;</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Check project status</div>
+    <code>cat logs/PROJ-*.json | python -m json.tool | grep status</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Search output for TODOs</div>
+    <code>grep -ri "todo\|placeholder\|TBD" output/</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Archive a project</div>
+    <code>mkdir -p logs/archive &amp;&amp; mv logs/PROJ-*.json logs/archive/</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Commit after agent run</div>
+    <code>git add -A &amp;&amp; git commit -m "PROJ-XXXXX: Agent → artifact"</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Export patch for local apply</div>
+    <code>git format-patch HEAD~1 -o ~/Downloads/</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Apply patch locally</div>
+    <code>git am ~/Downloads/&lt;patch&gt;.patch</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Abort stale rebase state</div>
+    <code>git am --abort</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Refresh Knowledge Curator</div>
+    <code>python agents/shared/knowledge_curator/curator.py --source github --source security</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Approve a checkpoint</div>
+    Type <code>APPROVE</code> at the terminal prompt
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §7 -->
+<div class="page-break"></div>
+<h1 id="s7">7. Checkpoints — When It Asks You Something</h1>
+
+<p>At defined points in every pipeline, the system stops and waits for you. It sends an SMS (AT&amp;T gateway) and email (Outlook SMTP), prints the checkpoint summary in the terminal, writes a request file to <code>logs/approvals/</code>, and polls for a JSON response file.</p>
+
+<h3>What to do when it stops:</h3>
+<ol>
+  <li>Open the artifact file it references (e.g. <code>output/PROJ-XXXXX_PRD.md</code>)</li>
+  <li>Read through it — check FLAGS.md for known gaps first</li>
+  <li>Return to the terminal and type <code>APPROVE</code> or <code>REJECT</code></li>
+  <li>If you reject, provide a reason — it is saved to the audit log and informs the re-run</li>
+</ol>
+
+<h3>All checkpoint gates</h3>
+<table>
+  <tr><th>Gate</th><th>After which agent</th><th>What you're checking</th></tr>
+  <tr><td><strong>CP-1: Requirements</strong></td><td>Product Manager → PRD</td><td>Are user stories right? Scope correct? Right things out of scope?</td></tr>
+  <tr><td><strong>CP-2: Architecture</strong></td><td>Technical Architect → TAD</td><td>Does the tech make sense? Achievable? Fits your infrastructure?</td></tr>
+  <tr><td><strong>CP-3: Security</strong></td><td>Security Reviewer → SRR</td><td>Is the rating acceptable? RED rating must be resolved before proceeding.</td></tr>
+  <tr><td><strong>CP-4: Design</strong></td><td>UX Content Guide → UI Content Guide</td><td>Does the UI make sense for users? Language clear? All screens covered?</td></tr>
+  <tr><td><strong>CP-4.5: Finance</strong></td><td>Finance Orchestrator → FSP</td><td>Do the financials make sense? Review all 🟢/🟡/🔴 ratings. Open Questions addressed?</td></tr>
+  <tr><td><strong>CP-5: Build</strong></td><td>DevOps Engineer → DIR</td><td>Spot-check the code. Search for TODO/placeholder. Does it look complete?</td></tr>
+  <tr><td><strong>CP-6: Release</strong></td><td>Test Automation Engineer → TAR</td><td>Tests pass? No open critical issues? Confident this is done?</td></tr>
+  <tr><td><strong>Multi-SME gate</strong></td><td>SME Orchestrator → Domain Intelligence Brief</td><td>Is the synthesised domain intelligence accurate and actionable?</td></tr>
+  <tr><td><strong>HR action gate</strong></td><td>Before any HR action affecting a person</td><td>Human must approve — no exceptions, no automation bypass.</td></tr>
+  <tr><td><strong>DESIGN_REVIEW</strong></td><td>Design team deliverables</td><td>Design assets approved before handoff to Dev.</td></tr>
+  <tr><td><strong>QA_SIGN_OFF</strong></td><td>QA team</td><td>Cross-team quality audit results.</td></tr>
+  <tr><td><strong>LEGAL_REVIEW</strong></td><td>Legal team</td><td>Legal deliverables approved before any action.</td></tr>
+</table>
+
+<div class="stop"><strong>Security RED block:</strong> If the Security Reviewer rates the architecture 🔴 RED, the pipeline halts entirely. No build agents run until a human resolves the finding and the security review is re-run and approved.</div>
+
+<div class="warn"><strong>Terminal dies during a checkpoint?</strong> The project context was saved before the gate fired. Re-run the same agent — it picks up where it left off. The approval request file in <code>logs/approvals/</code> persists across restarts.</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §8 -->
+<div class="page-break"></div>
+<h1 id="s8">8. When Things Go Wrong</h1>
+
+<h2>🔇 Agent sits there doing nothing (30+ minutes)</h2>
+<p><strong>What happened:</strong> LLM timeout or context window exhausted.</p>
+<p><strong>Fix:</strong> Press Ctrl+C. Verify Ollama: <code>curl http://localhost:11434/api/tags</code>. Re-run the same agent — it starts over and overwrites the previous (empty/partial) output.</p>
+
+<h2>🔁 Agent repeats the same text over and over</h2>
+<p><strong>What happened:</strong> Model lost its stop instruction — most common failure with large local LLM outputs.</p>
+<p><strong>Fix:</strong> Press Ctrl+C. Open the output file and delete the repeated section. To prevent it next time, open the agent's Python file and add <code>max_tokens=4096</code> to the <code>Task()</code> constructor and add "OUTPUT DISCIPLINE: stop after all sections are complete" to the agent's backstory. Full instructions: <code>templates/dev-team/agents/mobile/output_guard_patch.md</code></p>
+
+<h2>📄 "No project context found"</h2>
+<p><strong>Fix:</strong> Run <code>python agents/orchestrator/classify.py</code> first to create the context file.</p>
+
+<h2>📄 "Missing TIP" / "Missing PRD" / missing upstream artifact</h2>
+<p><strong>Fix:</strong> Run agents in order. Check which one was skipped.</p>
+
+<h2>🤖 Output has <code>// TODO</code> or placeholder code</h2>
+<p><strong>Fix:</strong> Open the agent's Python file, find the <code>Task(description=...)</code> block, and add: "No placeholders. No TODO comments. Every function must be complete and working." Re-run.</p>
+
+<h2>💥 Output is about the wrong project</h2>
+<p><strong>What happened:</strong> Upstream artifact excerpt was too short, model lost context.</p>
+<p><strong>Fix:</strong> In the agent's <code>run_*</code> function, find <code>f.read()[:3000]</code> and increase it (try <code>[:6000]</code> or <code>[:8000]</code>). Re-run.</p>
+
+<h2>🔌 Ollama connection refused</h2>
+<div class="cmd">sudo systemctl start ollama
+curl http://localhost:11434/api/tags   <span class="c"># verify</span></div>
+
+<h2>💾 Out of memory (Ollama crashes or machine freezes)</h2>
+<p><strong>Fix:</strong> Don't run planning agents and build agents simultaneously — they load different models. Run the full planning phase, then the build phase. If the 32b model is too large, edit <code>TIER1_MODEL</code> in <code>config/.env</code> to use a smaller variant.</p>
+
+<h2>🔄 Stale rebase state (git am fails)</h2>
+<div class="cmd">git am --abort    <span class="c"># safe to run even on a clean repo</span>
+git am ~/Downloads/&lt;patch&gt;.patch   <span class="c"># retry</span></div>
+
+<h2>🔄 How to start over</h2>
+<div class="cmd">mkdir -p logs/archive
+mv logs/PROJ-*.json logs/archive/
+python agents/orchestrator/classify.py   <span class="c"># fresh start</span></div>
+
+<h2>🔄 How to re-run one agent</h2>
+<p>Just run it again. It overwrites its previous output and updates the project context. Downstream agents pick up the new version on their next run.</p>
+
+<h2>⚠️ SME group PermissionError</h2>
+<p><strong>What happened:</strong> A dev-team agent tried to call the SME group directly — this is blocked by <code>validate_caller()</code>.</p>
+<p><strong>Fix:</strong> SME calls must go through an authorized caller: <code>pp_orchestrator</code>, <code>project_manager</code>, <code>strategy</code>, or <code>legal</code>. Restructure your flow accordingly.</p>
+
+
+<!-- ══════════════════════════════════════════════════════════ §9 -->
+<div class="page-break"></div>
+<h1 id="s9">9. Change Models, Tune Agents, Add New Ones</h1>
+
+<h2>Switch to a different LLM</h2>
+<p>Two lines in <code>config/.env</code> control the entire team:</p>
+<div class="cmd">TIER1_MODEL=ollama/qwen3:32b       <span class="c"># Planning agents (reasoners)</span>
+TIER2_MODEL=ollama/qwen3-coder:30b  <span class="c"># Build agents (coders)</span></div>
+<p>To change: <code>ollama pull &lt;model-name&gt;</code> → update the env var → done. No code changes needed.</p>
+
+<h2>Make an agent behave differently</h2>
+<table>
+  <tr><th>What to change</th><th>Where</th><th>Example</th></tr>
+  <tr><td>Personality &amp; expertise</td><td><code>Agent(backstory="...")</code> in <code>build_*</code> function</td><td>Add "You always prefer serverless" to the Architect's backstory</td></tr>
+  <tr><td>What it produces</td><td><code>Task(description="...")</code> in <code>run_*</code> function</td><td>Add section 10: REGULATORY REQUIREMENTS to the PRD template</td></tr>
+  <tr><td>How much upstream context it sees</td><td><code>f.read()[:3000]</code> in <code>run_*</code> function</td><td>Change to <code>[:6000]</code> for more context</td></tr>
+  <tr><td>Stop looping</td><td>Backstory + Task constructor</td><td>Add "OUTPUT DISCIPLINE: stop after all sections complete" + <code>max_tokens=4096</code></td></tr>
+</table>
+
+<h2>Add a new agent</h2>
+<ol>
+  <li>Copy an existing agent file that's close in function (e.g. <code>backend_developer.py</code>)</li>
+  <li>Implement a <code>build_*</code> function returning a CrewAI <code>Agent</code> with role, goal, backstory, and LLM</li>
+  <li>Implement a <code>run_*</code> function: create a <code>Task</code>, run it in a <code>Crew</code>, save output, update context</li>
+  <li>Add a <code>__main__</code> block that loads the project context and finds upstream artifacts</li>
+  <li>Set <code>sys.path.insert(0, "/home/mfelkey/&lt;team-name&gt;")</code> at the top</li>
+  <li>Match the artifact naming pattern: <code>{PROJ}_{TYPE}.md</code></li>
+</ol>
+
+<div class="tip"><strong>Pattern consistency is non-negotiable.</strong> New agents must exactly match existing structural patterns: file layout, orchestrator shape, artifact naming, cross-team flag utilities. Read a comparable agent before writing a new one.</div>
+
+<div class="tip"><strong>RAG retrofit rule:</strong> Retrofit agents (TAD-R, BIR-R, DIR-R, SRR-R, MTP-R, Reconciliation) process finalized documents and are deliberately excluded from RAG injection. Do not add <code>rag_inject</code> calls to these agents.</div>
+
+<div class="tip"><strong>Context injection over raw docs:</strong> For multi-part agents (e.g. RN Architect), feed Part 1's actual output as context into Part 2 rather than the raw architecture document. This prevents re-generation loops.</div>
+
+<div class="tip"><strong>Undefined variable discipline:</strong> Template variables like <code>{tad_content}</code> must be defined before use. The uniform fallback is <code>{prompt_context}</code> from the context manager.</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ §10 -->
+<div class="page-break"></div>
+<h1 id="s10">10. Day-to-Day Operations</h1>
+
+<h2>What to watch in the terminal</h2>
+<table>
+  <tr><th>You see…</th><th>It means…</th></tr>
+  <tr><td><code>🔍 Classifying project request...</code></td><td>Orchestrator is thinking about your request</td></tr>
+  <tr><td><code>📋 Product Manager generating PRD for: ...</code></td><td>An agent started working</td></tr>
+  <tr><td>Streaming text (agent "typing")</td><td>LLM is generating — normal, let it run</td></tr>
+  <tr><td><code>💾 PRD saved: output/PROJ-XXXXX_PRD.md</code></td><td>Agent finished. Artifact is on disk.</td></tr>
+  <tr><td><code>⏸️  CHECKPOINT: ...</code></td><td>Your turn — review and APPROVE or REJECT</td></tr>
+  <tr><td><code>📱 SMS sent via AT&amp;T gateway...</code></td><td>You've been notified</td></tr>
+  <tr><td><code>⚠️  SMS failed: ...</code></td><td>Check OUTLOOK_ADDRESS / OUTLOOK_PASSWORD in .env</td></tr>
+</table>
+
+<h2>Reviewing output efficiently</h2>
+<ol>
+  <li><strong>Quick check:</strong> The terminal prints the first 500 chars. Does it start with the right headings?</li>
+  <li><strong>Full review (at checkpoints):</strong> Open the <code>.md</code> file. Skim section headings first.</li>
+  <li><strong>Red flag search:</strong> <code>grep -ri "todo\|placeholder\|implement here\|TBD" output/</code></li>
+  <li><strong>Check FLAGS.md:</strong> Tracks known gaps. Always review before every checkpoint.</li>
+</ol>
+
+<h2>Git workflow</h2>
+<p>Commit after each agent completes. Use the project ID in every message:</p>
+<div class="cmd">git add -A &amp;&amp; git commit -m "PROJ-XXXXX: Product Manager → PRD complete"
+<span class="c"># After full pipeline:</span>
+git tag PROJ-XXXXX-v1.0
+<span class="c"># After retrofit:</span>
+git tag PROJ-XXXXX-v1.0-retrofit
+<span class="c"># Export patch for local apply (avoids credential issues):</span>
+git format-patch HEAD~1 -o ~/Downloads/</div>
+
+<h2>Multiple projects</h2>
+<p>The system runs one project at a time (Ollama serves one model at a time). To switch:</p>
+<div class="cmd">mkdir -p logs/archive &amp;&amp; mv logs/PROJ-*.json logs/archive/
+python agents/orchestrator/classify.py   <span class="c"># new project</span></div>
+
+<h2>Updating the stack</h2>
+<table>
+  <tr><th>What</th><th>How</th></tr>
+  <tr><td>Ollama</td><td><code>curl -fsSL https://ollama.com/install.sh | sh</code> — models are preserved</td></tr>
+  <tr><td>CrewAI</td><td><code>pip install --upgrade "crewai[tools]"</code></td></tr>
+  <tr><td>New LLM model</td><td><code>ollama pull &lt;model-name&gt;</code> → update <code>config/.env</code></td></tr>
+  <tr><td>ChromaDB</td><td><code>pip install --upgrade chromadb</code></td></tr>
+</table>
+
+<div class="tip"><strong>Key pattern reminder:</strong> Every agent reads upstream artifacts from the <code>artifacts</code> array in the project context JSON by <code>type</code> (e.g. <code>"PRD"</code>, <code>"TAD"</code>). When it finishes, it appends its own artifact to the same array. That's how agents find each other's work.</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ PART III -->
+<div class="part-header">
+  <div class="part-num">Part III</div>
+  <h2>Reference</h2>
+  <p>Detailed reference material. You don't need to read this to use the system — it's here when you need to look something up.</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-A -->
+<h1 id="app-a">Appendix A — Full Agent Roster</h1>
+
+<table>
+  <tr><th>Layer</th><th>Agent</th><th>File (relative to team root)</th><th>Tier</th><th>Produces</th></tr>
+
+  <tr><td rowspan="2">PP Core</td><td>PP Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td><td>T1</td><td>Project context, PRD, team routing</td></tr>
+  <tr><td>Project Manager</td><td><code>agents/project_manager/project_manager.py</code></td><td>T1</td><td>Sprint plan, status reports, blocker escalation</td></tr>
+
+  <tr><td rowspan="7">Dev — Plan</td><td>Product Manager</td><td><code>agents/dev/strategy/product_manager.py</code></td><td>T1</td><td>PRD</td></tr>
+  <tr><td>Business Analyst</td><td><code>agents/dev/strategy/business_analyst.py</code></td><td>T1</td><td>BAD</td></tr>
+  <tr><td>Scrum Master</td><td><code>agents/dev/strategy/scrum_master.py</code></td><td>T1</td><td>Sprint Plan</td></tr>
+  <tr><td>Technical Architect</td><td><code>agents/dev/strategy/technical_architect.py</code></td><td>T1</td><td>TAD</td></tr>
+  <tr><td>Security Reviewer</td><td><code>agents/dev/strategy/security_reviewer.py</code></td><td>T1</td><td>SRR 🟢/🟡/🔴</td></tr>
+  <tr><td>UX/UI Designer</td><td><code>agents/dev/strategy/ux_designer.py</code></td><td>T1</td><td>UXD</td></tr>
+  <tr><td>UX Content Guide</td><td><code>agents/dev/strategy/ux_content_guide.py</code></td><td>T1</td><td>UI Content Guide</td></tr>
+
+  <tr><td rowspan="5">Dev — Build</td><td>Senior Developer</td><td><code>agents/dev/build/senior_developer.py</code></td><td>T2</td><td>TIP</td></tr>
+  <tr><td>Backend Developer</td><td><code>agents/dev/build/backend_developer.py</code></td><td>T2</td><td>BIR</td></tr>
+  <tr><td>Frontend Developer</td><td><code>agents/dev/build/frontend_developer.py</code></td><td>T2</td><td>FIR</td></tr>
+  <tr><td>Database Administrator</td><td><code>agents/dev/build/database_admin.py</code></td><td>T2</td><td>DBAR</td></tr>
+  <tr><td>DevOps Engineer</td><td><code>agents/dev/build/devops_engineer.py</code></td><td>T2</td><td>DIR</td></tr>
+
+  <tr><td rowspan="2">Dev — Quality</td><td>QA Lead</td><td><code>agents/dev/quality/qa_lead.py</code></td><td>T1</td><td>MTP</td></tr>
+  <tr><td>Test Automation Engineer</td><td><code>agents/dev/quality/test_automation_engineer.py</code></td><td>T2</td><td>TAR</td></tr>
+
+  <tr><td rowspan="2">Dev — Docs</td><td>DevEx Writer</td><td><code>agents/docs/devex_writer.py</code></td><td>T1</td><td>API docs, README, developer guides</td></tr>
+  <tr><td>Technical Writer</td><td><code>agents/docs/technical_writer.py</code></td><td>T1</td><td>User guides, runbooks, release notes</td></tr>
+
+  <tr><td rowspan="7">Mobile</td><td>Mobile UX Designer</td><td><code>agents/mobile/ux/mobile_ux_designer.py</code></td><td>T1</td><td>MUXD</td></tr>
+  <tr><td>iOS Developer</td><td><code>agents/mobile/ios/ios_developer.py</code></td><td>T2</td><td>IIR + Swift</td></tr>
+  <tr><td>Android Developer</td><td><code>agents/mobile/android/android_developer.py</code></td><td>T2</td><td>AIR + Kotlin</td></tr>
+  <tr><td>RN Architect (Pt1+2)</td><td><code>agents/mobile/rn/react_native_architect_part*.py</code></td><td>T2</td><td>RNAD P1, P2</td></tr>
+  <tr><td>RN Developer</td><td><code>agents/mobile/rn/react_native_developer.py</code></td><td>T2</td><td>RN Guide</td></tr>
+  <tr><td>Mobile DevOps</td><td><code>agents/mobile/devops/mobile_devops_engineer.py</code></td><td>T2</td><td>MDIR</td></tr>
+  <tr><td>Mobile QA Specialist</td><td><code>agents/mobile/qa/mobile_qa_specialist.py</code></td><td>T1</td><td>Mobile test suite</td></tr>
+
+  <tr><td rowspan="6">Retrofit</td><td>TAD Retrofit</td><td><code>agents/dev/build/tad_retrofit.py</code></td><td>T2</td><td>TAD-R</td></tr>
+  <tr><td>BIR Retrofit</td><td><code>agents/dev/build/backend_developer_retrofit.py</code></td><td>T2</td><td>BIR-R</td></tr>
+  <tr><td>DIR Retrofit</td><td><code>agents/dev/build/devops_engineer_retrofit.py</code></td><td>T2</td><td>DIR-R</td></tr>
+  <tr><td>SRR Retrofit</td><td><code>agents/dev/build/srr_retrofit.py</code></td><td>T2</td><td>SRR-R</td></tr>
+  <tr><td>MTP Retrofit</td><td><code>agents/dev/quality/qa_lead_retrofit.py</code></td><td>T2</td><td>MTP-R</td></tr>
+  <tr><td>Reconciliation</td><td><code>agents/dev/reconciliation.py</code></td><td>T2</td><td>Gap report</td></tr>
+
+  <tr><td rowspan="8">Finance Group</td><td>Finance Orchestrator</td><td><code>agents/finance/finance_orchestrator.py</code></td><td>T1</td><td>FSP</td></tr>
+  <tr><td>Cost Analyst</td><td><code>agents/finance/cost_analyst.py</code></td><td>T1</td><td>CEA</td></tr>
+  <tr><td>ROI Analyst</td><td><code>agents/finance/roi_analyst.py</code></td><td>T1</td><td>ROI</td></tr>
+  <tr><td>Infrastructure Finance Modeler</td><td><code>agents/finance/infra_finance_modeler.py</code></td><td>T1</td><td>ICM</td></tr>
+  <tr><td>Billing Architect</td><td><code>agents/finance/billing_architect.py</code></td><td>T1</td><td>BPS (conditional)</td></tr>
+  <tr><td>Pricing Specialist</td><td><code>agents/finance/pricing_specialist.py</code></td><td>T1</td><td>PRI (conditional)</td></tr>
+  <tr><td>Financial Statements Modeler</td><td><code>agents/finance/financial_statements.py</code></td><td>T1</td><td>FSR</td></tr>
+  <tr><td>Strategic Corp Finance Specialist</td><td><code>agents/finance/strategic_corp_finance.py</code></td><td>T1</td><td>SCF</td></tr>
+
+  <tr><td rowspan="17">SME Group</td><td>SME Orchestrator</td><td><code>agents/sme/sme_orchestrator.py</code></td><td>T1</td><td>Domain Intelligence Brief</td></tr>
+  <tr><td>Sports Betting Expert</td><td><code>agents/sme/sports_betting_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>World Football Expert</td><td><code>agents/sme/world_football_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>NBA/NCAA Basketball Expert</td><td><code>agents/sme/nba_ncaa_basketball_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>NFL/NCAA Football Expert</td><td><code>agents/sme/nfl_ncaa_football_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>MLB Expert</td><td><code>agents/sme/mlb_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>NHL/NCAA Hockey Expert</td><td><code>agents/sme/nhl_ncaa_hockey_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>MMA Expert</td><td><code>agents/sme/mma_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>Tennis Expert</td><td><code>agents/sme/tennis_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>World Rugby Expert</td><td><code>agents/sme/world_rugby_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>Cricket Expert</td><td><code>agents/sme/cricket_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>WNBA/NCAA Women's Basketball Expert</td><td><code>agents/sme/wnba_ncaa_womens_basketball_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>Thoroughbred Horse Racing Expert</td><td><code>agents/sme/thoroughbred_horse_racing_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>Harness Racing Expert</td><td><code>agents/sme/harness_racing_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>Men's Boxing Expert</td><td><code>agents/sme/mens_boxing_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>PGA Expert</td><td><code>agents/sme/pga_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+  <tr><td>LPGA Expert</td><td><code>agents/sme/lpga_expert.py</code></td><td>T1</td><td>Domain assessment</td></tr>
+
+  <tr><td rowspan="7">HR Team</td><td>HR Orchestrator</td><td><code>agents/hr/orchestrator/orchestrator.py</code></td><td>T1</td><td>Sequences HR crew</td></tr>
+  <tr><td>Recruiting Specialist</td><td><code>agents/hr/recruiting/recruiting_agent.py</code></td><td>T1</td><td>JD, sourcing plan, interview guide</td></tr>
+  <tr><td>Onboarding Specialist</td><td><code>agents/hr/onboarding/onboarding_agent.py</code></td><td>T1</td><td>Onboarding plan</td></tr>
+  <tr><td>Performance &amp; Comp Specialist</td><td><code>agents/hr/performance_comp/performance_comp_agent.py</code></td><td>T1</td><td>Review framework, comp analysis</td></tr>
+  <tr><td>Policy &amp; Compliance Specialist</td><td><code>agents/hr/policy_compliance/policy_compliance_agent.py</code></td><td>T1</td><td>Policy docs, compliance audit</td></tr>
+  <tr><td>Culture &amp; Engagement Specialist</td><td><code>agents/hr/culture_engagement/culture_engagement_agent.py</code></td><td>T1</td><td>Engagement plan</td></tr>
+  <tr><td>Benefits Specialist</td><td><code>agents/hr/benefits/benefits_agent.py</code></td><td>T1</td><td>Benefits analysis</td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-B -->
+<div class="page-break"></div>
+<h1 id="app-b">Appendix B — Artifact Registry</h1>
+
+<table>
+  <tr><th>Code</th><th>Full Name</th><th>Produced By</th><th>Consumed By</th><th>File Pattern</th></tr>
+  <tr><td>PRD</td><td>Product Requirements Document</td><td>Product Manager</td><td>BA, SM, TA, SR, UX, SD, QA</td><td><code>{PROJ}_PRD.md</code></td></tr>
+  <tr><td>BAD</td><td>Business Analysis Document</td><td>Business Analyst</td><td>SM, TA, UX</td><td><code>{PROJ}_BAD.md</code></td></tr>
+  <tr><td>Sprint Plan</td><td>Sprint Planning Document</td><td>Scrum Master</td><td>TA</td><td><code>{PROJ}_SPRINT.md</code></td></tr>
+  <tr><td>TAD</td><td>Technical Architecture Document</td><td>Technical Architect</td><td>SR, SD, BD, DevOps, DBA, Finance</td><td><code>{PROJ}_TAD.md</code></td></tr>
+  <tr><td>SRR</td><td>Security Review Report</td><td>Security Reviewer</td><td>UX, DevOps, DBA, Mobile DevOps</td><td><code>{PROJ}_SRR.md</code></td></tr>
+  <tr><td>UXD</td><td>User Experience Document</td><td>UX/UI Designer</td><td>Content Guide, SD, FD, QA</td><td><code>{PROJ}_UXD.md</code></td></tr>
+  <tr><td>UI Content Guide</td><td>UI Content Guide</td><td>UX Content Guide</td><td>FD</td><td><code>{PROJ}_CONTENT.md</code></td></tr>
+  <tr><td>TIP</td><td>Technical Implementation Plan</td><td>Senior Developer</td><td>BD, FD, DevOps, TAE, Mobile DevOps</td><td><code>{PROJ}_TIP.md</code></td></tr>
+  <tr><td>BIR</td><td>Backend Implementation Report</td><td>Backend Developer</td><td>FD, DBA, QA, TAE</td><td><code>{PROJ}_BIR.md</code></td></tr>
+  <tr><td>FIR</td><td>Frontend Implementation Report</td><td>Frontend Developer</td><td>QA, TAE</td><td><code>{PROJ}_FIR.md</code></td></tr>
+  <tr><td>DBAR</td><td>Database Administration Report</td><td>Database Administrator</td><td>DevOps</td><td><code>{PROJ}_DBAR.md</code></td></tr>
+  <tr><td>DIR</td><td>DevOps Implementation Report</td><td>DevOps Engineer</td><td>QA, TAE</td><td><code>{PROJ}_DIR.md</code></td></tr>
+  <tr><td>MTP</td><td>Master Test Plan</td><td>QA Lead</td><td>TAE</td><td><code>{PROJ}_MTP.md</code></td></tr>
+  <tr><td>TAR</td><td>Test Automation Report</td><td>Test Automation Engineer</td><td>(Terminal)</td><td><code>{PROJ}_TAR.md</code></td></tr>
+  <tr><td>MUXD</td><td>Mobile UX Document</td><td>Mobile UX Designer</td><td>iOS, Android, RN, Mobile QA</td><td><code>{PROJ}_MUXD.md</code></td></tr>
+  <tr><td>IIR</td><td>iOS Implementation Report</td><td>iOS Developer</td><td>Mobile DevOps, Mobile QA</td><td><code>{PROJ}_IIR.md</code></td></tr>
+  <tr><td>AIR</td><td>Android Implementation Report</td><td>Android Developer</td><td>Mobile DevOps, Mobile QA</td><td><code>{PROJ}_AIR.md</code></td></tr>
+  <tr><td>RNAD</td><td>React Native Architecture Doc</td><td>RN Architect</td><td>RN Developer</td><td><code>{PROJ}_RNAD_P1.md</code>, <code>_P2.md</code></td></tr>
+  <tr><td>RN Guide</td><td>RN Implementation Guide</td><td>RN Developer</td><td>Mobile DevOps, Mobile QA</td><td><code>rn_guide_complete_{ts}.md</code></td></tr>
+  <tr><td>MDIR</td><td>Mobile DevOps Report</td><td>Mobile DevOps Engineer</td><td>Mobile QA</td><td><code>{PROJ}_MDIR.md</code></td></tr>
+  <tr><td>CEA</td><td>Cost Estimates &amp; Budget</td><td>Cost Analyst</td><td>Finance Orchestrator</td><td><code>{PROJ}_CEA.md</code></td></tr>
+  <tr><td>ROI</td><td>ROI &amp; Business Case Analysis</td><td>ROI Analyst</td><td>Finance Orchestrator</td><td><code>{PROJ}_ROI.md</code></td></tr>
+  <tr><td>ICM</td><td>Infrastructure Cost Model</td><td>Infrastructure Finance Modeler</td><td>Finance Orchestrator</td><td><code>{PROJ}_ICM.md</code></td></tr>
+  <tr><td>BPS</td><td>Billing &amp; Payment Feature Spec</td><td>Billing Architect</td><td>Finance Orchestrator</td><td><code>{PROJ}_BPS.md</code></td></tr>
+  <tr><td>PRI</td><td>Pricing Strategy &amp; Model</td><td>Pricing Specialist</td><td>Finance Orchestrator</td><td><code>{PROJ}_PRI.md</code></td></tr>
+  <tr><td>FSR</td><td>Financial Statements Report</td><td>Financial Statements Modeler</td><td>Finance Orchestrator</td><td><code>{PROJ}_FSR.md</code></td></tr>
+  <tr><td>SCF</td><td>Strategic Corp Finance Report</td><td>Strategic Corp Finance Specialist</td><td>Finance Orchestrator</td><td><code>{PROJ}_SCF.md</code></td></tr>
+  <tr><td>FSP</td><td>Finance Summary Package</td><td>Finance Orchestrator</td><td>Human (CP-4.5), Build phase</td><td><code>{PROJ}_FSP.md</code></td></tr>
+  <tr><td>*-R</td><td>Retrofit / revised versions</td><td>Retrofit agents</td><td>Reconciliation</td><td><code>{PROJ}_{TYPE}_R.md</code></td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-C -->
+<div class="page-break"></div>
+<h1 id="app-c">Appendix C — Context Object Schema</h1>
+
+<p>The project context is the JSON file (<code>logs/PROJ-{id}.json</code>) that holds the entire state of a project. Every agent reads and writes to it.</p>
+
+<h3>Top-level fields</h3>
+<table>
+  <tr><th>Field</th><th>Type</th><th>What it is</th></tr>
+  <tr><td><code>project_id</code></td><td>string</td><td>Unique ID — format: <code>PROJ-{8-char-hex}</code></td></tr>
+  <tr><td><code>created_at</code></td><td>ISO datetime</td><td>When the project was created</td></tr>
+  <tr><td><code>status</code></td><td>string</td><td><code>INITIATED</code> → <code>CLASSIFIED</code> → <code>ROUTED_TO_DEV</code> → … → <code>COMPLETE</code></td></tr>
+  <tr><td><code>classification</code></td><td>string</td><td><code>DEV</code>, <code>DS</code>, or <code>JOINT</code></td></tr>
+  <tr><td><code>original_request</code></td><td>string</td><td>Your original project description, word for word</td></tr>
+  <tr><td><code>structured_spec</code></td><td>object</td><td>Structured version: title, deliverables, complexity, success criteria</td></tr>
+  <tr><td><code>assigned_crew</code></td><td>string</td><td>Which crew is working</td></tr>
+  <tr><td><code>artifacts</code></td><td>array</td><td>Every document produced — name, type, path, timestamp, agent</td></tr>
+  <tr><td><code>checkpoints</code></td><td>array</td><td>Every checkpoint — name, timestamp, APPROVED or REJECTED</td></tr>
+  <tr><td><code>handoffs</code></td><td>array</td><td>Inter-crew handoff records (JOINT projects)</td></tr>
+  <tr><td><code>audit_log</code></td><td>array</td><td>Every event in order with timestamps</td></tr>
+</table>
+
+<h3>JSON Schema (for validation)</h3>
+<pre>{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProjectContext",
+  "type": "object",
+  "required": ["project_id","created_at","status","classification",
+               "original_request","structured_spec","checkpoints",
+               "handoffs","artifacts","audit_log"],
+  "properties": {
+    "project_id":       { "type": "string", "pattern": "^PROJ-[A-F0-9]{8}$" },
+    "created_at":       { "type": "string", "format": "date-time" },
+    "status":           { "type": "string" },
+    "classification":   { "type": "string", "enum": ["DEV","DS","JOINT","UNKNOWN"] },
+    "original_request": { "type": "string" },
+    "structured_spec": {
+      "type": "object",
+      "properties": {
+        "title":                { "type": "string" },
+        "description":          { "type": "string" },
+        "business_goal":        { "type": "string" },
+        "deliverables":         { "type": "array", "items": { "type": "string" } },
+        "success_criteria":     { "type": "array", "items": { "type": "string" } },
+        "estimated_complexity": { "type": "string", "enum": ["LOW","MEDIUM","HIGH"] },
+        "data_required":        { "type": "boolean" },
+        "primary_crew":         { "type": "string", "enum": ["DEV","DS","JOINT"] },
+        "handoff_direction":    { "type": ["string","null"] }
+      }
+    },
+    "assigned_crew": { "type": ["string","null"] },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name":       { "type": "string" },
+          "type":       { "type": "string" },
+          "path":       { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "agent":      { "type": "string" }
+        }
+      }
+    },
+    "checkpoints": { "type": "array" },
+    "handoffs":    { "type": "array" },
+    "audit_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "event":     { "type": "string" },
+          "detail":    { "type": "string" }
+        }
+      }
+    }
+  }
+}</pre>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-D -->
+<div class="page-break"></div>
+<h1 id="app-d">Appendix D — Conflict Resolution &amp; Escalation Matrix</h1>
+
+<h2>Who wins when agents disagree?</h2>
+<ol>
+  <li><strong>You</strong> — always the final authority</li>
+  <li><strong>Security Reviewer</strong> — overrides architecture and implementation on security matters</li>
+  <li><strong>Technical Architect</strong> — overrides implementation decisions on architecture matters</li>
+  <li><strong>Senior Developer (TIP)</strong> — overrides build agents on implementation approach</li>
+  <li><strong>Database Administrator</strong> — overrides Backend Developer on schema/query matters</li>
+  <li><strong>QA Lead</strong> — can block release but cannot override architecture or security</li>
+</ol>
+
+<h2>What gets escalated to you automatically</h2>
+<table>
+  <tr><th>Situation</th><th>What happens</th></tr>
+  <tr><td>Any checkpoint reached</td><td>SMS + email, system waits for APPROVE/REJECT</td></tr>
+  <tr><td>Security rated 🔴 RED</td><td>Development blocked until you decide</td></tr>
+  <tr><td>Classification fails</td><td>You manually classify or rephrase</td></tr>
+  <tr><td>Handoff validation fails</td><td>Missing artifacts — you review completeness</td></tr>
+  <tr><td>Agent produces no output</td><td>Likely timeout — you investigate</td></tr>
+  <tr><td>Budget/vendor/policy decisions flagged</td><td>Agent can't proceed without your call</td></tr>
+  <tr><td>Conflicting upstream artifacts</td><td>Agent documents conflict, system halts at next checkpoint</td></tr>
+  <tr><td>Retrofit lost critical content</td><td>Reconciliation report shows gaps, you decide resolution</td></tr>
+  <tr><td>CRITICAL blocker (any team)</td><td>Project Manager escalates immediately — no 48-hour window</td></tr>
+  <tr><td>HR action affecting a person</td><td>HR gate fires, no automated action taken</td></tr>
+  <tr><td>Multi-SME synthesis complete</td><td>HITL review gate fires on Domain Intelligence Brief</td></tr>
+</table>
+
+<h2>What agents resolve on their own</h2>
+<table>
+  <tr><th>Situation</th><th>Resolution</th></tr>
+  <tr><td>Minor formatting issues</td><td>Cleaned automatically</td></tr>
+  <tr><td>JSON wrapped in markdown fences</td><td>Stripped before parsing</td></tr>
+  <tr><td>DBA finds missing indexes</td><td>Adds them in DBAR — no re-run needed</td></tr>
+  <tr><td>Retrofit removes provider-specific content</td><td>Expected — documented in reconciliation report</td></tr>
+  <tr><td>Non-blocking ambiguity in upstream doc</td><td>Flagged in output with <code>[ASSUMPTION]</code> / <code>[VERIFY]</code> tags, continues, you see it at checkpoint</td></tr>
+  <tr><td>Project Manager blocker (non-critical)</td><td>PM resolves at Team Lead level within 48 hours before escalating</td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-E -->
+<div class="page-break"></div>
+<h1 id="app-e">Appendix E — Quality Standards</h1>
+
+<h3>Code</h3>
+<table>
+  <tr><th>Rule</th><th>Standard</th></tr>
+  <tr><td>No placeholder code</td><td>Every function complete. No <code>// TODO</code>, no <code># implement here</code>.</td></tr>
+  <tr><td>Type safety</td><td>TypeScript for frontend/RN. Python type hints on all function signatures.</td></tr>
+  <tr><td>Error handling</td><td>Every API call and file operation has explicit error handling.</td></tr>
+  <tr><td>Security</td><td>All SRR CRITICAL/HIGH findings addressed. Secrets never hardcoded.</td></tr>
+  <tr><td>Accessibility</td><td>WCAG 2.1 AA. VoiceOver/TalkBack tested. Every interactive element labeled.</td></tr>
+  <tr><td>Deployment agnostic</td><td>No cloud provider names in app code. <code>DEPLOY_TARGET</code> env var controls provider modules.</td></tr>
+</table>
+
+<h3>Documents</h3>
+<table>
+  <tr><th>Rule</th><th>Standard</th></tr>
+  <tr><td>Complete</td><td>Every section from the task description must be present.</td></tr>
+  <tr><td>Actionable</td><td>A developer can execute from the report without asking further questions.</td></tr>
+  <tr><td>Traceable</td><td>Every decision traces back to PRD, SRR, or UXD.</td></tr>
+  <tr><td>Consistent</td><td>Same terminology and naming across all artifacts.</td></tr>
+  <tr><td>Tagged uncertainty</td><td>DS and SME outputs use <code>[ASSUMPTION]</code> and <code>[VERIFY]</code> tags where data is inferred.</td></tr>
+</table>
+
+<h3>Tests</h3>
+<table>
+  <tr><th>Type</th><th>Target</th><th>Tools</th></tr>
+  <tr><td>Unit</td><td>≥80% coverage on business logic</td><td>Jest, XCTest, JUnit5</td></tr>
+  <tr><td>Component</td><td>Every UI component has a render test</td><td>React Testing Library, Compose UI Testing</td></tr>
+  <tr><td>API</td><td>Positive + negative cases per endpoint</td><td>Supertest</td></tr>
+  <tr><td>E2E</td><td>Every critical user journey</td><td>Playwright (web), Detox (mobile)</td></tr>
+  <tr><td>Accessibility</td><td>No CRITICAL/SERIOUS axe violations</td><td>axe-core</td></tr>
+  <tr><td>Performance</td><td>Baseline established, no &gt;10% regression</td><td>k6</td></tr>
+</table>
+
+<h3>Finance outputs</h3>
+<table>
+  <tr><th>Rule</th><th>Standard</th></tr>
+  <tr><td>Rating required</td><td>Every artifact opens with <code>FINANCE RATING: 🟢/🟡/🔴</code></td></tr>
+  <tr><td>Open questions</td><td>Every artifact ends with an <code>OPEN QUESTIONS</code> section</td></tr>
+  <tr><td>Advisory only</td><td>Finance Group never auto-blocks the pipeline</td></tr>
+  <tr><td>Scenario coverage</td><td>Cost and ROI analyses include LOW / MID / HIGH scenarios</td></tr>
+</table>
+
+<h3>SME outputs</h3>
+<table>
+  <tr><th>Rule</th><th>Standard</th></tr>
+  <tr><td>Domain assessment</td><td>Every output opens with <code>DOMAIN ASSESSMENT: HIGH/MEDIUM/LOW</code></td></tr>
+  <tr><td>Cross-team flags</td><td>Every output ends with <code>CROSS-TEAM FLAGS</code></td></tr>
+  <tr><td>Open questions</td><td>Every output ends with <code>OPEN QUESTIONS</code></td></tr>
+  <tr><td>Multi-SME HITL</td><td>All synthesised multi-SME outputs require human review before use</td></tr>
+</table>
+
+
+<!-- ══════════════════════════════════════════════════════════ APP-F -->
+<h1 id="app-f">Appendix F — Model Tier Reference</h1>
+
+<table>
+  <tr><th>Tier</th><th>Current Model</th><th>Env Var</th><th>Purpose</th><th>Agents</th></tr>
+  <tr>
+    <td><strong>Tier 1</strong></td>
+    <td><code>ollama/qwen3:32b</code></td>
+    <td><code>TIER1_MODEL</code></td>
+    <td>Reasoning, planning, analysis</td>
+    <td>PP Orchestrator, Project Manager, all Team Leads, Product Manager, Business Analyst, Scrum Master, Technical Architect, Security Reviewer, UX Designer, UX Content Guide, QA Lead, Mobile UX Designer, Mobile QA, all Finance agents, all SME agents, all HR agents</td>
+  </tr>
+  <tr>
+    <td><strong>Tier 2</strong></td>
+    <td><code>ollama/qwen3-coder:30b</code></td>
+    <td><code>TIER2_MODEL</code></td>
+    <td>Code generation, implementation</td>
+    <td>Senior Developer, Backend Developer, Frontend Developer, DBA, DevOps Engineer, Test Automation Engineer, iOS Developer, Android Developer, RN Architect, RN Developer, Mobile DevOps Engineer, all Retrofit agents, Reconciliation</td>
+  </tr>
+  <tr>
+    <td><strong>Embed</strong></td>
+    <td><code>nomic-embed-text</code></td>
+    <td><code>EMBED_MODEL</code></td>
+    <td>Vector embeddings for ChromaDB RAG memory</td>
+    <td>All agents (via ChromaDB + Knowledge Curator)</td>
+  </tr>
+</table>
+
+<p>All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.</p>
+
+<div style="margin-top:60px;padding-top:20px;border-top:2px solid #1a56db;text-align:center;color:#94a3b8;font-size:9pt;font-family:'IBM Plex Mono',monospace;">
+  Protean Pursuits — Agent System Operating Manual — Version 3.0 — March 2026<br>
+  Grounded in commit <code>fdaabc3</code> · github.com/mfelkey/protean-pursuits
+</div>
+
+</body>
+</html>
