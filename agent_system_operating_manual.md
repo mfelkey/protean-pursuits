@@ -651,6 +651,27 @@ HUMAN\_PHONE\_NUMBER=+15551234567
 OUTLOOK\_ADDRESS=you@outlook.com
 OUTLOOK\_PASSWORD=your-app-password
 
+## The Intake Flow — `flows/intake_flow.py`
+
+**`flows/intake_flow.py` is the only flow in the `flows/` directory.** Individual team flows live inside their own templates (`templates/hr-team/flows/hr_flow.py`, etc.) and are invoked directly from a cloned team instance, not from the PP root. Do not look for `flows/dev_flow.py`, `flows/ds_flow.py`, etc. — they do not exist at the PP root level.
+
+Two modes:
+
+# Discovery mode — Orchestrator interviews you, generates PRD
+python flows/intake\_flow.py --mode discovery --name "My Project"
+# Brief mode — you supply an existing PRD/brief
+python flows/intake\_flow.py --mode brief --name "My Project" --prd docs/my\_prd.md
+# Brief mode with explicit team selection
+python flows/intake\_flow.py --mode brief --name "My Project" --prd docs/my\_prd.md --teams dev,ds,marketing
+# Brief mode targeting DS only
+python flows/intake\_flow.py --mode brief --name "My Project" --prd docs/my\_prd.md --teams ds
+
+**⚠️ Budget default: $50,000.** `intake_flow.py` defaults to a `$50,000` budget when `--budget` is not supplied. The Project Manager receives this figure and uses it to frame scope. Always pass `--budget` explicitly to avoid confusing PM output:
+
+`python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md --budget 150000`
+
+**DS-only work:** For focused data science briefs, route directly through `intake_flow.py --teams ds` rather than letting the Orchestrator auto-classify. A dedicated `ds_flow.py` entrypoint is planned but not yet implemented in the repo.
+
 ## Standard dev-team run
 
 # 1. Start Ollama (if not running as a service)
@@ -761,6 +782,26 @@ Approve a checkpoint
 
 Type `APPROVE` at the terminal prompt
 
+Approval manager — interactive
+
+`python3 scripts/approve.py`
+
+Approval manager — watch mode
+
+`python3 scripts/approve.py --watch`
+
+List all approvals (pending + resolved)
+
+`python3 scripts/approve.py --list`
+
+Approve by ID
+
+`python3 scripts/approve.py --approve APPROVAL-XXXXXXXX`
+
+Reject by ID with reason
+
+`python3 scripts/approve.py --reject APPROVAL-XXXXXXXX --reason "..."`
+
 # 7. Checkpoints — When It Asks You Something
 
 At defined points in every pipeline, the system stops and waits for you. It sends an SMS (AT&T gateway) and email (Outlook SMTP), prints the checkpoint summary in the terminal, writes a request file to `logs/approvals/`, and polls for a JSON response file.
@@ -769,8 +810,24 @@ At defined points in every pipeline, the system stops and waits for you. It send
 
 1. Open the artifact file it references (e.g. `output/PROJ-XXXXX_PRD.md`)
 2. Read through it — check FLAGS.md for known gaps first
-3. Return to the terminal and type `APPROVE` or `REJECT`
+3. Return to the terminal and type `APPROVE` or `REJECT`, **or use the approval manager** (see below)
 4. If you reject, provide a reason — it is saved to the audit log and informs the re-run
+
+### Approval manager — `scripts/approve.py`
+
+Run in a separate terminal while a flow is executing. Polls `logs/approvals/` for pending gates and lets you approve or reject interactively without switching back to the flow terminal.
+
+# Interactive — shows all pending, prompts one by one
+python3 scripts/approve.py
+# Watch mode — auto-refreshes every 10s, prompts as new gates arrive
+python3 scripts/approve.py --watch
+# List all approvals (pending + resolved)
+python3 scripts/approve.py --list
+# Approve or reject a specific gate by ID
+python3 scripts/approve.py --approve APPROVAL-XXXXXXXX
+python3 scripts/approve.py --reject APPROVAL-XXXXXXXX --reason "Scope too broad"
+
+Each pending approval shows its gate type, artifact path, summary, and how long it has been waiting. The `v` option in interactive mode prints the first 50 lines of the artifact inline so you can review without leaving the terminal.
 
 ### All checkpoint gates
 

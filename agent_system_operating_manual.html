@@ -817,6 +817,32 @@ HUMAN_PHONE_NUMBER=+15551234567
 OUTLOOK_ADDRESS=you@outlook.com
 OUTLOOK_PASSWORD=your-app-password</div>
 
+<h2>The Intake Flow — <code>flows/intake_flow.py</code></h2>
+
+<p><strong><code>flows/intake_flow.py</code> is the only flow in the <code>flows/</code> directory.</strong> Individual team flows live inside their own templates (<code>templates/hr-team/flows/hr_flow.py</code>, etc.) and are invoked directly from a cloned team instance, not from the PP root. Do not look for <code>flows/dev_flow.py</code>, <code>flows/ds_flow.py</code>, etc. — they do not exist at the PP root level.</p>
+
+<p>Two modes:</p>
+<div class="cmd"><span class="c"># Discovery mode — Orchestrator interviews you, generates PRD</span>
+python flows/intake_flow.py --mode discovery --name "My Project"
+
+<span class="c"># Brief mode — you supply an existing PRD/brief</span>
+python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md
+
+<span class="c"># Brief mode with explicit team selection</span>
+python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md --teams dev,ds,marketing
+
+<span class="c"># Brief mode targeting DS only</span>
+python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md --teams ds</div>
+
+<div class="warn">
+  <strong>⚠️ Budget default: $50,000.</strong> <code>intake_flow.py</code> defaults to a <code>$50,000</code> budget when <code>--budget</code> is not supplied. The Project Manager receives this figure and uses it to frame scope. Always pass <code>--budget</code> explicitly to avoid confusing PM output:<br><br>
+  <code>python flows/intake_flow.py --mode brief --name "My Project" --prd docs/my_prd.md --budget 150000</code>
+</div>
+
+<div class="tip">
+  <strong>DS-only work:</strong> For focused data science briefs, route directly through <code>intake_flow.py --teams ds</code> rather than letting the Orchestrator auto-classify. A dedicated <code>ds_flow.py</code> entrypoint is planned but not yet implemented in the repo.
+</div>
+
 <h2>Standard dev-team run</h2>
 <div class="cmd"><span class="c"># 1. Start Ollama (if not running as a service)</span>
 ollama serve &amp;
@@ -933,6 +959,26 @@ python flows/hr_flow.py --mode RECRUIT    <span class="c"># or ONBOARD | REVIEW 
     <div class="label">Approve a checkpoint</div>
     Type <code>APPROVE</code> at the terminal prompt
   </div>
+  <div class="cheat-item">
+    <div class="label">Approval manager — interactive</div>
+    <code>python3 scripts/approve.py</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Approval manager — watch mode</div>
+    <code>python3 scripts/approve.py --watch</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">List all approvals (pending + resolved)</div>
+    <code>python3 scripts/approve.py --list</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Approve by ID</div>
+    <code>python3 scripts/approve.py --approve APPROVAL-XXXXXXXX</code>
+  </div>
+  <div class="cheat-item">
+    <div class="label">Reject by ID with reason</div>
+    <code>python3 scripts/approve.py --reject APPROVAL-XXXXXXXX --reason "..."</code>
+  </div>
 </div>
 
 
@@ -946,9 +992,25 @@ python flows/hr_flow.py --mode RECRUIT    <span class="c"># or ONBOARD | REVIEW 
 <ol>
   <li>Open the artifact file it references (e.g. <code>output/PROJ-XXXXX_PRD.md</code>)</li>
   <li>Read through it — check FLAGS.md for known gaps first</li>
-  <li>Return to the terminal and type <code>APPROVE</code> or <code>REJECT</code></li>
+  <li>Return to the terminal and type <code>APPROVE</code> or <code>REJECT</code>, <strong>or use the approval manager</strong> (see below)</li>
   <li>If you reject, provide a reason — it is saved to the audit log and informs the re-run</li>
 </ol>
+
+<h3>Approval manager — <code>scripts/approve.py</code></h3>
+<p>Run in a separate terminal while a flow is executing. Polls <code>logs/approvals/</code> for pending gates and lets you approve or reject interactively without switching back to the flow terminal.</p>
+<div class="cmd"><span class="c"># Interactive — shows all pending, prompts one by one</span>
+python3 scripts/approve.py
+
+<span class="c"># Watch mode — auto-refreshes every 10s, prompts as new gates arrive</span>
+python3 scripts/approve.py --watch
+
+<span class="c"># List all approvals (pending + resolved)</span>
+python3 scripts/approve.py --list
+
+<span class="c"># Approve or reject a specific gate by ID</span>
+python3 scripts/approve.py --approve APPROVAL-XXXXXXXX
+python3 scripts/approve.py --reject  APPROVAL-XXXXXXXX --reason "Scope too broad"</div>
+<p>Each pending approval shows its gate type, artifact path, summary, and how long it has been waiting. The <code>v</code> option in interactive mode prints the first 50 lines of the artifact inline so you can review without leaving the terminal.</p>
 
 <h3>All checkpoint gates</h3>
 <table>
