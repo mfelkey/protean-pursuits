@@ -484,16 +484,43 @@ python agents/shared/knowledge_curator/curator.py --source arxiv --source va_cms
 
 
 <h2 id="marketing-team">Marketing Team</h2>
-<table>
-  <tr><th>Agent</th><th>File</th></tr>
-  <tr><td>Marketing Orchestrator</td><td><code>agents/orchestrator/orchestrator.py</code></td></tr>
-  <tr><td>Marketing Analyst</td><td><code>agents/analyst/analyst_agent.py</code></td></tr>
-  <tr><td>Copywriter</td><td><code>agents/copywriter/copywriter_agent.py</code></td></tr>
-  <tr><td>Email Specialist</td><td><code>agents/email/email_agent.py</code></td></tr>
-  <tr><td>Social Media Specialist</td><td><code>agents/social/social_agent.py</code></td></tr>
-  <tr><td>Video Producer</td><td><code>agents/video/video_agent.py</code></td></tr>
-</table>
-<p>The Copywriter produces: landing pages, paid ads, app store listings, push notifications, in-product copy, campaign messaging, and brand copy. HITL gate types: <code>POST</code>, <code>EMAIL</code>, <code>VIDEO</code>.</p>
+<p>Location: <code>templates/marketing-team/</code> · HITL gate types: <code>POST</code>, <code>EMAIL</code>, <code>VIDEO</code>. Every deliverable is submitted for human approval before publishing or execution — no agent publishes autonomously.</p>
+
+<div class="agent-card">
+  <h4>Marketing Orchestrator</h4>
+  <div class="what">Plans, coordinates, and tracks all marketing campaigns across social, video, email, and analytics workstreams — ensuring every deliverable is on-brand, on-schedule, and approved by the human before publishing.</div>
+  <div class="io">File: <code>agents/orchestrator/orchestrator.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Marketing Analyst</h4>
+  <div class="what">Pulls data from analytics dashboards across all marketing channels, synthesises performance against KPIs from the Marketing Plan, identifies optimisation opportunities, and produces structured reports for the Marketing Orchestrator and human review.</div>
+  <div class="io">📄 Channel performance reports, KPI dashboards · File: <code>agents/analyst/analyst_agent.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Copywriter</h4>
+  <div class="what">Writes persuasive, on-brand copy for every marketing surface — landing pages, paid ads, app store listings, push notifications, in-product marketing, campaign messaging, and brand campaigns — that converts readers into users and users into advocates.</div>
+  <div class="io">📄 Landing page copy, ad creative, app store listings, push copy, campaign messaging · File: <code>agents/copywriter/copywriter_agent.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Email Specialist</h4>
+  <div class="what">Writes and structures all email communications — newsletters, drip sequences, transactional emails, and re-engagement campaigns — using CRM segmentation data to personalise at scale. Submits every send for human approval before execution.</div>
+  <div class="io">📄 Email sequences, drip campaigns, transactional templates · File: <code>agents/email/email_agent.py</code> · Gate: <code>EMAIL</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Social Media Specialist</h4>
+  <div class="what">Researches trending topics, drafts daily on-brand posts for X, Instagram, TikTok, and Discord, generates or sources supporting visuals, and submits every post for human approval before scheduling or publishing.</div>
+  <div class="io">📄 Social post drafts, visual briefs · File: <code>agents/social/social_agent.py</code> · Gate: <code>POST</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Video Producer</h4>
+  <div class="what">Scripts, structures, and produces video content for TikTok, YouTube Shorts, and long-form YouTube — including Veo visual direction briefs and Lyria 3 music briefs. Submits every video for human approval before publishing.</div>
+  <div class="io">📄 Scripts, visual direction briefs, music briefs · File: <code>agents/video/video_agent.py</code> · Gate: <code>VIDEO</code></div>
+</div>
 
 
 <h2 id="strategy-team">Strategy Team</h2>
@@ -555,65 +582,186 @@ python agents/shared/knowledge_curator/curator.py --source arxiv --source va_cms
 
 <h2>Finance Group <span class="badge b-finance">Dev Team Sub-Crew</span></h2>
 
-<p><strong>Not a standalone team.</strong> Runs as a sub-crew of the Dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it <strong>never auto-blocks the pipeline</strong>. Fires checkpoint CP-4.5 on FSP completion.</p>
+<p><strong>Not a standalone team.</strong> Runs as a sub-crew of the Dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it <strong>never auto-blocks the pipeline</strong>. Fires checkpoint CP-4.5 on FSP completion. Location: <code>templates/dev-team/agents/finance/</code></p>
 
-<p><strong>Auto-detection rules:</strong></p>
-<ul>
-  <li>Billing Architect (<code>BPS</code>) is skipped if no billing/payment/subscription language is found in the PRD</li>
-  <li>Pricing Specialist (<code>PRI</code>) is skipped for internal tooling projects</li>
-</ul>
+<p><strong>Auto-detection rules:</strong> Billing Architect (<code>BPS</code>) is skipped if no billing/payment/subscription language is found in the PRD. Pricing Specialist (<code>PRI</code>) is skipped for internal tooling projects. The orchestrator scans PRD keywords at runtime and logs any skip with its reason.</p>
 
-<table>
-  <tr><th>Agent</th><th>File</th><th>Artifact</th><th>Notes</th></tr>
-  <tr><td>Finance Orchestrator</td><td><code>finance_orchestrator.py</code></td><td>FSP</td><td>Sequences crew, cross-checks, synthesises, fires CP-4.5</td></tr>
-  <tr><td>Cost Analyst</td><td><code>cost_analyst.py</code></td><td>CEA</td><td>Always runs first</td></tr>
-  <tr><td>ROI Analyst</td><td><code>roi_analyst.py</code></td><td>ROI</td><td>Always runs</td></tr>
-  <tr><td>Infrastructure Finance Modeler</td><td><code>infra_finance_modeler.py</code></td><td>ICM</td><td>TAD → cost lines, scaling curves, 3-year projections</td></tr>
-  <tr><td>Billing Architect</td><td><code>billing_architect.py</code></td><td>BPS</td><td>⚠️ Skipped if no billing language in PRD</td></tr>
-  <tr><td>Pricing Specialist</td><td><code>pricing_specialist.py</code></td><td>PRI</td><td>⚠️ Skipped for internal tool projects</td></tr>
-  <tr><td>Financial Statements Modeler</td><td><code>financial_statements.py</code></td><td>FSR</td><td>Income statement, cash flow, balance sheet (3-year)</td></tr>
-  <tr><td>Strategic Corp Finance Specialist</td><td><code>strategic_corp_finance.py</code></td><td>SCF</td><td>Always runs last</td></tr>
-</table>
+<p><strong>Output standards enforced on every Finance artifact:</strong> opens with <code>FINANCE RATING: 🟢 GREEN | 🟡 AMBER | 🔴 RED</code>; every numeric estimate documents its assumptions; LOW / MID / HIGH scenarios where applicable; no fabricated benchmarks; ends with <code>OPEN QUESTIONS</code>.</p>
 
-<p>All Finance artifacts open with <code>FINANCE RATING: 🟢/🟡/🔴</code> and end with an <code>OPEN QUESTIONS</code> section.</p>
-<p>Location: <code>templates/dev-team/agents/finance/</code></p>
+<p><strong>Invocation:</strong></p>
+<div class="cmd">python agents/finance/finance_orchestrator.py   <span class="c"># full crew run</span>
+python agents/finance/cost_analyst.py           <span class="c"># single-agent shortcut</span></div>
+
+<div class="agent-card">
+  <h4>Finance Orchestrator <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Reads PRD + TAD to determine which specialists are relevant, sequences the 7-agent crew (CEA → ROI → ICM → BPS → PRI → FSR → SCF), cross-checks outputs for internal consistency, retries a failed agent once before escalating, compiles the Finance Summary Package, and fires CP-4.5.</div>
+  <div class="io">📥 PRD + TAD → 📄 <strong>FSP</strong> (Finance Summary Package) · File: <code>finance_orchestrator.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Cost Analyst <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Produces a detailed, assumption-documented cost estimate and budget envelope — development costs, infrastructure, licensing, tooling, and third-party services — across LOW / MID / HIGH scenarios. Always runs first; feeds into ROI, ICM, and FSR.</div>
+  <div class="io">📥 PRD + TAD → 📄 <strong>CEA</strong> (Cost Estimates &amp; Budget) · File: <code>cost_analyst.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>ROI Analyst <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Builds the investment case — quantifies expected returns, calculates NPV and IRR, models break-even, and produces a risk-adjusted recommendation: proceed, revise scope, or stop. Answers: is this worth building?</div>
+  <div class="io">📥 PRD + CEA → 📄 <strong>ROI</strong> (ROI &amp; Business Case Analysis) · File: <code>roi_analyst.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Infrastructure Finance Modeler <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Translates the technical architecture into a financial model — maps every infrastructure component (TAD) to a cost line, builds scaling curves, models cloud vs. on-prem trade-offs, and produces a month-by-month cost projection for years 1–3.</div>
+  <div class="io">📥 TAD + CEA → 📄 <strong>ICM</strong> (Infrastructure Cost Model) · File: <code>infra_finance_modeler.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Billing Architect <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Specifies all billing and payment feature requirements with enough precision that Backend and Frontend developers can implement without follow-up questions. Covers provider selection (Stripe, Braintree, PayPal, Adyen), payment flows, subscription lifecycle, refunds, and PCI/DSS requirements.</div>
+  <div class="io">📥 PRD + TAD → 📄 <strong>BPS</strong> (Billing &amp; Payment Feature Spec) · File: <code>billing_architect.py</code></div>
+  <div class="skip">⚠️ CONDITIONAL: Skipped if no billing/payment/subscription language detected in PRD</div>
+</div>
+
+<div class="agent-card">
+  <h4>Pricing Specialist <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Develops a defensible go-to-market pricing strategy — tier structures, price points, margin analysis, and competitive positioning — that maximises long-term revenue while fitting the product's market. Combines economics, competitive analysis, and customer psychology.</div>
+  <div class="io">📥 PRD + CEA + ROI → 📄 <strong>PRI</strong> (Pricing Strategy &amp; Model) · File: <code>pricing_specialist.py</code></div>
+  <div class="skip">⚠️ CONDITIONAL: Skipped for internal tooling projects</div>
+</div>
+
+<div class="agent-card">
+  <h4>Financial Statements Modeler <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Produces the three core projected financial statements — Income Statement, Cash Flow Statement, and Balance Sheet — synthesised from all other Finance specialist outputs. 3-year projections, CPA-grade methodology.</div>
+  <div class="io">📥 CEA + ROI + ICM + PRI → 📄 <strong>FSR</strong> (Financial Statements Report) · File: <code>financial_statements.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Strategic Corporate Finance Specialist <span class="badge b-finance">Tier 1</span></h4>
+  <div class="what">Synthesises all Finance outputs into a strategic corporate finance strategy — capital structure, funding options, M&amp;A considerations, financial risk register — and produces a two-page executive summary suitable for stakeholder or investor review. Always runs last.</div>
+  <div class="io">📥 All Finance artifacts → 📄 <strong>SCF</strong> (Strategic Corp Finance Report) · File: <code>strategic_corp_finance.py</code></div>
+</div>
 
 
 <h2>SME Group <span class="badge b-sme">Access-Controlled</span></h2>
 
-<p>Project-agnostic domain specialists callable from any current or future Protean Pursuits project. The SME Orchestrator routes queries, synthesises multi-expert responses, and fires a HITL review gate on any multi-SME output.</p>
+<p>Project-agnostic domain specialists callable from any current or future Protean Pursuits project. Location: <code>agents/sme/</code></p>
 
-<div class="stop"><strong>⛔ Authorized callers only:</strong> <code>pp_orchestrator</code>, <code>project_manager</code>, <code>strategy</code>, <code>legal</code>. Dev-team agents are explicitly blocked — a <code>PermissionError</code> is raised at runtime via <code>validate_caller()</code>.</div>
+<div class="stop"><strong>⛔ Authorized callers only:</strong> <code>pp_orchestrator</code>, <code>project_manager</code>, <code>strategy</code>, <code>legal</code>. Dev-team agents are explicitly blocked — a <code>PermissionError</code> is raised at runtime via <code>validate_caller()</code>. Attempting to call from an unauthorized agent raises immediately; there is no fallback.</div>
 
 <p><strong>Three invocation patterns:</strong></p>
-<ol>
-  <li>Single SME direct: <code>run_sme_consult(context, "pga", question, caller="project_manager")</code></li>
-  <li>Multi-SME orchestrated: <code>run_sme_crew(context, ["pga", "lpga"], question, caller="strategy")</code></li>
-  <li>Auto-detect from keywords: <code>run_sme_crew(context, [], question, caller="pp_orchestrator")</code></li>
-</ol>
+<div class="cmd"><span class="c"># Single SME direct</span>
+run_sme_consult(context, "pga", question, caller="project_manager")
 
-<table>
-  <tr><th>Registry Key</th><th>Domain</th></tr>
-  <tr><td><code>sports_betting</code></td><td>Cross-sport industry authority — all regulated markets worldwide</td></tr>
-  <tr><td><code>world_football</code></td><td>All global leagues, confederations, Asian handicap</td></tr>
-  <tr><td><code>nba_ncaa_basketball</code></td><td>NBA + March Madness</td></tr>
-  <tr><td><code>nfl_ncaa_football</code></td><td>NFL + CFP, college football</td></tr>
-  <tr><td><code>mlb</code></td><td>MLB + NPB + KBO + CPBL</td></tr>
-  <tr><td><code>nhl_ncaa_hockey</code></td><td>NHL + NCAA + KHL + Euro leagues</td></tr>
-  <tr><td><code>mma</code></td><td>UFC + Bellator + ONE + Rizin</td></tr>
-  <tr><td><code>tennis</code></td><td>ATP + WTA + Challengers + ITF</td></tr>
-  <tr><td><code>world_rugby</code></td><td>Union + League — Six Nations, NRL, State of Origin</td></tr>
-  <tr><td><code>cricket</code></td><td>Test + ODI + T20 + IPL — all formats, all nations</td></tr>
-  <tr><td><code>wnba_ncaa_womens_basketball</code></td><td>WNBA + NCAA women's</td></tr>
-  <tr><td><code>thoroughbred_horse_racing</code></td><td>US + UK/IRE + AUS + HK + JPN + FR + DXB</td></tr>
-  <tr><td><code>harness_racing</code></td><td>Standardbred worldwide — Hambletonian, V75, PMU</td></tr>
-  <tr><td><code>mens_boxing</code></td><td>All four sanctioning bodies, all 17 weight classes</td></tr>
-  <tr><td><code>pga</code></td><td>PGA Tour + DP World Tour + LIV + all majors + Ryder Cup</td></tr>
-  <tr><td><code>lpga</code></td><td>LPGA + JLPGA + KLPGA + women's majors + Solheim Cup</td></tr>
-</table>
+<span class="c"># Multi-SME orchestrated (fires HITL review gate on synthesis)</span>
+run_sme_crew(context, ["pga", "lpga"], question, caller="strategy")
 
-<p>Every SME output opens with <code>DOMAIN ASSESSMENT: HIGH/MEDIUM/LOW</code> and ends with <code>CROSS-TEAM FLAGS</code> and <code>OPEN QUESTIONS</code>.</p>
-<p>Location: <code>agents/sme/</code></p>
+<span class="c"># Auto-detect domains from keywords</span>
+run_sme_crew(context, [], question, caller="pp_orchestrator")</div>
+
+<p><strong>Output standards on every SME artifact:</strong> opens with <code>DOMAIN ASSESSMENT: HIGH/MEDIUM/LOW</code>; ends with <code>CROSS-TEAM FLAGS</code> and <code>OPEN QUESTIONS</code>. Multi-SME synthesis fires a HITL review gate before the Domain Intelligence Brief is acted on.</p>
+
+<div class="agent-card">
+  <h4>SME Orchestrator</h4>
+  <div class="what">Routes incoming questions to the correct specialist(s) based on keyword detection or explicit registry keys, manages multi-SME crew execution, synthesises individual outputs into a Domain Intelligence Brief, and fires the HITL review gate on any multi-expert output.</div>
+  <div class="io">📄 Domain Intelligence Brief · File: <code>sme_orchestrator.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Sports Betting Expert · <code>sports_betting</code></h4>
+  <div class="what">Provides authoritative cross-sport and industry-level expertise — market structures, operator economics, regulatory landscape, product design, bettor behaviour, and global market nuances — to any PP project operating in or adjacent to sports wagering. The top-level industry authority; use when the question spans multiple sports or is about the industry itself.</div>
+  <div class="io">File: <code>sports_betting_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>World Football &amp; Soccer Betting Expert · <code>world_football</code></h4>
+  <div class="what">Deep domain expertise on football/soccer betting markets worldwide — leagues, competitions (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Champions League, World Cup, CONCACAF, AFC, CAF, CONMEBOL), market structures, Asian handicap pricing dynamics, and bettor behaviour across every country where football wagering operates.</div>
+  <div class="io">File: <code>world_football_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>NBA &amp; NCAA Men's Basketball Betting Expert · <code>nba_ncaa_basketball</code></h4>
+  <div class="what">Deep domain expertise on NBA and NCAA men's basketball betting markets — league structures, market types (spread, moneyline, totals, player props), pricing dynamics, totals behaviour, March Madness, and regulatory nuances across every jurisdiction where basketball wagering operates.</div>
+  <div class="io">File: <code>nba_ncaa_basketball_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>NFL &amp; NCAA Football Betting Expert · <code>nfl_ncaa_football</code></h4>
+  <div class="what">Deep domain expertise on NFL and NCAA football betting markets — league structures, spread dynamics, totals behaviour, player props, futures markets, College Football Playoff, and regulatory nuances across every jurisdiction where American football wagering operates.</div>
+  <div class="io">File: <code>nfl_ncaa_football_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>MLB Betting Expert · <code>mlb</code></h4>
+  <div class="what">Deep domain expertise on MLB and baseball betting markets worldwide — league structures, moneyline and run line dynamics, pitcher-driven pricing, totals behaviour, props markets, and coverage of NPB (Japan), KBO (Korea), and CPBL (Taiwan) in addition to MLB.</div>
+  <div class="io">File: <code>mlb_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>NHL &amp; NCAA Men's Hockey Betting Expert · <code>nhl_ncaa_hockey</code></h4>
+  <div class="what">Deep domain expertise on NHL and NCAA men's hockey betting markets — puck line and moneyline dynamics, goaltender pricing, totals behaviour, props markets, KHL and major European league coverage, and regulatory nuances across every jurisdiction where hockey wagering operates.</div>
+  <div class="io">File: <code>nhl_ncaa_hockey_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>MMA Betting Expert · <code>mma</code></h4>
+  <div class="what">Deep domain expertise on MMA betting markets worldwide — promotion structures (UFC, Bellator, ONE Championship, Rizin), moneyline dynamics, method-of-victory markets, fighter analysis frameworks, props pricing, and regulatory nuances across every jurisdiction where MMA wagering operates.</div>
+  <div class="io">File: <code>mma_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Tennis Betting Expert · <code>tennis</code></h4>
+  <div class="what">Deep domain expertise on tennis betting markets worldwide — ATP Tour, WTA Tour, Challenger and ITF circuits, surface dynamics (hard, clay, grass), match and set betting, live in-play tennis markets, player prop markets, and regulatory nuances across every jurisdiction where tennis wagering operates.</div>
+  <div class="io">File: <code>tennis_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>World Rugby Betting Expert · <code>world_rugby</code></h4>
+  <div class="what">Deep domain expertise on rugby union and rugby league betting markets worldwide — Six Nations, Rugby Championship, NRL, State of Origin, Super Rugby, Premiership, United Rugby Championship, spread and totals dynamics, props markets, and regulatory nuances across every jurisdiction where rugby wagering operates.</div>
+  <div class="io">File: <code>world_rugby_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Cricket Betting Expert · <code>cricket</code></h4>
+  <div class="what">Deep domain expertise on cricket betting markets worldwide — all three formats (Test, ODI, T20), all major competitions (IPL, The Hundred, Big Bash, CPL, PSL, SA20), pitch and weather dynamics, player prop markets (runs, wickets, milestones), and regulatory nuances across every jurisdiction where cricket wagering operates.</div>
+  <div class="io">File: <code>cricket_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>WNBA &amp; NCAA Women's Basketball Betting Expert · <code>wnba_ncaa_womens_basketball</code></h4>
+  <div class="what">Deep domain expertise on WNBA and NCAA women's basketball betting markets — league structures, spread and totals dynamics, player props, market growth trajectory, and regulatory nuances across every jurisdiction where women's basketball wagering operates.</div>
+  <div class="io">File: <code>wnba_ncaa_womens_basketball_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Thoroughbred Horse Racing Betting Expert · <code>thoroughbred_horse_racing</code></h4>
+  <div class="what">Deep domain expertise on thoroughbred horse racing betting markets worldwide — US (Breeders' Cup, Kentucky Derby, Belmont, Preakness), UK/Ireland (Royal Ascot, Cheltenham, Grand National), Australia (Melbourne Cup, Cox Plate), Hong Kong, Japan, France, and Dubai; pari-mutuel and fixed-odds structures, handicapping frameworks, and exotic wagering (exacta, trifecta, superfecta, Pick 6).</div>
+  <div class="io">File: <code>thoroughbred_horse_racing_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Harness Racing Betting Expert · <code>harness_racing</code></h4>
+  <div class="what">Deep domain expertise on harness racing (standardbred) betting markets worldwide — trotting and pacing dynamics, Hambletonian, Meadowlands Pace, V75 (Sweden), V86, PMU (France), pari-mutuel structures, exotic wagering, and regulatory nuances across every jurisdiction where harness wagering operates.</div>
+  <div class="io">File: <code>harness_racing_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>Men's Professional Boxing Betting Expert · <code>mens_boxing</code></h4>
+  <div class="what">Deep domain expertise on men's professional boxing betting markets worldwide — all four sanctioning bodies (WBC, WBA, IBF, WBO), all 17 weight classes, moneyline and method-of-victory dynamics, round betting, props markets (knockdowns, scorecards), and regulatory nuances across every jurisdiction where boxing wagering operates.</div>
+  <div class="io">File: <code>mens_boxing_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>PGA Tour Betting Expert · <code>pga</code></h4>
+  <div class="what">Deep domain expertise on PGA Tour and men's professional golf betting markets worldwide — tournament structures, outright and head-to-head markets, course fit analysis, DP World Tour, LIV Golf, all four majors (Masters, US Open, The Open, PGA Championship), Ryder Cup, live in-play golf, and props markets across every jurisdiction where men's professional golf wagering operates.</div>
+  <div class="io">File: <code>pga_expert.py</code></div>
+</div>
+
+<div class="agent-card">
+  <h4>LPGA Tour Betting Expert · <code>lpga</code></h4>
+  <div class="what">Deep domain expertise on LPGA Tour and women's professional golf betting markets worldwide — tournament structures, outright and head-to-head markets, course fit analysis, JLPGA (Japan) and KLPGA (Korea) tour coverage, women's majors (ANA Inspiration, US Women's Open, Women's British Open, KPMG, Chevron), Solheim Cup, and props markets across every jurisdiction where women's professional golf wagering operates.</div>
+  <div class="io">File: <code>lpga_expert.py</code></div>
+</div>
 
 
 <h2>HR Team <span class="badge b-hr">Standalone Team</span></h2>
