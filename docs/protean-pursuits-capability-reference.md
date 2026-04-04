@@ -172,7 +172,32 @@ Every SME output opens with `DOMAIN ASSESSMENT: HIGH/MEDIUM/LOW` and ends with `
 
 ### 3.5 DS Team
 
-Data science analysis team. Handles analytical workflows from initial planning through final reporting. Features complexity-adaptive filtering — pipeline depth scales automatically to LOW/MEDIUM/HIGH classifications.
+Data science analysis team. Handles analytical workflows from problem framing through final reporting. Features complexity-adaptive filtering — pipeline depth scales automatically to LOW/MEDIUM/HIGH classifications. All outputs follow a fixed six-section structure and enforce `[ASSUMPTION]`/`[VERIFY]` tagging.
+
+**DS Orchestrator is an authorized SME caller** — it may invoke the SME Group directly.
+
+Run modes: `brief | evaluation | analysis | model | pipeline`
+
+| Mode | Crew (MEDIUM/HIGH) | What it produces |
+|---|---|---|
+| `brief` | DS Orchestrator | Quick scoping analysis or on-demand investigation |
+| `evaluation` | Data Evaluator → Reporting Analyst → DS Orchestrator | GO/NO-GO recommendation on data sources, APIs, or tools |
+| `analysis` | Data Framer → EDA Analyst → Statistical Analyst → Reporting Analyst → DS Orchestrator | Full analytical report with hypothesis tests and credible intervals |
+| `model` | Data Framer → EDA Analyst → ML Engineer → Reporting Analyst → DS Orchestrator | Model Development Plan — algorithm selection, feature engineering, training strategy |
+| `pipeline` | Data Framer → Pipeline Engineer → ML Engineer → Reporting Analyst → DS Orchestrator | Pipeline Design — ETL architecture, orchestration, error handling, observability |
+
+LOW complexity skips EDA and statistical detail. Pass `complexity: LOW|MEDIUM|HIGH` in your request (default: MEDIUM).
+
+| Agent | What It Produces |
+|---|---|
+| DS Orchestrator | Scoping, synthesis, SME delegation |
+| Data Evaluator | Scored comparison matrix, GO/NO-GO on data sources and tools |
+| Data Framer | Problem Frame — target variable, feature requirements, complexity classification |
+| EDA Analyst | Distribution analysis, data quality flags, feature signal assessment |
+| Statistical Analyst | Hypothesis tests, credible intervals, uncertainty quantification |
+| ML Engineer | Algorithm selection, feature engineering pipeline, training and evaluation strategy |
+| Pipeline Engineer | ETL architecture, orchestration design, error handling, observability plan |
+| Reporting Analyst | Six-section final report (Executive Summary → PRD Impact) |
 
 ---
 
@@ -360,6 +385,32 @@ Please run the DS team on the following analytical request:
 [description]
 
 Complexity: [LOW / MEDIUM / HIGH — or leave blank for auto-detection]
+```
+
+**DS evaluation (data source / API / tool):**
+```
+Please run the DS team in evaluation mode:
+
+Evaluate [data source / API / tool] for use in [project].
+Requirements:
+  - Historical depth: [e.g. 3+ seasons]
+  - Coverage: [e.g. EPL, La Liga, WC]
+  - Update frequency: [e.g. near real-time]
+  - Budget: [e.g. < $500/month]
+
+Return a GO/NO-GO recommendation with scoring matrix.
+```
+
+**DS model design:**
+```
+Please run the DS team in model mode:
+
+Design a [model type] for [prediction target].
+Project: [name]
+Data sources available: [list]
+Complexity: [LOW / MEDIUM / HIGH]
+Latency requirement: [e.g. < 500ms inference]
+Interpretability requirement: [high / medium / low]
 ```
 
 **Video production:**
@@ -572,6 +623,6 @@ All generated code uses environment variables for provider selection. No cloud p
 
 ---
 
-*Protean Pursuits — Agent System v2.2 — Capability Reference for External Projects*
+*Protean Pursuits — Agent System v2.3 — Capability Reference for External Projects*
 
-*Updated April 2026 — reflects flow architecture and fully wired Video Team*
+*Updated April 2026 — reflects flow architecture, Video Team, and DS specialist agents*

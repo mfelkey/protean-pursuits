@@ -487,9 +487,71 @@ package</p>
 <h1 id="research-policy-sources">Research + policy sources</h1>
 <p>python agents/shared/knowledge_curator/curator.py --source arxiv --source va_cms</p>
 <h2 id="ds-team-data-science-pipeline">DS Team — Data Science Pipeline</h2>
-<p>Handles analytical workflows from initial framing through final reporting. Features <strong>complexity-adaptive filtering</strong> — the pipeline depth scales automatically to LOW / MEDIUM / HIGH complexity classifications. LOW projects skip agents and checkpoints that aren't needed.</p>
-<p>Anti-hallucination discipline is enforced via a <code>validators.py</code> module with six checks: source grounding, fabricated statistics detection, confidence marker enforcement, section completeness, forbidden content filtering, and upstream consistency. All DS agent outputs require <code>[ASSUMPTION]</code> and <code>[VERIFY]</code> tags where applicable.</p>
+<p>Handles analytical workflows from initial framing through final reporting. Features <strong>complexity-adaptive filtering</strong> — pipeline depth scales automatically to LOW / MEDIUM / HIGH classifications. LOW projects skip EDA, statistical analysis, and ML detail passes.</p>
+<p>Anti-hallucination discipline: all DS agent outputs require <code>[ASSUMPTION]</code> tags on inferences and <code>[VERIFY]</code> tags on unresolved items. No fabricated statistics — when actual data is unavailable agents produce prescriptive analysis plans specifying what to compute and why.</p>
 <p><strong>DS → DEV handoff (JOINT projects):</strong> The DS team produces a formal handoff package. The DEV team receives it as authoritative upstream context and does not re-run the analysis.</p>
+<p><strong>DS Orchestrator is an authorized SME caller</strong> — it may invoke the SME Group directly by passing <code>caller="ds_orchestrator"</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>File</th>
+<th>Tier</th>
+<th>What It Produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DS Orchestrator</td>
+<td><code>agents/ds/ds_orchestrator.py</code></td>
+<td>T1</td>
+<td>Scoping, crew sequencing, synthesis, SME delegation</td>
+</tr>
+<tr>
+<td>Data Evaluator</td>
+<td><code>agents/ds/data_evaluator.py</code></td>
+<td>T1</td>
+<td>GO/NO-GO evaluation of data sources, APIs, and tools — scored comparison matrix</td>
+</tr>
+<tr>
+<td>Data Framer</td>
+<td><code>agents/ds/data_framer.py</code></td>
+<td>T1</td>
+<td>Problem Frame — target variable, feature requirements, complexity classification, pipeline recommendation</td>
+</tr>
+<tr>
+<td>EDA Analyst</td>
+<td><code>agents/ds/eda_analyst.py</code></td>
+<td>T1</td>
+<td>EDA report — distributions, data quality flags, feature signal assessment</td>
+</tr>
+<tr>
+<td>Statistical Analyst</td>
+<td><code>agents/ds/statistical_analyst.py</code></td>
+<td>T1</td>
+<td>Hypothesis tests, credible intervals, uncertainty quantification</td>
+</tr>
+<tr>
+<td>ML Engineer</td>
+<td><code>agents/ds/ml_engineer.py</code></td>
+<td>T1</td>
+<td>Model Development Plan — algorithm selection, feature engineering, training strategy, evaluation framework</td>
+</tr>
+<tr>
+<td>Pipeline Engineer</td>
+<td><code>agents/ds/pipeline_engineer.py</code></td>
+<td>T1</td>
+<td>Pipeline Design — ETL architecture, orchestration, error handling, observability</td>
+</tr>
+<tr>
+<td>Reporting Analyst</td>
+<td><code>agents/ds/reporting_analyst.py</code></td>
+<td>T1</td>
+<td>Six-section final report — Executive Summary, Findings, Recommendation, Implementation Notes, Risk Flags, PRD Impact</td>
+</tr>
+</tbody>
+</table>
+<p>All outputs end with <strong>CROSS-TEAM FLAGS</strong> and <strong>OPEN QUESTIONS</strong>.</p>
 <h2 id="design-team">Design Team</h2>
 <table>
 <thead>
@@ -1127,37 +1189,45 @@ Layer 3   templates/{team}/flows/{team}_agent_flow.py  Single-agent direct acces
 </tr>
 </tbody>
 </table>
-<h3 id="ds-team-ds_flowpy-existing-unchanged">DS Team (<code>ds_flow.py</code>) — existing, unchanged</h3>
+<h3 id="ds-team-ds_flowpy">DS Team (<code>ds_flow.py</code>)</h3>
+<p>Complexity-adaptive routing applies to <code>analysis</code>, <code>model</code>, and <code>pipeline</code> modes — pass <code>--complexity LOW|MEDIUM|HIGH</code> (default: MEDIUM). LOW skips EDA and statistical detail to reduce runtime.</p>
 <table>
 <thead>
 <tr>
 <th>Mode</th>
-<th>Description</th>
+<th>Crew (MEDIUM/HIGH)</th>
+<th>Crew (LOW)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>brief</code></td>
-<td>Scoping brief, complexity classification</td>
+<td>DS Orchestrator</td>
+<td>DS Orchestrator</td>
 </tr>
 <tr>
 <td><code>evaluation</code></td>
-<td>Data quality assessment, gap analysis</td>
+<td>Data Evaluator → Reporting Analyst → DS Orchestrator</td>
+<td>← same</td>
 </tr>
 <tr>
 <td><code>analysis</code></td>
-<td>Full EDA and statistical analysis</td>
+<td>Data Framer → EDA Analyst → Statistical Analyst → Reporting Analyst → DS Orchestrator</td>
+<td>Data Framer → Reporting Analyst → DS Orchestrator</td>
 </tr>
 <tr>
 <td><code>model</code></td>
-<td>Model selection, training, evaluation</td>
+<td>Data Framer → EDA Analyst → ML Engineer → Reporting Analyst → DS Orchestrator</td>
+<td>Data Framer → ML Engineer → Reporting Analyst → DS Orchestrator</td>
 </tr>
 <tr>
 <td><code>pipeline</code></td>
-<td>End-to-end DS pipeline + handoff package</td>
+<td>Data Framer → Pipeline Engineer → ML Engineer → Reporting Analyst → DS Orchestrator</td>
+<td>Data Framer → Pipeline Engineer → Reporting Analyst → DS Orchestrator</td>
 </tr>
 </tbody>
 </table>
+<p>All modes produce the six-section report structure. <code>ds_flow.py</code> also accepts <code>--name</code> and <code>--brief</code> directly from the CLI (original interface preserved).</p>
 <h3 id="design-team-design_flowpy">Design Team (<code>design_flow.py</code>)</h3>
 <table>
 <thead>
@@ -1506,7 +1576,7 @@ python templates/marketing-team/flows/marketing_agent_flow.py --list-agents
 </code></pre></div>
 <h3 id="agent-registries-by-team">Agent registries by team</h3>
 <p><strong>Dev</strong> — 16 agents: <code>product_manager</code>, <code>business_analyst</code>, <code>scrum_master</code>, <code>technical_architect</code>, <code>security_reviewer</code>, <code>ux_designer</code>, <code>ux_content_guide</code>, <code>senior_developer</code>, <code>backend_developer</code>, <code>frontend_developer</code>, <code>dba</code>, <code>devops_engineer</code>, <code>qa_lead</code>, <code>test_automation_engineer</code>, <code>devex_writer</code>, <code>technical_writer</code></p>
-<p><strong>DS</strong> — 6 agents: <code>data_framer</code>, <code>data_evaluator</code>, <code>eda_analyst</code>, <code>statistical_analyst</code>, <code>ml_engineer</code>, <code>reporting_analyst</code> <em>(VERIFY registry keys against actual <code>build_*</code> function names)</em></p>
+<p><strong>DS</strong> — 8 agents: <code>ds_orchestrator</code>, <code>data_evaluator</code>, <code>data_framer</code>, <code>eda_analyst</code>, <code>statistical_analyst</code>, <code>ml_engineer</code>, <code>pipeline_engineer</code>, <code>reporting_analyst</code> — DS Orchestrator is an authorized SME caller</p>
 <p><strong>Design</strong> — 8 agents: <code>ux_researcher</code>, <code>wireframing_specialist</code>, <code>ui_designer</code>, <code>brand_identity_specialist</code>, <code>design_system_architect</code>, <code>motion_designer</code>, <code>accessibility_specialist</code>, <code>usability_analyst</code></p>
 <p><strong>Legal</strong> — 8 agents: <code>contract_drafter</code>, <code>document_reviewer</code>, <code>corporate_entity_specialist</code>, <code>ip_licensing_specialist</code>, <code>privacy_data_counsel</code>, <code>regulatory_compliance_specialist</code>, <code>employment_contractor_counsel</code>, <code>litigation_dispute_specialist</code></p>
 <p><strong>Marketing</strong> — 5 agents: <code>marketing_analyst</code>, <code>copywriter</code>, <code>email_specialist</code>, <code>social_media_specialist</code>, <code>video_producer</code></p>
@@ -2337,7 +2407,7 @@ python agents/orchestrator/classify.py # new project</p>
 <tr>
 <td>DS agent flow</td>
 <td><code>templates/ds-team/flows/ds_agent_flow.py</code></td>
-<td>6 agents — supplement to existing <code>ds_flow.py</code></td>
+<td>8 agents — <code>ds_orchestrator</code>, <code>data_evaluator</code>, <code>data_framer</code>, <code>eda_analyst</code>, <code>statistical_analyst</code>, <code>ml_engineer</code>, <code>pipeline_engineer</code>, <code>reporting_analyst</code></td>
 </tr>
 <tr>
 <td>Design team flow</td>
@@ -3055,7 +3125,7 @@ Grounded in commit <code>fdaabc3</code> + flow architecture patch · github.com/
 <hr>
 <p style="text-align:center;color:#999;font-size:9pt;">
 Protean Pursuits — Agent System Operating Manual — Version 3.1 — April 2026<br>
-Grounded in commit <code>fdaabc3</code> + flow architecture + video team · github.com/mfelkey/protean-pursuits
+Grounded in commit <code>fdaabc3</code> + flow architecture + video team + DS specialist agents · github.com/mfelkey/protean-pursuits
 </p>
 
 </body>

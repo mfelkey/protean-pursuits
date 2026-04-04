@@ -307,11 +307,26 @@ python agents/shared/knowledge\_curator/curator.py --source arxiv --source va\_c
 
 ## DS Team — Data Science Pipeline
 
-Handles analytical workflows from initial framing through final reporting. Features **complexity-adaptive filtering** — the pipeline depth scales automatically to LOW / MEDIUM / HIGH complexity classifications. LOW projects skip agents and checkpoints that aren't needed.
+Handles analytical workflows from initial framing through final reporting. Features **complexity-adaptive filtering** — pipeline depth scales automatically to LOW / MEDIUM / HIGH classifications. LOW projects skip EDA, statistical analysis, and ML detail passes.
 
-Anti-hallucination discipline is enforced via a `validators.py` module with six checks: source grounding, fabricated statistics detection, confidence marker enforcement, section completeness, forbidden content filtering, and upstream consistency. All DS agent outputs require `[ASSUMPTION]` and `[VERIFY]` tags where applicable.
+Anti-hallucination discipline: all DS agent outputs require `[ASSUMPTION]` tags on inferences and `[VERIFY]` tags on unresolved items. No fabricated statistics — when actual data is unavailable agents produce prescriptive analysis plans specifying what to compute and why.
 
 **DS → DEV handoff (JOINT projects):** The DS team produces a formal handoff package. The DEV team receives it as authoritative upstream context and does not re-run the analysis.
+
+**DS Orchestrator is an authorized SME caller** — it may invoke the SME Group directly by passing `caller="ds_orchestrator"`.
+
+| Agent | File | Tier | What It Produces |
+| --- | --- | --- | --- |
+| DS Orchestrator | `agents/ds/ds_orchestrator.py` | T1 | Scoping, crew sequencing, synthesis, SME delegation |
+| Data Evaluator | `agents/ds/data_evaluator.py` | T1 | GO/NO-GO evaluation of data sources, APIs, and tools — scored comparison matrix |
+| Data Framer | `agents/ds/data_framer.py` | T1 | Problem Frame — target variable, feature requirements, complexity classification, pipeline recommendation |
+| EDA Analyst | `agents/ds/eda_analyst.py` | T1 | EDA report — distributions, data quality flags, feature signal assessment |
+| Statistical Analyst | `agents/ds/statistical_analyst.py` | T1 | Hypothesis tests, credible intervals, uncertainty quantification |
+| ML Engineer | `agents/ds/ml_engineer.py` | T1 | Model Development Plan — algorithm selection, feature engineering, training strategy, evaluation framework |
+| Pipeline Engineer | `agents/ds/pipeline_engineer.py` | T1 | Pipeline Design — ETL architecture, orchestration, error handling, observability |
+| Reporting Analyst | `agents/ds/reporting_analyst.py` | T1 | Six-section final report — Executive Summary, Findings, Recommendation, Implementation Notes, Risk Flags, PRD Impact |
+
+All outputs end with **CROSS-TEAM FLAGS** and **OPEN QUESTIONS**.
 
 ## Design Team
 
@@ -824,15 +839,19 @@ One `{team}_flow.py` per team. Each exposes a set of modes that route to the tea
 | `mobile` | Mobile UX → iOS → Android → RN Arch → RN Dev → Mobile DevOps → Mobile QA | **UXD required in context** |
 | `full` | plan → finance → build → quality in sequence | None (reloads context between phases) |
 
-### DS Team (`ds_flow.py`) — existing, unchanged
+### DS Team (`ds_flow.py`)
 
-| Mode | Description |
-| --- | --- |
-| `brief` | Scoping brief, complexity classification |
-| `evaluation` | Data quality assessment, gap analysis |
-| `analysis` | Full EDA and statistical analysis |
-| `model` | Model selection, training, evaluation |
-| `pipeline` | End-to-end DS pipeline + handoff package |
+Complexity-adaptive routing applies to `analysis`, `model`, and `pipeline` modes — pass `--complexity LOW|MEDIUM|HIGH` (default: MEDIUM). LOW skips EDA and statistical detail to reduce runtime.
+
+| Mode | Crew (MEDIUM/HIGH) | Crew (LOW) |
+| --- | --- | --- |
+| `brief` | DS Orchestrator | DS Orchestrator |
+| `evaluation` | Data Evaluator → Reporting Analyst → DS Orchestrator | ← same |
+| `analysis` | Data Framer → EDA Analyst → Statistical Analyst → Reporting Analyst → DS Orchestrator | Data Framer → Reporting Analyst → DS Orchestrator |
+| `model` | Data Framer → EDA Analyst → ML Engineer → Reporting Analyst → DS Orchestrator | Data Framer → ML Engineer → Reporting Analyst → DS Orchestrator |
+| `pipeline` | Data Framer → Pipeline Engineer → ML Engineer → Reporting Analyst → DS Orchestrator | Data Framer → Pipeline Engineer → Reporting Analyst → DS Orchestrator |
+
+All modes produce the six-section report structure. `ds_flow.py` also accepts `--name` and `--brief` directly from the CLI (original interface preserved).
 
 ### Design Team (`design_flow.py`)
 
@@ -951,7 +970,7 @@ python templates/marketing-team/flows/marketing_agent_flow.py --list-agents
 
 **Dev** — 16 agents: `product_manager`, `business_analyst`, `scrum_master`, `technical_architect`, `security_reviewer`, `ux_designer`, `ux_content_guide`, `senior_developer`, `backend_developer`, `frontend_developer`, `dba`, `devops_engineer`, `qa_lead`, `test_automation_engineer`, `devex_writer`, `technical_writer`
 
-**DS** — 6 agents: `data_framer`, `data_evaluator`, `eda_analyst`, `statistical_analyst`, `ml_engineer`, `reporting_analyst` *(VERIFY registry keys against actual `build_*` function names)*
+**DS** — 8 agents: `ds_orchestrator`, `data_evaluator`, `data_framer`, `eda_analyst`, `statistical_analyst`, `ml_engineer`, `pipeline_engineer`, `reporting_analyst` — DS Orchestrator is an authorized SME caller
 
 **Design** — 8 agents: `ux_researcher`, `wireframing_specialist`, `ui_designer`, `brand_identity_specialist`, `design_system_architect`, `motion_designer`, `accessibility_specialist`, `usability_analyst`
 
@@ -1336,7 +1355,7 @@ Detailed reference material. You don't need to read this to use the system — i
 | Top-level dispatcher | `flows/pp_flow.py` | Routes `--mode` to team flows and `--agent` to agent direct flows |
 | Dev team flow | `templates/dev-team/flows/dev_flow.py` | Modes: `plan`, `build`, `quality`, `finance`, `mobile`, `full` |
 | Dev agent flow | `templates/dev-team/flows/dev_agent_flow.py` | 16 agents — registry key access to all dev specialists |
-| DS agent flow | `templates/ds-team/flows/ds_agent_flow.py` | 6 agents — supplement to existing `ds_flow.py` |
+| DS agent flow | `templates/ds-team/flows/ds_agent_flow.py` | 8 agents — `ds_orchestrator`, `data_evaluator`, `data_framer`, `eda_analyst`, `statistical_analyst`, `ml_engineer`, `pipeline_engineer`, `reporting_analyst` |
 | Design team flow | `templates/design-team/flows/design_flow.py` | Modes: `research`, `wireframe`, `visual`, `motion`, `accessibility`, `full` |
 | Design agent flow | `templates/design-team/flows/design_agent_flow.py` | 8 agents |
 | Legal team flow | `templates/legal-team/flows/legal_flow.py` | Modes: `contract`, `review`, `ip`, `privacy`, `regulatory`, `employment`, `corporate`, `dispute`, `full` |
