@@ -77,6 +77,8 @@ TEAM_FLOW_MAP = {
     "qa":        ("templates.qa-team.flows.qa_flow",         "templates.qa-team.flows.qa_agent_flow"),
     "hr":        ("templates.hr-team.flows.hr_flow",         "templates.hr-team.flows.hr_agent_flow"),
     "video":     ("templates.video-team.flows.video_flow",   "templates.video-team.flows.video_agent_flow"),
+    # Finance Group — dev-team sub-crew, agents at templates/dev-team/agents/finance/
+    "finance":   ("flows.finance_flow",                       "flows.finance_agent_flow"),
     # SME Group — project-agnostic domain specialists
     # flows/sme_flow.py and flows/sme_agent_flow.py live at repo root (not in templates/)
     "sme":       ("flows.sme_flow",                          "flows.sme_agent_flow"),
