@@ -5,14 +5,14 @@ DS Team — single-agent direct flow.
 Bypasses the DS orchestrator; targets one agent by registry key.
 
 Usage:
-    python templates/ds-team/flows/ds_agent_flow.py \\
-        --agent eda_analyst \\
-        --task "Run EDA on Q1 churn dataset" \\
-        --project parallaxedge \\
+    python templates/ds-team/flows/ds_agent_flow.py \
+        --agent eda_analyst \
+        --task "Run EDA on Q1 churn dataset" \
+        --project parallaxedge \
         [--save]
 
 Via pp_flow.py:
-    python flows/pp_flow.py --team ds --agent eda_analyst \\
+    python flows/pp_flow.py --team ds --agent eda_analyst \
         --task "Run EDA on Q1 churn dataset" --project parallaxedge
 """
 
@@ -31,8 +31,10 @@ from core.context_loader import load_context, save_agent_direct_output  # noqa: 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
-# ── Agent registry ────────────────────────────────────────────────────────────
-
+# ---------------------------------------------------------------------------
+# Agent registry — verified against build_* functions in
+# templates/ds-team/agents/ds/*.py (grep "^def build_")
+# ---------------------------------------------------------------------------
 AGENT_REGISTRY = {
     "ds_orchestrator": {
         "module":      "agents.ds.ds_orchestrator",
@@ -42,42 +44,40 @@ AGENT_REGISTRY = {
     "data_evaluator": {
         "module":      "agents.ds.data_evaluator",
         "build_fn":    "build_data_evaluator",
-        "description": "Data Evaluator — data source / API / tool evaluation, GO/NO-GO recommendations",
+        "description": "Data Evaluator — data source / API / tool evaluation, GO/NO-GO, scored comparison matrix",
     },
     "data_framer": {
         "module":      "agents.ds.data_framer",
         "build_fn":    "build_data_framer",
-        "description": "Data Framer — problem framing, complexity classification, feature requirements",
+        "description": "Data Framer — problem framing, complexity classification (LOW/MEDIUM/HIGH), feature requirements",
     },
     "eda_analyst": {
         "module":      "agents.ds.eda_analyst",
         "build_fn":    "build_eda_analyst",
-        "description": "EDA Analyst — distributions, data quality, feature signal assessment",
+        "description": "EDA Analyst — distributions, missing values, data quality flags, feature signal assessment",
     },
     "statistical_analyst": {
         "module":      "agents.ds.statistical_analyst",
         "build_fn":    "build_statistical_analyst",
-        "description": "Statistical Analyst — hypothesis testing, credible intervals, uncertainty quantification",
+        "description": "Statistical Analyst — hypothesis tests, credible intervals, uncertainty quantification",
     },
     "ml_engineer": {
         "module":      "agents.ds.ml_engineer",
         "build_fn":    "build_ml_engineer",
-        "description": "ML Engineer — algorithm selection, feature engineering pipeline, training strategy, evaluation framework",
+        "description": "ML Engineer — algorithm selection, feature engineering, training strategy, evaluation framework",
     },
     "pipeline_engineer": {
         "module":      "agents.ds.pipeline_engineer",
         "build_fn":    "build_pipeline_engineer",
-        "description": "Pipeline Engineer — ETL design, orchestration, error handling, observability",
+        "description": "Pipeline Engineer — ETL architecture, orchestration, error handling, observability",
     },
     "reporting_analyst": {
         "module":      "agents.ds.reporting_analyst",
         "build_fn":    "build_reporting_analyst",
-        "description": "Reporting Analyst — six-section final reports, executive summaries, PRD impact",
+        "description": "Reporting Analyst — six-section final reports: Executive Summary through PRD Impact",
     },
 }
 
-
-# ── Runner ────────────────────────────────────────────────────────────────────
 
 def run_agent(agent_key: str, task: str, context: dict, save: bool = False) -> str:
     if agent_key not in AGENT_REGISTRY:
@@ -92,14 +92,14 @@ def run_agent(agent_key: str, task: str, context: dict, save: bool = False) -> s
     except ModuleNotFoundError as e:
         sys.exit(
             f"[ds_agent_flow] ERROR: Cannot import '{entry['module']}'.\n"
+            f"  Expected at: templates/ds-team/agents/ds/{agent_key}.py\n"
             f"  Original error: {e}"
         )
 
     build_fn = getattr(mod, entry["build_fn"], None)
     if build_fn is None:
         sys.exit(
-            f"[ds_agent_flow] ERROR: '{entry['build_fn']}' not found "
-            f"in '{entry['module']}'."
+            f"[ds_agent_flow] ERROR: '{entry['build_fn']}' not found in '{entry['module']}'."
         )
 
     from crewai import Crew, Task
@@ -109,16 +109,11 @@ def run_agent(agent_key: str, task: str, context: dict, save: bool = False) -> s
     task_obj = Task(
         description=(
             f"{task}\n\n"
-            f"Context:\n{context.get('raw', '') or 'No context provided.'}\n\n"
-            "Every output must follow the six-section structure:\n"
-            "1. EXECUTIVE SUMMARY  2. DETAILED FINDINGS  3. RECOMMENDATION\n"
-            "4. IMPLEMENTATION NOTES  5. RISK FLAGS  6. PRD IMPACT\n"
-            "+ CROSS-TEAM FLAGS + OPEN QUESTIONS\n"
-            "Tag all inferences [ASSUMPTION] and unresolved items [VERIFY]."
+            f"Context:\n{context.get('raw', '') or 'No context provided.'}"
         ),
         expected_output=(
-            f"Complete structured deliverable from {entry['description']}. "
-            f"No placeholders. No fabricated statistics."
+            f"Complete, structured output from {entry['description']}. "
+            f"No placeholders. All sections fully populated."
         ),
         agent=agent,
     )
@@ -147,8 +142,6 @@ def run_agent(agent_key: str, task: str, context: dict, save: bool = False) -> s
     return output_str
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
 def _print_registry():
     print("\nAvailable DS agents:")
     for key, entry in AGENT_REGISTRY.items():
@@ -156,12 +149,11 @@ def _print_registry():
     print()
 
 
-# ── CLI ───────────────────────────────────────────────────────────────────────
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="ds_agent_flow.py",
         description="DS Team — run a single agent directly, bypassing the orchestrator.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("--agent", required=True, help="Agent registry key.")
     parser.add_argument("--task", required=True, help="Plain-English task description.")
