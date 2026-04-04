@@ -19,7 +19,25 @@ Protean Pursuits is a CrewAI + Ollama multi-agent framework. It receives plain-E
 
 ## 2. Architecture
 
+### Entry points
+
+PP exposes three entry points. Use the lightest one that fits the job.
+
+| Entry point | Command | When to use |
+|---|---|---|
+| **Full intake** | `flows/intake_flow.py` | New project from scratch — full orchestrator-led pipeline |
+| **Team flow** | `flows/pp_flow.py --team X --mode Y` | Existing project — run one team's pipeline or a specific mode |
+| **Agent direct** | `flows/pp_flow.py --team X --agent Y` | Targeted task — single agent, no orchestrator overhead |
+
+All three share the same context resolution (`--project` → `--context-file` → `--context` → none), output paths, and HITL gates.
+
+### Agent hierarchy
+
 ```
+flows/intake_flow.py  (new projects)
+flows/pp_flow.py      (team flows + agent direct)
+        │
+        ▼
 PP Orchestrator
   └── Project Manager
         └── Team Leads (one per team)
@@ -27,7 +45,7 @@ PP Orchestrator
                     └── Specialist Agents
 ```
 
-PP's master orchestrator receives the request, classifies it, selects the relevant team(s), and routes accordingly. **You do not need to address individual agents** — describe what you need and PP routes it.
+PP's master orchestrator receives the request, classifies it, selects the relevant team(s), and routes accordingly. When using `pp_flow.py --team` you bypass intake and address a team or agent directly with an existing context.
 
 ---
 
@@ -160,14 +178,88 @@ Data science analysis team. Handles analytical workflows from initial planning t
 
 ### 3.6 Other Teams
 
-| Team | Run Modes | Key Constraint |
-|---|---|---|
-| **HR Team** | `RECRUIT \| ONBOARD \| REVIEW \| POLICY \| CULTURE \| BENEFITS \| FULL_CYCLE` | Humans-only workforce model — never recommends replacing a person with AI. All outputs require human approval before any action affecting a person is taken. Mandatory cross-team flags on every output: Legal / Finance / Strategy / QA. |
-| **Marketing Team** | — | Copywriter agent produces landing pages, paid ads, app store listings, push notifications, in-product copy, campaign messaging |
-| **Strategy Team** | — | Authorized SME caller |
-| **Legal Team** | — | Authorized SME caller |
-| **Design Team** | — | Visual design deliverables |
-| **QA Team** | — | Standalone QA crew separate from dev-team quality phase |
+#### HR Team
+Run modes: `RECRUIT | ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE`
+Humans-only workforce model — never recommends replacing a person with AI. All outputs require human approval before any action affecting a person is taken. Mandatory cross-team flags on every output: Legal / Finance / Strategy / QA.
+HITL gate: HR action gate fires before any action affecting a person.
+
+#### Marketing Team
+Run modes: `brief | copy | email | social | video | analytics | campaign`
+No deliverable publishes autonomously — every output requires human approval before execution. HITL gates: `POST` (social), `EMAIL`, `VIDEO`.
+
+| Mode | What it produces |
+|---|---|
+| `brief` | Campaign brief, channel plan |
+| `copy` | Landing page copy, ad creative, app store listings, push copy |
+| `email` | Email sequences, drip campaigns, transactional templates |
+| `social` | Post drafts, visual briefs (X, Instagram, TikTok, Discord) |
+| `video` | Scripts, visual direction briefs, music briefs |
+| `analytics` | Channel performance reports, KPI dashboards |
+| `campaign` | Full campaign package — all specialists in sequence |
+
+#### Strategy Team
+Run modes: `positioning | business_model | competitive | gtm | okr | financial | partnership | product | risk | talent | technology | full`
+Authorized SME caller. HITL gates: `STRATEGY`, `OKR_CYCLE`, `COMPETITIVE`.
+
+| Mode | What it produces |
+|---|---|
+| `positioning` | Brand positioning framework |
+| `business_model` | Business model canvas + narrative |
+| `competitive` | Competitive landscape, positioning gaps |
+| `gtm` | GTM plan, channel strategy, launch sequencing |
+| `okr` | OKR framework, measurement plan |
+| `financial` | Financial strategy, funding roadmap |
+| `partnership` | Partnership framework, target list |
+| `product` | Product strategy, roadmap |
+| `risk` | Risk register, scenario analysis |
+| `talent` | Org design, hiring plan |
+| `technology` | Technology strategy, build/buy/partner rec |
+| `full` | All of the above in sequence |
+
+#### Legal Team
+Run modes: `contract | review | ip | privacy | regulatory | employment | corporate | dispute | full`
+Authorized SME caller. HITL gate: `LEGAL_REVIEW` on every deliverable.
+
+| Mode | What it produces |
+|---|---|
+| `contract` | Draft contracts, NDAs, service agreements |
+| `review` | Redlined documents, risk memos |
+| `ip` | IP assessment, licensing framework |
+| `privacy` | GDPR/CCPA analysis, privacy impact assessment |
+| `regulatory` | Compliance gap report |
+| `employment` | Employment agreements, contractor frameworks |
+| `corporate` | Entity structure recommendation |
+| `dispute` | Dispute assessment, strategy memo |
+| `full` | Complete legal package |
+
+#### Design Team
+Run modes: `research | wireframe | visual | motion | accessibility | full`
+HITL gate: `DESIGN_REVIEW` on every mode — assets approved before handoff to dev.
+
+| Mode | What it produces |
+|---|---|
+| `research` | User research report, journey maps |
+| `wireframe` | Research report + wireframes |
+| `visual` | UI designs, brand guide, design system |
+| `motion` | Motion spec, animation briefs |
+| `accessibility` | Accessibility audit (WCAG 2.1 AA), usability report |
+| `full` | Complete design package |
+
+#### QA Team (Standalone)
+Run modes: `functional | performance | security | accessibility | data_quality | legal_review | marketing_review | test_cases | full`
+Operates independently of the dev-team's internal quality phase. Can audit any team's deliverables. HITL gate: `QA_SIGN_OFF`.
+
+| Mode | What it produces |
+|---|---|
+| `functional` | Functional test results, bug report |
+| `performance` | Performance benchmarks, bottleneck analysis |
+| `security` | Security test report 🟢/🟡/🔴 |
+| `accessibility` | WCAG 2.1 AA audit |
+| `data_quality` | Data quality scorecard |
+| `legal_review` | Legal completeness report |
+| `marketing_review` | Marketing compliance report |
+| `test_cases` | Test case library |
+| `full` | Full QA audit package |
 
 ---
 
@@ -248,7 +340,85 @@ Please run the DS team on the following analytical request:
 Complexity: [LOW / MEDIUM / HIGH — or leave blank for auto-detection]
 ```
 
-### 4.3 Passing Upstream Artifacts
+**Team flow — existing project, specific mode:**
+```bash
+# Run the strategy team competitive intelligence mode
+python flows/pp_flow.py --team strategy --mode competitive \
+    --project my-project --task "Competitive landscape for sports betting app" --save
+
+# Run a legal privacy review
+python flows/pp_flow.py --team legal --mode privacy \
+    --project my-project --task "GDPR and CCPA assessment for user data collection" --save
+
+# Run a full QA audit
+python flows/pp_flow.py --team qa --mode full \
+    --project my-project --task "Full audit of v1.0 release candidate" --save
+```
+
+**Agent direct — single specialist, no orchestrator:**
+```bash
+# Get a competitive intelligence brief without running the full strategy pipeline
+python flows/pp_flow.py --team strategy --agent competitive_intel_analyst \
+    --task "Who are the top 5 competitors in regulated US sports betting?" \
+    --project my-project --save
+
+# Get app store copy without running a full marketing campaign
+python flows/pp_flow.py --team marketing --agent copywriter \
+    --task "App Store listing for iOS sports betting app — US market" \
+    --project my-project --save
+
+# Get a contract drafted without the full legal pipeline
+python flows/pp_flow.py --team legal --agent contract_drafter \
+    --task "Independent contractor agreement for ML engineer" \
+    --context "Michigan law, 6-month engagement, IP assignment required"
+```
+
+### 4.3 Targeting a Specific Team or Agent
+
+When you already have a project context and want to run a targeted operation without going through the full intake, use `pp_flow.py` directly.
+
+**Run a team pipeline:**
+```bash
+python flows/pp_flow.py \
+    --team <team> \
+    --mode <mode> \
+    --project <project_name> \
+    --task "<plain-English task description>" \
+    [--save]
+```
+
+**Run a single agent directly:**
+```bash
+python flows/pp_flow.py \
+    --team <team> \
+    --agent <registry_key> \
+    --project <project_name> \
+    --task "<plain-English task description>" \
+    [--save]
+```
+
+**Supply context without a project file:**
+```bash
+# Inline context
+python flows/pp_flow.py --team legal --agent contract_drafter \
+    --task "Draft NDA for contractor" \
+    --context "Michigan law, 2yr term, mutual NDA"
+
+# Context from file
+python flows/pp_flow.py --team ds --mode analysis \
+    --task "Q1 churn analysis" \
+    --context-file ~/briefs/q1_brief.txt
+```
+
+**Discover available modes and agents for a team:**
+```bash
+python flows/pp_flow.py --team <team> --list-modes
+```
+
+Context resolution order (first match wins): `--project` → `--context-file` → `--context` → none.
+Output is always printed to stdout. Use `--save` (requires `--project`) to write to `output/<project>/`.
+
+### 4.4 Passing Upstream Artifacts
 
 When you already have artifacts from a prior PP run (or from your own pipeline), include them explicitly so PP agents consume them as authoritative upstream context rather than regenerating:
 
@@ -278,6 +448,15 @@ PP pauses at defined checkpoints and waits for human approval before continuing.
 | **CP-6** | After TAR | Human approves test results before delivery |
 | **Multi-SME gate** | After any multi-SME synthesis | Human reviews Domain Intelligence Brief before it is acted on |
 | **HR action gate** | Before any HR action affecting a person | Human must approve — no exceptions |
+| **DESIGN_REVIEW** | After every design team deliverable | Design assets approved before handoff to dev |
+| **LEGAL_REVIEW** | After every legal team deliverable | Legal output approved before any action is taken |
+| **QA_SIGN_OFF** | After QA team audits | Cross-team quality results reviewed and signed off |
+| **STRATEGY** | After strategy team deliverables | Strategic outputs reviewed before execution |
+| **OKR_CYCLE** | After OKR Planner output | OKR framework approved before adoption |
+| **COMPETITIVE** | After competitive intelligence output | Competitive brief reviewed before it informs decisions |
+| **POST** | After social media posts | Posts approved before scheduling or publishing |
+| **EMAIL** | After email sequences | Email sends approved before execution |
+| **VIDEO** | After video production deliverables | Scripts and briefs approved before production begins |
 
 **Security RED block:** If the Security Reviewer rates the architecture 🔴 RED, the pipeline halts entirely. PP will not proceed to build until a human resolves the finding and re-runs the security review.
 
@@ -291,10 +470,19 @@ PP pauses at defined checkpoints and waits for human approval before continuing.
 |---|---|
 | Dev-team agents cannot call the SME Group | Hard permission block — raises `PermissionError` |
 | HR team will never recommend replacing a human with AI | Hardcoded behavioral constraint |
-| HR actions affecting a person require human approval before execution | No exceptions |
+| HR actions affecting a person require human approval before execution | No exceptions — enforced at flow level, cannot be bypassed via agent direct |
 | Finance Group is advisory only — it will never auto-block the pipeline | By design |
 | Secrets are never hardcoded in any generated artifact | Quality standard |
 | No placeholder code in any build output | Quality standard |
+| Video team flows raise `NotImplementedError` until agent templates are committed | Stub — modes locked in, wiring pending |
+
+### Agent direct constraints
+
+When invoking an agent via `pp_flow.py --agent`, the following rules still apply:
+- **HR guardrails** are enforced at the flow level — humans-only model and cross-team flags are injected into every HR agent task regardless of invocation path
+- **SME access controls** are enforced by `validate_caller()` — only authorized callers can invoke SME agents
+- **HITL gates** in agent direct runs fire the same way as in orchestrated runs — output is not delivered without human approval where a gate is defined
+- **`--save` requires `--project`** — agent direct output is stdout-only unless a project is specified
 
 ### Authorized SME callers
 
@@ -344,4 +532,6 @@ All generated code uses environment variables for provider selection. No cloud p
 
 ---
 
-*Protean Pursuits — Agent System v2.0 — Capability Reference for External Projects*
+*Protean Pursuits — Agent System v2.1 — Capability Reference for External Projects*
+
+*Updated April 2026 — reflects flow architecture (pp_flow, team flows, agent direct)*
