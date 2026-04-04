@@ -113,9 +113,9 @@ Activates automatically when the project includes a mobile application. Runs aft
 
 ---
 
-### 3.3 Finance Group (Dev Team Sub-Crew)
+### 3.3 Finance Group
 
-**Not a standalone team.** Runs as a sub-crew of the dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it **never auto-blocks the pipeline**.
+A dev-team sub-crew now also accessible as a **standalone team** via `flows/finance_flow.py` and `--team finance` in `pp_flow.py`. Advisory only — it **never auto-blocks the pipeline**.
 
 Triggers automatically when the PP Orchestrator detects financial language in the project description, or when explicitly requested.
 
@@ -142,8 +142,18 @@ Every Finance artifact opens with `FINANCE RATING: 🟢/🟡/🔴` and ends with
 
 **Project-agnostic domain specialists** — callable from any current or future PP project. The SME Orchestrator routes queries, synthesises multi-expert responses, and fires a HITL review gate on any multi-SME output.
 
-**⚠️ Authorized callers only:** `pp_orchestrator`, `project_manager`, `strategy`, `legal`
+**⚠️ Authorized callers only:** `pp_orchestrator`, `project_manager`, `strategy`, `legal`, `ds_orchestrator`, `sme_flow`
 Dev-team agents are **explicitly blocked** — a `PermissionError` is raised if attempted.
+
+**SME flow invocation:**
+```bash
+# Single expert
+python flows/pp_flow.py --team sme --mode consult --agent pga --task "Masters betting angles" --project <n>
+# Multi-expert synthesized (HITL gate fires)
+python flows/pp_flow.py --team sme --mode crew --agent pga lpga --task "Compare majors liquidity"
+# Auto-detect from keywords
+python flows/pp_flow.py --team sme --mode auto --task "How do Asian handicap markets work for soccer?"
+```
 
 **Domains covered:**
 
@@ -582,6 +592,8 @@ Only these callers may invoke the SME Group:
 - `project_manager`
 - `strategy`
 - `legal`
+- `ds_orchestrator`
+- `sme_flow`
 
 Attempts from any other caller raise a `PermissionError`.
 
@@ -591,7 +603,20 @@ All generated code uses environment variables for provider selection. No cloud p
 
 ---
 
-## 7. Artifact Quick Reference
+## 7. Mission Control GUI
+
+A Flask-based dashboard covering all 11 teams. Run from repo root:
+
+```bash
+python3.11 templates/dev-team/dev-team-gui/app.py
+# Open: http://localhost:5000
+```
+
+**Key panels:** Run Agent (team pills, Mode / Agent Direct toggle, live execution with stdout streaming), Pipeline Tracker, Checkpoints (approve/reject), Run History, Agent Reference.
+
+---
+
+## 8. Artifact Quick Reference
 
 | Code | Full Name | Produced By |
 |---|---|---|
@@ -623,6 +648,6 @@ All generated code uses environment variables for provider selection. No cloud p
 
 ---
 
-*Protean Pursuits — Agent System v2.3 — Capability Reference for External Projects*
+*Protean Pursuits — Agent System v2.4 — Capability Reference for External Projects*
 
 *Updated April 2026 — reflects flow architecture, Video Team, and DS specialist agents*

@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.1 — April 2026  ·  Reflects commit `fdaabc3` and beyond + flow architecture
+Version 3.2 — April 2026  ·  Reflects commit `fdaabc3` and beyond + flow architecture
 
 ## Contents
 
@@ -463,9 +463,9 @@ No video is marked publishable without human approval at all three gates. The AP
 
 Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.
 
-## Finance Group Dev Team Sub-Crew
+## Finance Group
 
-**Not a standalone team.** Runs as a sub-crew of the Dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it **never auto-blocks the pipeline**. Fires checkpoint CP-4.5 on FSP completion. Location: `templates/dev-team/agents/finance/`
+A dev-team sub-crew — agents live at `templates/dev-team/agents/finance/` — now also accessible as a **standalone team** via `flows/finance_flow.py` and `--team finance` in `pp_flow.py`. Advisory only — it **never auto-blocks the pipeline**. Fires checkpoint CP-4.5 on FSP completion.
 
 **Auto-detection rules:** Billing Architect (`BPS`) is skipped if no billing/payment/subscription language is found in the PRD. Pricing Specialist (`PRI`) is skipped for internal tooling projects. The orchestrator scans PRD keywords at runtime and logs any skip with its reason.
 
@@ -473,8 +473,12 @@ Agent groups are specialized crews that operate alongside the main teams. They h
 
 **Invocation:**
 
-python agents/finance/finance\_orchestrator.py # full crew run
-python agents/finance/cost\_analyst.py # single-agent shortcut
+```bash
+python flows/pp_flow.py --team finance --mode full --project <n> --task "..." --save
+python flows/pp_flow.py --team finance --mode roi --task "ROI for $2M build"
+python flows/pp_flow.py --team finance --agent cost_analyst --task "..." --project <n>
+```
+Available modes: `full` `cost` `roi` `infra` `billing` `pricing` `statements` `strategy`
 
 #### Finance Orchestrator Tier 1
 
@@ -718,7 +722,7 @@ python agents/dev/strategy/ux\_designer.py
 python agents/dev/strategy/ux\_content\_guide.py
 ⏸️ CP-4: Review UX & content
 # 5. (Optional) Finance Group
-python agents/finance/finance\_orchestrator.py
+python flows/pp_flow.py --team finance --mode full --project <n> --task "Full financial analysis" --save
 ⏸️ CP-4.5: Review Finance Summary Package
 # 6. Build phase
 python agents/dev/build/senior\_developer.py
@@ -1165,7 +1169,7 @@ Just run it again. It overwrites its previous output and updates the project con
 
 **What happened:** A dev-team agent tried to call the SME group directly — this is blocked by `validate_caller()`.
 
-**Fix:** SME calls must go through an authorized caller: `pp_orchestrator`, `project_manager`, `strategy`, or `legal`. Restructure your flow accordingly.
+**Fix:** SME calls must go through an authorized caller: `pp_orchestrator`, `project_manager`, `strategy`, `legal`, `ds_orchestrator`, or `sme_flow`. Restructure your flow accordingly.
 
 ## 🗂️ `pp_flow.py` — "No context found" or empty output
 
@@ -1223,6 +1227,16 @@ To change: `ollama pull <model-name>` → update the env var → done. No code c
 **Undefined variable discipline:** Template variables like `{tad_content}` must be defined before use. The uniform fallback is `{prompt_context}` from the context manager.
 
 # 11. Day-to-Day Operations
+
+## Mission Control GUI
+
+A Flask-based vibe-coder dashboard covering all 11 teams.
+```bash
+python3.11 templates/dev-team/dev-team-gui/app.py
+# Open: http://localhost:5000
+```
+
+**Panels:** Run Agent (team pills, Mode / Agent Direct toggle, live `pp_flow.py` execution, stdout streaming), Pipeline Tracker (all teams collapsible, step completion status), Checkpoints (pending approvals, one-click approve/reject), Run History, Agent Reference, Commands cheat sheet.
 
 ## What to watch in the terminal
 
@@ -1339,6 +1353,14 @@ Detailed reference material. You don't need to read this to use the system — i
 | Men's Boxing Expert | `agents/sme/mens_boxing_expert.py` | T1 | Domain assessment |
 | PGA Expert | `agents/sme/pga_expert.py` | T1 | Domain assessment |
 | LPGA Expert | `agents/sme/lpga_expert.py` | T1 | Domain assessment |
+| DS Team | DS Orchestrator | `agents/ds/ds_orchestrator.py` | T1 | Scoping, crew sequencing, synthesis |
+| Data Evaluator | `agents/ds/data_evaluator.py` | T1 | GO/NO-GO, scored tool comparison |
+| Data Framer | `agents/ds/data_framer.py` | T1 | Problem frame, complexity classification |
+| EDA Analyst | `agents/ds/eda_analyst.py` | T1 | Distributions, data quality, feature signal |
+| Statistical Analyst | `agents/ds/statistical_analyst.py` | T1 | Hypothesis tests, credible intervals |
+| ML Engineer | `agents/ds/ml_engineer.py` | T1 | Algorithm selection, training strategy |
+| Pipeline Engineer | `agents/ds/pipeline_engineer.py` | T1 | ETL architecture, orchestration |
+| Reporting Analyst | `agents/ds/reporting_analyst.py` | T1 | Six-section final reports |
 | HR Team | HR Orchestrator | `agents/hr/orchestrator/orchestrator.py` | T1 | Sequences HR crew |
 | Recruiting Specialist | `agents/hr/recruiting/recruiting_agent.py` | T1 | JD, sourcing plan, interview guide |
 | Onboarding Specialist | `agents/hr/onboarding/onboarding_agent.py` | T1 | Onboarding plan |
@@ -1369,6 +1391,10 @@ Detailed reference material. You don't need to read this to use the system — i
 | HR agent flow | `templates/hr-team/flows/hr_agent_flow.py` | 6 agents — HR guardrails enforced at flow level |
 | Video team flow | `templates/video-team/flows/video_flow.py` | Modes: `BRIEF_ONLY`, `SHORT_FORM`, `LONG_FORM`, `AVATAR`, `DEMO`, `EXPLAINER`, `VOICEOVER`, `FULL` |
 | Video agent flow | `templates/video-team/flows/video_agent_flow.py` | 7 agents — `tool_analyst`, `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `api_engineer`, `compliance_reviewer` |
+| Finance flow | `flows/finance_flow.py` | 8 modes — `full` `cost` `roi` `infra` `billing` `pricing` `statements` `strategy` |
+| Finance agent flow | `flows/finance_agent_flow.py` | 8 Finance Group specialists |
+| SME flow | `flows/sme_flow.py` | 3 modes — `consult` `crew` `auto`; authorized caller `sme_flow` |
+| SME agent flow | `flows/sme_agent_flow.py` | 16 SME specialists via `run_sme_consult()` |
 
 # Appendix B — Artifact Registry
 
@@ -1585,5 +1611,5 @@ The project context is the JSON file (`logs/PROJ-{id}.json`) that holds the enti
 
 All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.
 
-Protean Pursuits — Agent System Operating Manual — Version 3.1 — April 2026
+Protean Pursuits — Agent System Operating Manual — Version 3.2 — April 2026
 Grounded in commit `fdaabc3` + flow architecture patch · github.com/mfelkey/protean-pursuits
