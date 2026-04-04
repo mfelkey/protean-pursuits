@@ -1,197 +1,154 @@
 """
-flows/design_flow.py
+templates/design-team/flows/design_flow.py
 
-Protean Pursuits — Design Team Flows
+Design Team — orchestrated flow.
 
 Run modes:
-  BRIEF       — single agent, on-demand
-  UX_SPRINT   — research → wireframe → usability (product feature)
-  BRAND_BUILD — brand identity + design system (new product)
-  AUDIT       — accessibility + usability audit of existing product
-  FULL_DESIGN — all agents, complete design package
+    research        UX Researcher
+    wireframe       UX Researcher → Wireframing Specialist
+    visual          UI Designer → Brand Identity Specialist → Design System Architect
+    motion          Motion & Animation Designer
+    accessibility   Accessibility Specialist → Usability Analyst
+    full            All agents in sequence
 
-Usage:
-  python flows/design_flow.py --mode brief --agent ui_design
-      --name "PROJECT_NAME_PLACEHOLDER Signal Card Component" --project-id PROJ-TEMPLATE
-
-  python flows/design_flow.py --mode ux_sprint
-      --name "PROJECT_NAME_PLACEHOLDER Bet Tracker Feature" --project-id PROJ-TEMPLATE
-
-  python flows/design_flow.py --mode brand_build
-      --name "PROJECT_NAME_PLACEHOLDER Brand System" --project-id PROJ-TEMPLATE
-
-  python flows/design_flow.py --mode audit
-      --name "PROJECT_NAME_PLACEHOLDER Accessibility Audit" --project-id PROJ-TEMPLATE
+HITL gate: DESIGN_REVIEW on every mode.
+Note: visual mode expects wireframes in context if run standalone.
 """
 
+import argparse
+import logging
 import sys
+from datetime import datetime
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, "/home/mfelkey/design-team")
 
-import os
-import json
-import argparse
-from datetime import datetime
-from crewai import Task, Crew, Process
-from dotenv import load_dotenv
+from core.context_loader import load_context, save_output  # noqa: E402
 
-from agents.orchestrator.orchestrator import (
-    build_design_orchestrator, create_design_context,
-    save_context, log_event, save_artifact,
-    notify_human, request_human_review, DESIGN_INSTRUCTION
-)
-from agents.ux_research.ux_research_agent import build_ux_research_agent
-from agents.wireframing.wireframing_agent import build_wireframing_agent
-from agents.ui_design.ui_design_agent import build_ui_design_agent
-from agents.brand_identity.brand_identity_agent import build_brand_identity_agent
-from agents.motion_animation.motion_agent import build_motion_agent
-from agents.design_system.design_system_agent import build_design_system_agent
-from agents.accessibility.accessibility_agent import build_accessibility_agent
-from agents.usability.usability_agent import build_usability_agent
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
+logger = logging.getLogger(__name__)
 
-load_dotenv("config/.env")
-
-AGENT_REGISTRY = {
-    "ux_research":    build_ux_research_agent,
-    "wireframing":    build_wireframing_agent,
-    "ui_design":      build_ui_design_agent,
-    "brand_identity": build_brand_identity_agent,
-    "motion":         build_motion_agent,
-    "design_system":  build_design_system_agent,
-    "accessibility":  build_accessibility_agent,
-    "usability":      build_usability_agent,
-}
-
-OUTPUT_DIRS = {
-    "ux_research":    "output/research",
-    "wireframing":    "output/specs",
-    "ui_design":      "output/specs",
-    "brand_identity": "output/assets",
-    "motion":         "output/specs",
-    "design_system":  "output/systems",
-    "accessibility":  "output/specs",
-    "usability":      "output/research",
-}
+TEAM = "design"
 
 
-def _run_agent(agent_key: str, context: dict, brief: str,
-               prior: str = "") -> tuple:
-    agent = AGENT_REGISTRY[agent_key]()
-    task = Task(
-        description=f"""
-You are the Protean Pursuits {agent.role}.
-Project: {context['project_name']} (ID: {context.get('project_id', 'N/A')})
-Design ID: {context['design_id']}
-
-Brief: {brief}
-
-{f"Prior design outputs for context:{chr(10)}{prior}" if prior else ""}
-
-{DESIGN_INSTRUCTION}
-""",
-        expected_output=f"Complete {agent_key} design output with annotations and open questions.",
-        agent=agent
-    )
-    crew = Crew(agents=[agent], tasks=[task], process=Process.sequential, verbose=True)
-    print(f"\n🎨 [{agent_key.upper()}] Running...\n")
-    result = str(crew.kickoff())
-    path = save_artifact(context, f"{agent_key.upper()} Output", agent_key.upper(),
-                         result, OUTPUT_DIRS.get(agent_key, "output/specs"))
-    return result, path
+def _notify(title, message):
+    try:
+        from core.notifications import send_pushover
+        send_pushover(title=title, message=message)
+    except Exception as e:
+        logger.warning(f"Pushover notification failed: {e}")
 
 
-def run_brief(context: dict, agent_key: str, brief: str = "") -> dict:
-    context["run_mode"] = "BRIEF"
-    result, path = _run_agent(agent_key, context, brief or f"Standard {agent_key} output for this project.")
-    approved = request_human_review(path, f"{agent_key.upper()} — {context['project_name']}")
-    context["status"] = "BRIEF_APPROVED" if approved else "BRIEF_REJECTED"
-    log_event(context, context["status"], path)
-    save_context(context)
-    return context
+def _load_agents(keys):
+    from agents.orchestrator.orchestrator import build_design_orchestrator
+    from agents.ux_research.ux_research_agent import build_ux_researcher
+    from agents.wireframing.wireframing_agent import build_wireframing_specialist
+    from agents.ui_design.ui_design_agent import build_ui_designer
+    from agents.brand_identity.brand_identity_agent import build_brand_identity_specialist
+    from agents.design_system.design_system_agent import build_design_system_architect
+    from agents.motion_animation.motion_agent import build_motion_animation_designer
+    from agents.accessibility.accessibility_agent import build_accessibility_specialist
+    from agents.usability.usability_agent import build_usability_analyst
+
+    builders = {
+        "orchestrator":               build_design_orchestrator,
+        "ux_researcher":              build_ux_researcher,
+        "wireframing_specialist":     build_wireframing_specialist,
+        "ui_designer":                build_ui_designer,
+        "brand_identity_specialist":  build_brand_identity_specialist,
+        "design_system_architect":    build_design_system_architect,
+        "motion_designer":            build_motion_animation_designer,
+        "accessibility_specialist":   build_accessibility_specialist,
+        "usability_analyst":          build_usability_analyst,
+    }
+    return {k: builders[k]() for k in keys if k in builders}
 
 
-def run_ux_sprint(context: dict, brief: str = "") -> dict:
-    context["run_mode"] = "UX_SPRINT"
-    results = {}
-    for agent_key in ["ux_research", "wireframing", "usability"]:
-        prior = "\n\n".join([f"--- {k.upper()} ---\n{v[:600]}..." for k, v in results.items()])
-        result, _ = _run_agent(agent_key, context, brief, prior)
-        results[agent_key] = result
-    path = list(context["artifacts"])[-1]["path"] if context["artifacts"] else ""
-    approved = request_human_review(path, f"UX Sprint — {context['project_name']}")
-    context["status"] = "UX_SPRINT_APPROVED" if approved else "UX_SPRINT_REJECTED"
-    log_event(context, context["status"])
-    save_context(context)
-    return context
+def _run_mode(mode, agent_keys, task, context, save):
+    from crewai import Crew, Task
+
+    agents = _load_agents(agent_keys)
+    agent_list = list(agents.values())
+    context_block = context.get("raw", "") or "No context provided."
+
+    tasks = []
+    for i, (key, agent) in enumerate(agents.items()):
+        prefix = "" if i == 0 else "Use the output of the previous task as input context.\n\n"
+        tasks.append(Task(
+            description=f"{prefix}{task}\n\nProject context:\n{context_block}",
+            expected_output=(
+                f"Complete design deliverable from {key.replace('_', ' ')}. "
+                f"No placeholders. Ends with DESIGN_REVIEW gate summary."
+            ),
+            agent=agent,
+        ))
+
+    crew = Crew(agents=agent_list, tasks=tasks, verbose=True)
+    _notify(f"PP Design — {mode}", f"Starting: {task[:80]}")
+
+    result = crew.kickoff()
+    output_str = str(result)
+
+    print("\n" + "="*60)
+    print(f"DESIGN TEAM OUTPUT — {mode.upper()}")
+    print("="*60)
+    print(output_str)
+    print("="*60 + "\n")
+
+    if save:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = save_output(output_str, context.get("project"), TEAM, f"{mode}_{timestamp}.md")
+        if path:
+            logger.info(f"Saved to {path}")
+
+    _notify(f"PP Design — {mode} complete", f"Project: {context.get('project') or 'ad-hoc'}")
+    return output_str
 
 
-def run_brand_build(context: dict, brief: str = "") -> dict:
-    context["run_mode"] = "BRAND_BUILD"
-    results = {}
-    for agent_key in ["brand_identity", "design_system", "motion", "accessibility"]:
-        prior = "\n\n".join([f"--- {k.upper()} ---\n{v[:600]}..." for k, v in results.items()])
-        result, _ = _run_agent(agent_key, context, brief, prior)
-        results[agent_key] = result
+def run_research(context, task, save=False):
+    return _run_mode("research", ["ux_researcher"], task, context, save)
 
-    # Synthesise brand package
-    orch = build_design_orchestrator()
-    synth = Task(
-        description=f"""
-Synthesise these brand design outputs into a Brand Package Cover Document
-for {context['project_name']}. Include: brand summary, token index,
-component reference table, and implementation priority list.
-Outputs: {json.dumps({k: v[:400] for k, v in results.items()}, indent=2)}
-{DESIGN_INSTRUCTION}
-""",
-        expected_output="Brand Package Cover Document.",
-        agent=orch
-    )
-    crew = Crew(agents=[orch], tasks=[synth], process=Process.sequential, verbose=True)
-    cover = str(crew.kickoff())
-    cover_path = save_artifact(context, "Brand Package Cover", "BRAND_PACKAGE",
-                               cover, "output/systems")
-    approved = request_human_review(cover_path, f"Brand Build — {context['project_name']}")
-    context["status"] = "BRAND_BUILD_APPROVED" if approved else "BRAND_BUILD_REJECTED"
-    log_event(context, context["status"], cover_path)
-    save_context(context)
-    return context
+def run_wireframe(context, task, save=False):
+    return _run_mode("wireframe", ["ux_researcher", "wireframing_specialist"], task, context, save)
+
+def run_visual(context, task, save=False):
+    return _run_mode("visual", ["ui_designer", "brand_identity_specialist", "design_system_architect"], task, context, save)
+
+def run_motion(context, task, save=False):
+    return _run_mode("motion", ["motion_designer"], task, context, save)
+
+def run_accessibility(context, task, save=False):
+    return _run_mode("accessibility", ["accessibility_specialist", "usability_analyst"], task, context, save)
+
+def run_full(context, task, save=False):
+    return _run_mode("full", [
+        "orchestrator", "ux_researcher", "wireframing_specialist",
+        "ui_designer", "brand_identity_specialist", "design_system_architect",
+        "motion_designer", "accessibility_specialist", "usability_analyst",
+    ], task, context, save)
 
 
-def run_audit(context: dict, brief: str = "") -> dict:
-    context["run_mode"] = "AUDIT"
-    results = {}
-    for agent_key in ["accessibility", "usability"]:
-        result, _ = _run_agent(agent_key, context, f"Audit existing product. {brief}")
-        results[agent_key] = result
-    path = context["artifacts"][-1]["path"] if context["artifacts"] else ""
-    approved = request_human_review(path, f"Design Audit — {context['project_name']}")
-    context["status"] = "AUDIT_APPROVED" if approved else "AUDIT_REJECTED"
-    log_event(context, context["status"])
-    save_context(context)
-    return context
+MODES = ["research", "wireframe", "visual", "motion", "accessibility", "full"]
+
+
+def main():
+    parser = argparse.ArgumentParser(prog="design_flow.py", description="Design Team flow.")
+    parser.add_argument("--mode", required=True, choices=MODES)
+    parser.add_argument("--task", required=True)
+    parser.add_argument("--project", default=None)
+    parser.add_argument("--context-file", dest="context_file", default=None)
+    parser.add_argument("--context", default=None)
+    parser.add_argument("--save", action="store_true", default=False)
+    args = parser.parse_args()
+
+    if args.save and not args.project:
+        parser.error("--save requires --project.")
+
+    context = load_context(project=args.project, context_file=args.context_file, context_str=args.context)
+    globals()[f"run_{args.mode}"](context=context, task=args.task, save=args.save)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Protean Pursuits — Design Team")
-    parser.add_argument("--mode", choices=["brief", "ux_sprint", "brand_build", "audit", "full_design"], required=True)
-    parser.add_argument("--name", type=str, required=True)
-    parser.add_argument("--project-id", type=str, default=None)
-    parser.add_argument("--agent", type=str, default=None)
-    parser.add_argument("--brief", type=str, default="")
-    args = parser.parse_args()
-
-    context = create_design_context(args.name, args.mode.upper(), args.project_id)
-    print(f"\n🎨 Protean Pursuits Design Team | {args.mode.upper()} | {args.name}\n")
-
-    if args.mode == "brief":
-        if not args.agent:
-            print(f"❌ --agent required. Options: {list(AGENT_REGISTRY.keys())}")
-            exit(1)
-        context = run_brief(context, args.agent, args.brief)
-    elif args.mode == "ux_sprint":
-        context = run_ux_sprint(context, args.brief)
-    elif args.mode == "brand_build":
-        context = run_brand_build(context, args.brief)
-    elif args.mode == "audit":
-        context = run_audit(context, args.brief)
-
-    print(f"\n✅ Done. Design ID: {context['design_id']} | Status: {context['status']}")
+    main()

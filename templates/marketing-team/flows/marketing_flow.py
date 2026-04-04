@@ -1,131 +1,195 @@
 """
-flows/marketing_flow.py
+templates/marketing-team/flows/marketing_flow.py
 
-Top-level campaign flow for PROJECT_NAME_PLACEHOLDER marketing team.
-Orchestrates Social, Video, Email, and Analyst agents for a named campaign.
+Marketing Team — orchestrated flow.
+
+Run modes:
+    brief       Marketing Orchestrator → campaign brief, channel plan
+    copy        Copywriter → copy package
+    email       Email Specialist → email sequences, drip campaigns
+    social      Social Media Specialist → post drafts, visual briefs
+    video       Video Producer → scripts, visual direction briefs, music briefs
+    analytics   Marketing Analyst → channel performance report, KPI dashboard
+    campaign    Full campaign — Orchestrator → all specialists in sequence
+
+HITL gates: POST, EMAIL, VIDEO
+No deliverable publishes autonomously.
 
 Usage:
-    python flows/marketing_flow.py --campaign "World Cup 2026 Launch Week" --type FULL
+    python templates/marketing-team/flows/marketing_flow.py \\
+        --mode campaign --project parallaxedge \\
+        --task "Q2 launch campaign for ParallaxEdge sports betting app"
+
+Via pp_flow.py:
+    python flows/pp_flow.py --team marketing --mode campaign \\
+        --project parallaxedge --task "Q2 launch campaign"
 """
 
+import argparse
+import logging
+import os
 import sys
+from datetime import datetime
+from pathlib import Path
+
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(_REPO_ROOT))
 sys.path.insert(0, "/home/mfelkey/marketing-team")
 
-import os
-import json
-import argparse
-from datetime import datetime
+from core.context_loader import load_context, save_output  # noqa: E402
 
-from agents.orchestrator.orchestrator import (
-    create_campaign_context, save_context, log_event, notify_human
-)
-from agents.social.social_agent import run_daily_post_pack
-from agents.video.video_agent import run_video_production
-from agents.email.email_agent import run_email_production
-from agents.analyst.analyst_agent import run_weekly_performance_report
+logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(message)s")
+logger = logging.getLogger(__name__)
+
+TEAM = "marketing"
+
+# ---------------------------------------------------------------------------
+# Pushover notification (mirrors ds_flow.py pattern)
+# ---------------------------------------------------------------------------
+
+def _notify(title: str, message: str):
+    try:
+        from core.notifications import send_pushover
+        send_pushover(title=title, message=message)
+    except Exception as e:
+        logger.warning(f"Pushover notification failed: {e}")
 
 
-def run_launch_week_campaign(campaign_name: str) -> dict:
-    """
-    Full launch week campaign flow.
-    Runs Social, Video, and Email agents in parallel-ready sequence.
-    All outputs require human approval before being marked publishable.
-    """
-    context = create_campaign_context(
-        campaign_name=campaign_name,
-        campaign_type="LAUNCH_WEEK"
-    )
+# ---------------------------------------------------------------------------
+# Agent imports (lazy — only the agents needed per mode are imported)
+# ---------------------------------------------------------------------------
 
-    notify_human(
-        subject=f"Campaign started — {campaign_name}",
-        message=(
-            f"Campaign ID: {context['campaign_id']}\n"
-            f"Started at: {context['created_at']}\n\n"
-            f"Agents queued:\n"
-            f"  1. Social Agent — X post pack (WC2026 Day 1 signals)\n"
-            f"  2. Video Agent — TikTok (What is xG?)\n"
-            f"  3. Email Agent — Newsletter (Free tier, soccer, US)\n\n"
-            f"Each deliverable will require your approval before publishing.\n"
-            f"You will receive a separate notification for each approval gate."
-        )
-    )
+def _load_agents(keys: list):
+    """Import and build agents by registry key. Returns dict of key → agent."""
+    from agents.orchestrator.orchestrator import build_marketing_orchestrator
+    from agents.analyst.analyst_agent import build_marketing_analyst
+    from agents.copywriter.copywriter_agent import build_copywriter
+    from agents.email.email_agent import build_email_specialist
+    from agents.social.social_agent import build_social_media_specialist
+    from agents.video.video_agent import build_video_producer
 
-    log_event(context, "CAMPAIGN_STARTED", campaign_name)
+    builders = {
+        "orchestrator":       build_marketing_orchestrator,
+        "marketing_analyst":  build_marketing_analyst,
+        "copywriter":         build_copywriter,
+        "email_specialist":   build_email_specialist,
+        "social_specialist":  build_social_media_specialist,
+        "video_producer":     build_video_producer,
+    }
+    return {k: builders[k]() for k in keys if k in builders}
 
-    # ── Social ────────────────────────────────────────────────────────────────
+
+# ---------------------------------------------------------------------------
+# Mode runners
+# ---------------------------------------------------------------------------
+
+def _run_mode(mode: str, agents_keys: list, task: str, context: dict, save: bool):
+    """Shared runner for all single/multi-agent modes."""
+    from crewai import Crew, Task
+
+    agents = _load_agents(agents_keys)
+    agent_list = list(agents.values())
+
+    context_block = context.get("raw", "") or "No context provided."
+
+    tasks = []
+    for i, (key, agent) in enumerate(agents.items()):
+        input_note = "" if i == 0 else f"Use the output of the previous task as input context.\n\n"
+        tasks.append(Task(
+            description=f"{input_note}{task}\n\nProject context:\n{context_block}",
+            expected_output=(
+                f"Complete, structured {key.replace('_', ' ')} deliverable. "
+                f"No placeholders. All sections fully populated."
+            ),
+            agent=agent,
+        ))
+
+    crew = Crew(agents=agent_list, tasks=tasks, verbose=True)
+    _notify(f"PP Marketing — {mode}", f"Starting {mode} run: {task[:80]}")
+
+    result = crew.kickoff()
+    output_str = str(result)
+
     print("\n" + "="*60)
-    print("STEP 1 — Social Agent")
+    print(f"MARKETING TEAM OUTPUT — {mode.upper()}")
     print("="*60)
-    context = run_daily_post_pack(
-        context=context,
-        platform="X",
-        topic="xG model — Group Stage Day 1 signals",
-        sport="FIFA World Cup 2026"
+    print(output_str)
+    print("="*60 + "\n")
+
+    if save:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = save_output(output_str, context.get("project"), TEAM, f"{mode}_{timestamp}.md")
+        if path:
+            logger.info(f"Saved to {path}")
+
+    _notify(f"PP Marketing — {mode} complete", f"Output ready. Project: {context.get('project') or 'ad-hoc'}")
+    return output_str
+
+
+def run_brief(context: dict, task: str, save: bool = False):
+    return _run_mode("brief", ["orchestrator"], task, context, save)
+
+
+def run_copy(context: dict, task: str, save: bool = False):
+    return _run_mode("copy", ["copywriter"], task, context, save)
+
+
+def run_email(context: dict, task: str, save: bool = False):
+    return _run_mode("email", ["email_specialist"], task, context, save)
+
+
+def run_social(context: dict, task: str, save: bool = False):
+    return _run_mode("social", ["social_specialist"], task, context, save)
+
+
+def run_video(context: dict, task: str, save: bool = False):
+    return _run_mode("video", ["video_producer"], task, context, save)
+
+
+def run_analytics(context: dict, task: str, save: bool = False):
+    return _run_mode("analytics", ["marketing_analyst"], task, context, save)
+
+
+def run_campaign(context: dict, task: str, save: bool = False):
+    return _run_mode(
+        "campaign",
+        ["orchestrator", "marketing_analyst", "copywriter", "email_specialist",
+         "social_specialist", "video_producer"],
+        task, context, save,
     )
 
-    # ── Video ─────────────────────────────────────────────────────────────────
-    print("\n" + "="*60)
-    print("STEP 2 — Video Agent")
-    print("="*60)
-    context = run_video_production(
-        context=context,
-        format="TIKTOK",
-        topic="What is xG and why should you care?",
-        sport="FIFA World Cup 2026",
-        target_duration_seconds=45
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+MODES = ["brief", "copy", "email", "social", "video", "analytics", "campaign"]
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog="marketing_flow.py",
+        description="Marketing Team flow. Routes to the orchestrator or specialist agents.",
     )
+    parser.add_argument("--mode", required=True, choices=MODES)
+    parser.add_argument("--task", required=True)
+    parser.add_argument("--project", default=None)
+    parser.add_argument("--context-file", dest="context_file", default=None)
+    parser.add_argument("--context", default=None)
+    parser.add_argument("--save", action="store_true", default=False)
+    return parser
 
-    # ── Email ─────────────────────────────────────────────────────────────────
-    print("\n" + "="*60)
-    print("STEP 3 — Email Agent")
-    print("="*60)
-    context = run_email_production(
-        context=context,
-        email_type="NEWSLETTER",
-        segment="Free tier, soccer-interested, US, registered last 30 days",
-        subject_hint="World Cup Day 1 — our model's top signals",
-        sport="FIFA World Cup 2026"
-    )
 
-    # ── Final summary ─────────────────────────────────────────────────────────
-    context["status"] = "CAMPAIGN_COMPLETE"
-    log_event(context, "CAMPAIGN_COMPLETE", campaign_name)
-    save_context(context)
+def main():
+    parser = build_parser()
+    args = parser.parse_args()
 
-    approved = [a for a in context["artifacts"] if a.get("status") == "APPROVED"]
-    rejected = [a for a in context["artifacts"] if a.get("status") == "REJECTED"]
+    if args.save and not args.project:
+        parser.error("--save requires --project.")
 
-    notify_human(
-        subject=f"Campaign complete — {campaign_name}",
-        message=(
-            f"Campaign ID: {context['campaign_id']}\n"
-            f"Completed at: {datetime.utcnow().isoformat()}\n\n"
-            f"Approved deliverables: {len(approved)}\n"
-            f"Rejected deliverables: {len(rejected)}\n\n"
-            + "\n".join([f"  ✅ {a['name']}" for a in approved])
-            + ("\n" + "\n".join([f"  ❌ {a['name']}" for a in rejected]) if rejected else "")
-        )
-    )
-
-    return context
+    context = load_context(project=args.project, context_file=args.context_file, context_str=args.context)
+    globals()[f"run_{args.mode}"](context=context, task=args.task, save=args.save)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="PROJECT_NAME_PLACEHOLDER Marketing Team Flow")
-    parser.add_argument("--campaign", type=str, default="World Cup 2026 Launch Week",
-                        help="Campaign name")
-    parser.add_argument("--type", type=str, default="FULL",
-                        choices=["FULL", "SOCIAL_ONLY", "VIDEO_ONLY", "EMAIL_ONLY"],
-                        help="Flow type")
-    args = parser.parse_args()
-
-    print(f"\n🚀 PROJECT_NAME_PLACEHOLDER Marketing Team — {args.campaign}")
-    print(f"   Flow type: {args.type}")
-    print(f"   Started: {datetime.utcnow().isoformat()}\n")
-
-    context = run_launch_week_campaign(args.campaign)
-
-    print(f"\n✅ Marketing flow complete.")
-    print(f"   Campaign ID: {context['campaign_id']}")
-    print(f"   Status: {context['status']}")
-    print(f"   Artifacts: {len(context['artifacts'])}")
+    main()
