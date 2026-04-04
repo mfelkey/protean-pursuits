@@ -265,7 +265,7 @@ project description into architecture, code, tests, and deployment.</p>
 </table>
 <p>All three share the same context resolution, output paths, and HITL gates. See Section 6 for full reference.</p>
 <h3 id="the-orchestration-hierarchy">The orchestration hierarchy</h3>
-<div class="pipeline">YOU
+<div class="cmd"><pre><code>YOU
  │
  ├─── intake_flow.py ────────────────────────────────────┐
  │    (new projects)                                      │
@@ -716,49 +716,72 @@ package</p>
 </table>
 <p>HITL gate type: <code>QA_SIGN_OFF</code>.</p>
 <h2 id="video-team">Video Team</h2>
+<p>Produces complete, platform-optimised video packages — from tool evaluation and scripting through API-generated renders. Supports short-form social, long-form YouTube, avatar spokesperson, product demo, animated explainer, and voiceover-only formats.</p>
 <table>
 <thead>
 <tr>
 <th>Agent</th>
 <th>File</th>
+<th>Tier</th>
+<th>What It Produces</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Video Orchestrator</td>
 <td><code>agents/orchestrator/orchestrator.py</code></td>
-</tr>
-<tr>
-<td>Script Writer</td>
-<td><code>agents/script/script_writer.py</code></td>
-</tr>
-<tr>
-<td>Visual Director</td>
-<td><code>agents/visual/visual_director.py</code></td>
-</tr>
-<tr>
-<td>Audio Producer</td>
-<td><code>agents/audio/audio_producer.py</code></td>
-</tr>
-<tr>
-<td>Avatar Producer</td>
-<td><code>agents/avatar/avatar_producer.py</code></td>
+<td>T1</td>
+<td>Sequences crew, fires HITL gates, produces Video Package cover doc</td>
 </tr>
 <tr>
 <td>Tool Intelligence Analyst</td>
 <td><code>agents/tool_intelligence/tool_analyst.py</code></td>
+<td>T1</td>
+<td>Tool Recommendation Report (TRR) — scored rankings for video + audio tools, API signatures</td>
 </tr>
 <tr>
-<td>API Engineer</td>
-<td><code>agents/production/api_engineer.py</code></td>
+<td>Script &amp; Narrative Writer</td>
+<td><code>agents/script/script_writer.py</code></td>
+<td>T1</td>
+<td>Script Package — spoken copy with timestamps, on-screen text, B-roll cues, compliance checklist</td>
 </tr>
 <tr>
-<td>Compliance Reviewer</td>
+<td>Visual Director</td>
+<td><code>agents/visual/visual_director.py</code></td>
+<td>T1</td>
+<td>Visual Direction Brief (VDB) — shot types, motion direction, colour grading, AI prompt strings</td>
+</tr>
+<tr>
+<td>Avatar &amp; Spokesperson Producer</td>
+<td><code>agents/avatar/avatar_producer.py</code></td>
+<td>T1</td>
+<td>Avatar Production Brief (APB) — HeyGen/Synthesia execution params, dialogue segmentation, expression direction</td>
+</tr>
+<tr>
+<td>Audio &amp; Music Producer</td>
+<td><code>agents/audio/audio_producer.py</code></td>
+<td>T1</td>
+<td>Audio Production Brief (AUB) — music generation prompts, TTS direction, SFX cue sheet, mix guide</td>
+</tr>
+<tr>
+<td>Compliance &amp; Brand Reviewer</td>
 <td><code>agents/compliance/compliance_reviewer.py</code></td>
+<td>T1</td>
+<td>Compliance Report (COR) — PASS / CONDITIONAL PASS / FAIL rating across brand, platform policy, legal, and technical spec</td>
+</tr>
+<tr>
+<td>API Production Engineer</td>
+<td><code>agents/production/api_engineer.py</code></td>
+<td>T2</td>
+<td>Executes approved APIs (Runway, HeyGen, ElevenLabs, etc.), saves raw assets, produces Assembly Manifest (JSON)</td>
 </tr>
 </tbody>
 </table>
-<p>HITL gate type: <code>VIDEO</code>.</p>
+<p><strong>HITL gates (three, in sequence):</strong>
+- <code>VIDEO_TOOL_SELECTION</code> — after Tool Intelligence Analyst, before any creative work
+- <code>SCRIPT_REVIEW</code> — after Script Writer, before any API calls
+- <code>VIDEO_FINAL</code> — after Compliance Reviewer, before any publish action</p>
+<p>No video is marked publishable without human approval at all three gates. The API Production Engineer never runs before <code>SCRIPT_REVIEW</code> is approved.</p>
 <h1 id="4-agent-groups">4. Agent Groups</h1>
 <p>Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.</p>
 <h2 id="finance-group-dev-team-sub-crew">Finance Group Dev Team Sub-Crew</h2>
@@ -1028,7 +1051,7 @@ python flows/pp_flow.py --team strategy --list-modes
 # Inline context — no project file needed
 python flows/pp_flow.py --team legal --agent contract_drafter \
     --task &quot;Draft NDA for contractor&quot; --context &quot;Michigan law, 2yr term&quot;
-</div>
+</code></pre></div>
 <p>See Section 6 for the full flow architecture reference.</p>
 <h1 id="6-flow-architecture-pp_flow-team-flows-agent-direct">6. Flow Architecture — pp_flow, Team Flows, Agent Direct</h1>
 <h2 id="overview">Overview</h2>
@@ -1415,9 +1438,62 @@ Layer 3   templates/{team}/flows/{team}_agent_flow.py  Single-agent direct acces
 </table>
 <h3 id="hr-team-hr_flowpy-existing-unchanged">HR Team (<code>hr_flow.py</code>) — existing, unchanged</h3>
 <p>Modes: <code>RECRUIT | ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE</code></p>
-<h3 id="video-team-video_flowpy-stub">Video Team (<code>video_flow.py</code>) — ⚠️ STUB</h3>
-<p>Modes locked in: <code>script | visual | audio | avatar | production | compliance | full</code>
-Wire agent imports in <code>_load_agents()</code> once <code>templates/video-team/agents/</code> is committed.</p>
+<h3 id="video-team-video_flowpy">Video Team (<code>video_flow.py</code>)</h3>
+<p><strong>Note: Mode names are uppercase</strong> — consistent with the orchestrator definition and HR team convention.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Pipeline</th>
+<th>HITL gates</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BRIEF_ONLY</code></td>
+<td>Tool Analyst → Script → Visual → Audio</td>
+<td>TOOL_SELECTION, SCRIPT_REVIEW</td>
+</tr>
+<tr>
+<td><code>SHORT_FORM</code></td>
+<td>Tool Analyst → Script → Visual → Audio → Compliance → API Engineer</td>
+<td>TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>LONG_FORM</code></td>
+<td>Tool Analyst → Script → Visual → Audio → Compliance → API Engineer</td>
+<td>TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>AVATAR</code></td>
+<td>Tool Analyst → Script → <strong>Avatar</strong> → Audio → Compliance → API Engineer</td>
+<td>TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>DEMO</code></td>
+<td>Script → Audio → API Engineer → Compliance</td>
+<td>SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>EXPLAINER</code></td>
+<td>Tool Analyst → Script → Visual → Audio → Compliance → API Engineer</td>
+<td>TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>VOICEOVER</code></td>
+<td>Script → Audio → API Engineer → Compliance</td>
+<td>SCRIPT_REVIEW, VIDEO_FINAL</td>
+</tr>
+<tr>
+<td><code>FULL</code></td>
+<td>BRIEF_ONLY → SHORT_FORM → LONG_FORM → AVATAR in sequence</td>
+<td>All gates for each sub-mode</td>
+</tr>
+</tbody>
+</table>
+<p><code>DEMO</code> and <code>VOICEOVER</code> skip visual generation and tool evaluation — they accept a screen recording or audio-only brief as input.
+<code>AVATAR</code> substitutes Avatar Producer for Visual Director.
+<code>FULL</code> sequences four sub-modes as a complete campaign package.</p>
 <hr />
 <h2 id="layer-3-agent-direct-flows">Layer 3 — Agent Direct Flows</h2>
 <p>One <code>{team}_agent_flow.py</code> per team. Each exposes an <code>AGENT_REGISTRY</code> dict and a <code>run_agent(agent_key, task, context, save)</code> function callable from <code>pp_flow.py</code> or directly.</p>
@@ -1437,7 +1513,7 @@ python templates/marketing-team/flows/marketing_agent_flow.py --list-agents
 <p><strong>Strategy</strong> — 11 agents: <code>brand_positioning_strategist</code>, <code>business_model_designer</code>, <code>competitive_intel_analyst</code>, <code>financial_strategist</code>, <code>gtm_strategist</code>, <code>okr_planner</code>, <code>partnership_strategist</code>, <code>product_strategist</code>, <code>risk_scenario_planner</code>, <code>talent_org_designer</code>, <code>technology_strategist</code></p>
 <p><strong>QA</strong> — 8 agents: <code>functional_testing_specialist</code>, <code>performance_testing_specialist</code>, <code>security_testing_specialist</code>, <code>accessibility_auditor</code>, <code>data_quality_analyst</code>, <code>legal_completeness_reviewer</code>, <code>marketing_compliance_reviewer</code>, <code>test_case_developer</code></p>
 <p><strong>HR</strong> — 6 agents: <code>recruiting_specialist</code>, <code>onboarding_specialist</code>, <code>performance_comp_specialist</code>, <code>policy_compliance_specialist</code>, <code>culture_engagement_specialist</code>, <code>benefits_specialist</code> <em>(HR guardrails enforced at flow level — cannot be bypassed)</em></p>
-<p><strong>Video</strong> — 7 agents: <code>script_writer</code>, <code>visual_director</code>, <code>audio_producer</code>, <code>avatar_producer</code>, <code>tool_intelligence_analyst</code>, <code>api_engineer</code>, <code>compliance_reviewer</code> <em>(⚠️ STUB — verify module paths once agent files committed)</em></p>
+<p><strong>Video</strong> — 7 agents: <code>script_writer</code>, <code>visual_director</code>, <code>audio_producer</code>, <code>avatar_producer</code>, <code>tool_analyst</code>, <code>api_engineer</code>, <code>compliance_reviewer</code> — <code>api_engineer</code> is Tier 2; <code>tool_analyst</code> performs web search at runtime. <code>avatar_producer</code> requires <code>avatar_config</code> in context.</p>
 <hr />
 <h2 id="corecontext_loaderpy"><code>core/context_loader.py</code></h2>
 <p>Shared utility imported by all team flows and agent flows. Not called directly.</p>
@@ -1627,9 +1703,6 @@ python agents/orchestrator/classify.py # fresh start</p>
 2. Use <code>--context-file &lt;path&gt;</code> or <code>--context "&lt;string&gt;"</code> to supply context inline.
 3. Check the path: <code>ls output/&lt;project&gt;/context.json</code>.</p>
 <p>Note: running without any context is valid — agents will produce output, but quality may be reduced. A warning is printed to stderr.</p>
-<h2 id="pp_flowpy-team-video-raises-notimplementederror">⚠️ <code>pp_flow.py --team video</code> raises <code>NotImplementedError</code></h2>
-<p><strong>What happened:</strong> The Video team flow is a stub — agent files in <code>templates/video-team/agents/</code> haven't been committed yet.</p>
-<p><strong>Fix:</strong> Build the Video team agent templates first, then wire <code>_load_agents()</code> in <code>templates/video-team/flows/video_flow.py</code> and <code>video_agent_flow.py</code>. The mode names and registry keys are already locked in — only the import paths need filling.</p>
 <h2 id="pp_flowpy-unknown-agent-key-error">⚠️ <code>pp_flow.py</code> — "Unknown agent key" error</h2>
 <p><strong>What happened:</strong> The registry key passed to <code>--agent</code> doesn't match any entry in the team's <code>AGENT_REGISTRY</code>.</p>
 <p><strong>Fix:</strong> Run <code>python flows/pp_flow.py --team &lt;team&gt; --list-modes</code> to see all valid agent keys for that team.</p>
@@ -2324,12 +2397,12 @@ python agents/orchestrator/classify.py # new project</p>
 <tr>
 <td>Video team flow</td>
 <td><code>templates/video-team/flows/video_flow.py</code></td>
-<td>⚠️ Stub — modes locked in, agent wiring pending</td>
+<td>Modes: <code>BRIEF_ONLY</code>, <code>SHORT_FORM</code>, <code>LONG_FORM</code>, <code>AVATAR</code>, <code>DEMO</code>, <code>EXPLAINER</code>, <code>VOICEOVER</code>, <code>FULL</code></td>
 </tr>
 <tr>
 <td>Video agent flow</td>
 <td><code>templates/video-team/flows/video_agent_flow.py</code></td>
-<td>⚠️ Stub — 7 agents, module paths pending</td>
+<td>7 agents — <code>tool_analyst</code>, <code>script_writer</code>, <code>visual_director</code>, <code>audio_producer</code>, <code>avatar_producer</code>, <code>api_engineer</code>, <code>compliance_reviewer</code></td>
 </tr>
 </tbody>
 </table>
@@ -2982,7 +3055,7 @@ Grounded in commit <code>fdaabc3</code> + flow architecture patch · github.com/
 <hr>
 <p style="text-align:center;color:#999;font-size:9pt;">
 Protean Pursuits — Agent System Operating Manual — Version 3.1 — April 2026<br>
-Grounded in commit <code>fdaabc3</code> + flow architecture patch · github.com/mfelkey/protean-pursuits
+Grounded in commit <code>fdaabc3</code> + flow architecture + video team · github.com/mfelkey/protean-pursuits
 </p>
 
 </body>

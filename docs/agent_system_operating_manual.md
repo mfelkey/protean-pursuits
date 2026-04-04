@@ -424,18 +424,25 @@ HITL gate type: `QA_SIGN_OFF`.
 
 ## Video Team
 
-| Agent | File |
-| --- | --- |
-| Video Orchestrator | `agents/orchestrator/orchestrator.py` |
-| Script Writer | `agents/script/script_writer.py` |
-| Visual Director | `agents/visual/visual_director.py` |
-| Audio Producer | `agents/audio/audio_producer.py` |
-| Avatar Producer | `agents/avatar/avatar_producer.py` |
-| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` |
-| API Engineer | `agents/production/api_engineer.py` |
-| Compliance Reviewer | `agents/compliance/compliance_reviewer.py` |
+Produces complete, platform-optimised video packages — from tool evaluation and scripting through API-generated renders. Supports short-form social, long-form YouTube, avatar spokesperson, product demo, animated explainer, and voiceover-only formats.
 
-HITL gate type: `VIDEO`.
+| Agent | File | Tier | What It Produces |
+| --- | --- | --- | --- |
+| Video Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences crew, fires HITL gates, produces Video Package cover doc |
+| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` | T1 | Tool Recommendation Report (TRR) — scored rankings for video + audio tools, API signatures |
+| Script & Narrative Writer | `agents/script/script_writer.py` | T1 | Script Package — spoken copy with timestamps, on-screen text, B-roll cues, compliance checklist |
+| Visual Director | `agents/visual/visual_director.py` | T1 | Visual Direction Brief (VDB) — shot types, motion direction, colour grading, AI prompt strings |
+| Avatar & Spokesperson Producer | `agents/avatar/avatar_producer.py` | T1 | Avatar Production Brief (APB) — HeyGen/Synthesia execution params, dialogue segmentation, expression direction |
+| Audio & Music Producer | `agents/audio/audio_producer.py` | T1 | Audio Production Brief (AUB) — music generation prompts, TTS direction, SFX cue sheet, mix guide |
+| Compliance & Brand Reviewer | `agents/compliance/compliance_reviewer.py` | T1 | Compliance Report (COR) — PASS / CONDITIONAL PASS / FAIL rating across brand, platform policy, legal, and technical spec |
+| API Production Engineer | `agents/production/api_engineer.py` | T2 | Executes approved APIs (Runway, HeyGen, ElevenLabs, etc.), saves raw assets, produces Assembly Manifest (JSON) |
+
+**HITL gates (three, in sequence):**
+- `VIDEO_TOOL_SELECTION` — after Tool Intelligence Analyst, before any creative work
+- `SCRIPT_REVIEW` — after Script Writer, before any API calls
+- `VIDEO_FINAL` — after Compliance Reviewer, before any publish action
+
+No video is marked publishable without human approval at all three gates. The API Production Engineer never runs before `SCRIPT_REVIEW` is approved.
 
 # 4. Agent Groups
 
@@ -905,10 +912,24 @@ Strategy is an authorized SME caller — `caller="strategy"` propagated automati
 
 Modes: `RECRUIT | ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE`
 
-### Video Team (`video_flow.py`) — ⚠️ STUB
+### Video Team (`video_flow.py`)
 
-Modes locked in: `script | visual | audio | avatar | production | compliance | full`
-Wire agent imports in `_load_agents()` once `templates/video-team/agents/` is committed.
+**Note: Mode names are uppercase** — consistent with the orchestrator definition and HR team convention.
+
+| Mode | Pipeline | HITL gates |
+| --- | --- | --- |
+| `BRIEF_ONLY` | Tool Analyst → Script → Visual → Audio | TOOL_SELECTION, SCRIPT_REVIEW |
+| `SHORT_FORM` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
+| `LONG_FORM` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
+| `AVATAR` | Tool Analyst → Script → **Avatar** → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
+| `DEMO` | Script → Audio → API Engineer → Compliance | SCRIPT_REVIEW, VIDEO_FINAL |
+| `EXPLAINER` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
+| `VOICEOVER` | Script → Audio → API Engineer → Compliance | SCRIPT_REVIEW, VIDEO_FINAL |
+| `FULL` | BRIEF_ONLY → SHORT_FORM → LONG_FORM → AVATAR in sequence | All gates for each sub-mode |
+
+`DEMO` and `VOICEOVER` skip visual generation and tool evaluation — they accept a screen recording or audio-only brief as input.
+`AVATAR` substitutes Avatar Producer for Visual Director.
+`FULL` sequences four sub-modes as a complete campaign package.
 
 ---
 
@@ -944,7 +965,7 @@ python templates/marketing-team/flows/marketing_agent_flow.py --list-agents
 
 **HR** — 6 agents: `recruiting_specialist`, `onboarding_specialist`, `performance_comp_specialist`, `policy_compliance_specialist`, `culture_engagement_specialist`, `benefits_specialist` *(HR guardrails enforced at flow level — cannot be bypassed)*
 
-**Video** — 7 agents: `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `tool_intelligence_analyst`, `api_engineer`, `compliance_reviewer` *(⚠️ STUB — verify module paths once agent files committed)*
+**Video** — 7 agents: `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `tool_analyst`, `api_engineer`, `compliance_reviewer` — `api_engineer` is Tier 2; `tool_analyst` performs web search at runtime. `avatar_producer` requires `avatar_config` in context.
 
 ---
 
@@ -1138,12 +1159,6 @@ Just run it again. It overwrites its previous output and updates the project con
 
 Note: running without any context is valid — agents will produce output, but quality may be reduced. A warning is printed to stderr.
 
-## ⚠️ `pp_flow.py --team video` raises `NotImplementedError`
-
-**What happened:** The Video team flow is a stub — agent files in `templates/video-team/agents/` haven't been committed yet.
-
-**Fix:** Build the Video team agent templates first, then wire `_load_agents()` in `templates/video-team/flows/video_flow.py` and `video_agent_flow.py`. The mode names and registry keys are already locked in — only the import paths need filling.
-
 ## ⚠️ `pp_flow.py` — "Unknown agent key" error
 
 **What happened:** The registry key passed to `--agent` doesn't match any entry in the team's `AGENT_REGISTRY`.
@@ -1333,8 +1348,8 @@ Detailed reference material. You don't need to read this to use the system — i
 | QA team flow | `templates/qa-team/flows/qa_flow.py` | Modes: `functional`, `performance`, `security`, `accessibility`, `data_quality`, `legal_review`, `marketing_review`, `test_cases`, `full` |
 | QA agent flow | `templates/qa-team/flows/qa_agent_flow.py` | 8 agents |
 | HR agent flow | `templates/hr-team/flows/hr_agent_flow.py` | 6 agents — HR guardrails enforced at flow level |
-| Video team flow | `templates/video-team/flows/video_flow.py` | ⚠️ Stub — modes locked in, agent wiring pending |
-| Video agent flow | `templates/video-team/flows/video_agent_flow.py` | ⚠️ Stub — 7 agents, module paths pending |
+| Video team flow | `templates/video-team/flows/video_flow.py` | Modes: `BRIEF_ONLY`, `SHORT_FORM`, `LONG_FORM`, `AVATAR`, `DEMO`, `EXPLAINER`, `VOICEOVER`, `FULL` |
+| Video agent flow | `templates/video-team/flows/video_agent_flow.py` | 7 agents — `tool_analyst`, `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `api_engineer`, `compliance_reviewer` |
 
 # Appendix B — Artifact Registry
 

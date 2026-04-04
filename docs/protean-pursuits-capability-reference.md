@@ -263,6 +263,28 @@ Operates independently of the dev-team's internal quality phase. Can audit any t
 
 ---
 
+#### Video Team
+Run modes: `BRIEF_ONLY | SHORT_FORM | LONG_FORM | AVATAR | DEMO | EXPLAINER | VOICEOVER | FULL`
+Three HITL gates on every full-pipeline run: `VIDEO_TOOL_SELECTION` → `SCRIPT_REVIEW` → `VIDEO_FINAL`. No video is marked publishable without human approval at all three gates.
+
+| Mode | Pipeline | What it produces |
+|---|---|---|
+| `BRIEF_ONLY` | Tool Analyst → Script → Visual → Audio | TRR + Script Package + VDB + AUB (no API calls) |
+| `SHORT_FORM` | Full pipeline | Complete <60s social package (TikTok, Reels, Shorts) |
+| `LONG_FORM` | Full pipeline | Complete 2–10min package (YouTube, website) |
+| `AVATAR` | Tool Analyst → Script → **Avatar** → Audio → Compliance → API Engineer | Avatar/spokesperson package — substitutes Avatar Producer for Visual Director |
+| `DEMO` | Script → Audio → API Engineer → Compliance | Screen recording wrapper — script, audio, and production only |
+| `EXPLAINER` | Full pipeline | Animated explainer / motion graphics package |
+| `VOICEOVER` | Script → Audio → API Engineer → Compliance | Voiceover-only — no visual generation |
+| `FULL` | All modes sequenced | Complete campaign package |
+
+**Agent notes:**
+- `AVATAR` mode requires `avatar_config` in project context (`avatar_id`, `voice_id`, platform params) — agent flags missing config as a blocking open question
+- `tool_analyst` performs live web search at runtime to score current tools — never relies on training knowledge for rankings
+- `api_engineer` (Tier 2) is the only agent that makes external API calls — never runs before `SCRIPT_REVIEW` is approved
+
+---
+
 ### 3.7 Docs Agents (Dev Team)
 
 | Agent | What It Produces |
@@ -338,6 +360,22 @@ Please run the DS team on the following analytical request:
 [description]
 
 Complexity: [LOW / MEDIUM / HIGH — or leave blank for auto-detection]
+```
+
+**Video production:**
+```
+Please run the Video Team in SHORT_FORM mode for the following brief:
+
+Project: ParallaxEdge sports betting app launch
+Format: TikTok / Instagram Reels
+Duration: 45–60 seconds
+Goal: Drive app installs — target audience is US sports bettors 21+
+Brand voice: Confident, data-driven, not salesy
+
+Avatar config (if AVATAR mode):
+  avatar_id: [your HeyGen avatar ID]
+  voice_id: [your ElevenLabs voice ID]
+  style: professional
 ```
 
 **Team flow — existing project, specific mode:**
@@ -456,7 +494,9 @@ PP pauses at defined checkpoints and waits for human approval before continuing.
 | **COMPETITIVE** | After competitive intelligence output | Competitive brief reviewed before it informs decisions |
 | **POST** | After social media posts | Posts approved before scheduling or publishing |
 | **EMAIL** | After email sequences | Email sends approved before execution |
-| **VIDEO** | After video production deliverables | Scripts and briefs approved before production begins |
+| **VIDEO_TOOL_SELECTION** | After Tool Intelligence Analyst | Tool stack approved before any creative work begins |
+| **SCRIPT_REVIEW** | After Script Writer | Script approved before any API calls are made |
+| **VIDEO_FINAL** | After Compliance Reviewer | Full package approved before any publish action |
 
 **Security RED block:** If the Security Reviewer rates the architecture 🔴 RED, the pipeline halts entirely. PP will not proceed to build until a human resolves the finding and re-runs the security review.
 
@@ -474,7 +514,7 @@ PP pauses at defined checkpoints and waits for human approval before continuing.
 | Finance Group is advisory only — it will never auto-block the pipeline | By design |
 | Secrets are never hardcoded in any generated artifact | Quality standard |
 | No placeholder code in any build output | Quality standard |
-| Video team flows raise `NotImplementedError` until agent templates are committed | Stub — modes locked in, wiring pending |
+| Video team `AVATAR` mode requires `avatar_config` in project context | `avatar_producer` flags missing config as a blocking open question |
 
 ### Agent direct constraints
 
@@ -532,6 +572,6 @@ All generated code uses environment variables for provider selection. No cloud p
 
 ---
 
-*Protean Pursuits — Agent System v2.1 — Capability Reference for External Projects*
+*Protean Pursuits — Agent System v2.2 — Capability Reference for External Projects*
 
-*Updated April 2026 — reflects flow architecture (pp_flow, team flows, agent direct)*
+*Updated April 2026 — reflects flow architecture and fully wired Video Team*
