@@ -25,6 +25,24 @@ Usage examples:
     # Save output to disk
     python flows/pp_flow.py --team design --mode research \\
         --project parallaxedge --task "Research user onboarding patterns" --save
+
+    # SME consult (single expert)
+    python flows/pp_flow.py --team sme --mode consult \\
+        --agent pga --task "Key value angles for the Masters" --project parallaxedge
+
+    # SME crew (multi-expert synthesized, HITL gate fires)
+    python flows/pp_flow.py --team sme --mode crew \\
+        --agent pga lpga --task "Compare majors betting liquidity" --project parallaxedge
+
+    # SME auto-detect
+    python flows/pp_flow.py --team sme --mode auto \\
+        --task "How do Asian handicap markets work for soccer and rugby?"
+
+SME notes:
+    --team sme --mode consult  requires --agent <sme_key>
+    --team sme --mode crew     accepts --agent <key1> <key2> ... or none for auto
+    --team sme --mode auto     no --agent needed
+    'sme_flow' must be in AUTHORISED_CALLERS in agents/sme/sme_orchestrator.py
 """
 
 import argparse
@@ -59,6 +77,9 @@ TEAM_FLOW_MAP = {
     "qa":        ("templates.qa-team.flows.qa_flow",         "templates.qa-team.flows.qa_agent_flow"),
     "hr":        ("templates.hr-team.flows.hr_flow",         "templates.hr-team.flows.hr_agent_flow"),
     "video":     ("templates.video-team.flows.video_flow",   "templates.video-team.flows.video_agent_flow"),
+    # SME Group — project-agnostic domain specialists
+    # flows/sme_flow.py and flows/sme_agent_flow.py live at repo root (not in templates/)
+    "sme":       ("flows.sme_flow",                          "flows.sme_agent_flow"),
 }
 
 VALID_TEAMS = sorted(TEAM_FLOW_MAP.keys())

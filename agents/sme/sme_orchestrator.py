@@ -107,6 +107,7 @@ AUTHORISED_CALLERS = {
     "legal",
     "legal_team",
     "ds_orchestrator",
+    "sme_flow",
 
 }    "mobile_devops", "mobile_qa",
 }
