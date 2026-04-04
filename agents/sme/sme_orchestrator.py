@@ -98,7 +98,17 @@ DEV_TEAM_CALLERS = {
     "performance_planner", "penetration_tester", "accessibility_specialist",
     "scrum_master", "ux_designer", "ux_content_guide", "business_analyst",
     "security_reviewer", "mobile_ios", "mobile_android", "mobile_react_native",
-    "mobile_devops", "mobile_qa",
+
+AUTHORISED_CALLERS = {
+    "pp_orchestrator",
+    "project_manager",
+    "strategy",
+    "strategy_team",
+    "legal",
+    "legal_team",
+    "ds_orchestrator",
+
+}    "mobile_devops", "mobile_qa",
 }
 
 
@@ -118,7 +128,8 @@ def validate_caller(caller: str) -> None:
             f"Project Manager, Strategy, or Legal."
         )
     if caller_lower not in AUTHORISED_CALLERS:
-        raise PermissionError(
+ 
+       raise PermissionError(
             f"Unauthorised SME caller: '{caller}'. "
             f"Authorised callers: {sorted(AUTHORISED_CALLERS)}."
         )
