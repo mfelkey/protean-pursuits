@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dev-Team · Mission Control</title>
+<title>Protean Pursuits · Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -11,62 +11,38 @@
    DESIGN SYSTEM — Mission Control / Industrial Terminal
    ═══════════════════════════════════════════════════════════════ */
 :root {
-  /* Surface palette — deep charcoal to near-black */
   --bg-void:     #08090c;
   --bg-base:     #0d0f14;
   --bg-raised:   #13161e;
   --bg-surface:  #1a1e2a;
   --bg-elevated: #222738;
   --bg-hover:    #2a3048;
-
-  /* Border & line */
   --border-dim:    #1e2235;
   --border-subtle: #2a3048;
   --border-medium: #3d4463;
   --border-bright: #5568a8;
-
-  /* Text */
   --text-primary:   #e8ecf4;
   --text-secondary: #9ba3bf;
   --text-dim:       #5e6580;
   --text-ghost:     #3d4463;
-
-  /* Accent — electric blue command line feel */
   --accent:        #4d7fff;
   --accent-bright: #6b9aff;
   --accent-dim:    #2d5cd6;
   --accent-glow:   rgba(77, 127, 255, 0.15);
-  --accent-spark:  rgba(77, 127, 255, 0.4);
-
-  /* Phase colors */
-  --phase-orch:    #8b5cf6;
-  --phase-plan:    #4d7fff;
-  --phase-tspec:   #f59e0b;
-  --phase-build:   #10b981;
-  --phase-verify:  #06b6d4;
-  --phase-mobile:  #0d9488;
-
-  /* Status */
   --status-done:    #10b981;
   --status-active:  #4d7fff;
   --status-pending: #3d4463;
   --status-error:   #ef4444;
-  --status-checkpoint: #f59e0b;
-
-  /* Fonts */
-  --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', monospace;
-  --font-sans: 'DM Sans', -apple-system, 'Segoe UI', sans-serif;
-
-  /* Spacing */
+  --status-warn:    #f59e0b;
+  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --font-sans: 'DM Sans', -apple-system, sans-serif;
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 html { font-size: 14px; scroll-behavior: smooth; }
-
 body {
   font-family: var(--font-sans);
   background: var(--bg-void);
@@ -74,33 +50,20 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
-
-/* Scanline overlay for atmosphere */
 body::after {
   content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.03) 2px,
-    rgba(0,0,0,0.03) 4px
-  );
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
 }
-
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-dim); }
 
 /* ── Layout ── */
 .app {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 240px 1fr;
   grid-template-rows: 56px 1fr;
   min-height: 100vh;
 }
@@ -112,647 +75,349 @@ body::after {
   border-bottom: 1px solid var(--border-dim);
   display: flex;
   align-items: center;
-  padding: 0 24px;
-  gap: 16px;
+  padding: 0 20px;
+  gap: 14px;
   z-index: 100;
 }
-
 .topbar-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--accent-bright);
   letter-spacing: -0.5px;
+  white-space: nowrap;
 }
-
 .topbar-logo .dot {
-  width: 8px;
-  height: 8px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--status-done);
   box-shadow: 0 0 8px var(--status-done);
   animation: pulse-dot 2s infinite;
+  flex-shrink: 0;
 }
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-.topbar-divider {
-  width: 1px;
-  height: 24px;
-  background: var(--border-dim);
-}
-
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+.topbar-div { width:1px; height:22px; background:var(--border-dim); flex-shrink:0; }
 .topbar-project-select {
   background: var(--bg-raised);
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 6px 12px;
+  font-size: 11px;
+  padding: 5px 10px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  min-width: 240px;
+  min-width: 220px;
 }
-.topbar-project-select:focus { outline: 1px solid var(--accent); }
 .topbar-project-select option { background: var(--bg-raised); }
-
 .topbar-status {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-dim);
 }
+.topbar-stat { text-align: right; }
+.topbar-stat .lbl { font-size: 8px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-ghost); display: block; }
+.topbar-stat .val { color: var(--text-secondary); }
 
-.topbar-status .label { color: var(--text-ghost); text-transform: uppercase; letter-spacing: 1px; font-size: 9px; }
+/* pending approvals badge */
+.pending-badge {
+  display: none;
+  background: var(--status-warn);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  animation: pulse-dot 1.5s infinite;
+}
+.pending-badge.visible { display: inline-block; }
 
 /* ── Sidebar ── */
 .sidebar {
   background: var(--bg-base);
   border-right: 1px solid var(--border-dim);
   overflow-y: auto;
-  padding: 12px 0;
+  padding: 10px 0;
 }
-
-.sidebar-section-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--text-ghost);
-  padding: 16px 20px 6px;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 20px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border-left: 2px solid transparent;
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-.sidebar-item:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-.sidebar-item.active {
-  background: var(--accent-glow);
-  border-left-color: var(--accent);
-  color: var(--accent-bright);
-}
-.sidebar-item .icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
-
-/* ── Main Content ── */
-.main {
-  overflow-y: auto;
-  padding: 28px 32px;
-  background:
-    radial-gradient(ellipse at 20% 0%, rgba(77, 127, 255, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 100%, rgba(16, 185, 129, 0.03) 0%, transparent 50%),
-    var(--bg-void);
-}
-
-.panel { display: none; }
-.panel.active { display: block; }
-
-/* ── Section Headers ── */
-.section-header {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.section-header h2 {
-  font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.5px;
-}
-.section-header .tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  color: var(--accent-bright);
-  background: var(--accent-glow);
-  border: 1px solid rgba(77, 127, 255, 0.2);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PIPELINE TRACKER — The visual heart of Mission Control
-   ═══════════════════════════════════════════════════════════════ */
-.pipeline-track {
-  margin-bottom: 36px;
-}
-
-.pipeline-phase-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  margin-top: 24px;
-}
-.pipeline-phase-header:first-child { margin-top: 0; }
-
-.phase-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  color: white;
-}
-.phase-badge.orchestrate { background: var(--phase-orch); }
-.phase-badge.plan { background: var(--phase-plan); }
-.phase-badge.test_spec { background: var(--phase-tspec); }
-.phase-badge.build { background: var(--phase-build); }
-.phase-badge.test { background: var(--phase-tspec); }
-.phase-badge.verify { background: var(--phase-verify); }
-.phase-badge.mobile_plan { background: var(--phase-mobile); }
-.phase-badge.mobile_test { background: var(--phase-tspec); }
-.phase-badge.mobile_build { background: var(--phase-build); }
-.phase-badge.mobile_verify { background: var(--phase-verify); }
-.phase-badge.mobile { background: var(--phase-mobile); }
-
-.phase-line {
-  flex: 1;
-  height: 1px;
-  background: var(--border-dim);
-}
-
-.pipeline-steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 10px;
-}
-
-.step-card {
-  background: var(--bg-raised);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-.step-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--status-pending);
-  transition: background 0.3s;
-}
-.step-card.done::before { background: var(--status-done); }
-.step-card.active::before { background: var(--status-active); animation: active-pulse 1.5s infinite; }
-.step-card.checkpoint::before { background: var(--status-checkpoint); }
-
-@keyframes active-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.step-card:hover {
-  border-color: var(--border-medium);
-  background: var(--bg-surface);
-  transform: translateY(-1px);
-}
-
-.step-card .step-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.step-card .step-icon {
-  font-size: 16px;
-}
-
-.step-card .step-status {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--status-pending);
-}
-.step-card.done .step-status { background: var(--status-done); box-shadow: 0 0 6px var(--status-done); }
-.step-card.active .step-status { background: var(--status-active); box-shadow: 0 0 6px var(--status-active); }
-
-.step-card .step-name {
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 12.5px;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.step-card .step-artifact {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--text-dim);
-}
-
-.step-card .step-checkpoint-badge {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.sidebar-lbl {
   font-family: var(--font-mono);
   font-size: 8px;
   font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+  padding: 14px 18px 5px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+.sidebar-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.sidebar-item.active { background: var(--accent-glow); border-left-color: var(--accent); color: var(--accent-bright); }
+.sidebar-item .icon { font-size: 13px; width: 18px; text-align: center; flex-shrink: 0; }
+.sidebar-item .badge {
+  margin-left: auto;
+  background: var(--status-warn);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 8px;
+  display: none;
+}
+.sidebar-item .badge.visible { display: inline-block; }
+
+/* ── Main ── */
+.main {
+  overflow-y: auto;
+  padding: 24px 28px;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(77,127,255,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(16,185,129,0.03) 0%, transparent 50%),
+    var(--bg-void);
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Section Header ── */
+.section-hdr { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+.section-hdr h2 { font-family: var(--font-mono); font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
+.tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: var(--status-checkpoint);
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: var(--radius-sm);
+  color: var(--accent-bright);
+  background: var(--accent-glow);
+  border: 1px solid rgba(77,127,255,0.2);
 }
 
-/* Step card expanded — command + details */
-.step-expand {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-}
-.step-card.expanded .step-expand {
-  max-height: 200px;
-  padding-top: 10px;
-  margin-top: 10px;
-  border-top: 1px solid var(--border-dim);
-}
-
-.step-command {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-void);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-secondary);
-  word-break: break-all;
-}
-
-.copy-btn {
-  flex-shrink: 0;
-  background: none;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-dim);
-  cursor: pointer;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  transition: all 0.15s;
-}
-.copy-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
-.copy-btn.copied { border-color: var(--status-done); color: var(--status-done); }
-
-/* ═══════════════════════════════════════════════════════════════
-   AGENT CARDS — Reference Guide
-   ═══════════════════════════════════════════════════════════════ */
-.agent-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 14px;
-}
-
-.agent-card {
-  background: var(--bg-raised);
-  border: 1px solid var(--border-dim);
+/* ── Info Banner ── */
+.info-banner {
+  background: var(--accent-glow);
+  border: 1px solid rgba(77,127,255,0.2);
   border-radius: var(--radius-md);
-  overflow: hidden;
-  transition: all 0.2s;
-}
-.agent-card:hover {
-  border-color: var(--border-medium);
-}
-
-.agent-card-header {
+  padding: 14px 18px;
+  margin-bottom: 18px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.agent-card-header:hover { background: var(--bg-surface); }
-
-.agent-card-icon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.agent-card-icon.plan { background: rgba(77, 127, 255, 0.12); }
-.agent-card-icon.test_spec { background: rgba(245, 158, 11, 0.12); }
-.agent-card-icon.build { background: rgba(16, 185, 129, 0.12); }
-.agent-card-icon.test { background: rgba(245, 158, 11, 0.12); }
-.agent-card-icon.verify { background: rgba(6, 182, 212, 0.12); }
-.agent-card-icon.mobile_plan { background: rgba(13, 148, 136, 0.12); }
-.agent-card-icon.mobile_test { background: rgba(245, 158, 11, 0.12); }
-.agent-card-icon.mobile_build { background: rgba(16, 185, 129, 0.12); }
-.agent-card-icon.mobile_verify { background: rgba(6, 182, 212, 0.12); }
-.agent-card-icon.mobile { background: rgba(13, 148, 136, 0.12); }
-
-.agent-card-title {
-  flex: 1;
-}
-.agent-card-title h4 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-.agent-card-title .subtitle {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.agent-card-tier {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-dim);
-}
-
-.agent-card-chevron {
-  color: var(--text-ghost);
-  transition: transform 0.2s;
-  font-size: 12px;
-}
-.agent-card.expanded .agent-card-chevron { transform: rotate(90deg); }
-
-.agent-card-body {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-.agent-card.expanded .agent-card-body {
-  max-height: 400px;
-}
-
-.agent-card-content {
-  padding: 0 16px 16px;
-  display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   gap: 10px;
-}
-
-.agent-desc {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.6;
 }
+.info-banner .ii { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 
-.agent-io {
+/* ═══════════════════════════════════════════════════════════════
+   RUN PANEL — the primary action surface
+   ═══════════════════════════════════════════════════════════════ */
+.run-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
 }
 
-.agent-io-box {
-  background: var(--bg-void);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
+/* Team pills */
+.team-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
 }
-.agent-io-box .label {
+.team-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.team-pill:hover { border-color: var(--border-medium); color: var(--text-primary); }
+.team-pill.active {
+  color: white;
+  border-color: transparent;
+}
+
+/* Mode / Agent toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.toggle-label {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--text-ghost);
-  margin-bottom: 6px;
 }
-.agent-io-box .value {
+.toggle-switch {
+  display: flex;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.toggle-btn {
+  padding: 5px 14px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-secondary);
-}
-.agent-io-box .artifact-tag {
-  display: inline-block;
-  background: var(--accent-glow);
-  color: var(--accent-bright);
-  border: 1px solid rgba(77, 127, 255, 0.2);
-  padding: 1px 6px;
-  border-radius: 3px;
-  font-size: 10px;
-  margin: 1px 2px;
-}
-
-.agent-file-path {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--text-dim);
-  background: var(--bg-void);
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-dim);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   PROJECT VIEWER
-   ═══════════════════════════════════════════════════════════════ */
-.project-overview {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 28px;
-}
-
-.stat-card {
-  background: var(--bg-raised);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-}
-.stat-card .stat-label {
-  font-family: var(--font-mono);
-  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--text-ghost);
-  margin-bottom: 8px;
-}
-.stat-card .stat-value {
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-.stat-card .stat-sub {
-  font-size: 11px;
   color: var(--text-dim);
-  margin-top: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: none;
+  border: none;
+}
+.toggle-btn.active {
+  background: var(--accent);
+  color: white;
 }
 
-.project-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-
-.detail-panel {
+/* Mode/Agent select */
+.run-select {
+  width: 100%;
   background: var(--bg-raised);
-  border: 1px solid var(--border-dim);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 20px;
-}
-.detail-panel h3 {
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235e6580'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 30px;
+}
+.run-select:focus { outline: 1px solid var(--accent); }
+.run-select option { background: var(--bg-raised); }
+
+/* Selected mode/agent info box */
+.selection-info {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  min-height: 46px;
+}
+.selection-info .si-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-ghost);
+  margin-bottom: 4px;
+}
+.selection-info .si-desc {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+.selection-info .si-checkpoint {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--status-warn);
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+}
+
+/* Task input */
+.field-lbl {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: var(--text-secondary);
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-dim);
+  margin-bottom: 5px;
 }
-
-.detail-panel.full-width {
-  grid-column: 1 / -1;
+.run-textarea {
+  width: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  padding: 10px 14px;
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+  margin-bottom: 12px;
 }
+.run-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.run-textarea::placeholder { color: var(--text-ghost); }
 
-.artifact-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.run-input {
+  width: 100%;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
 }
+.run-input:focus { outline: none; border-color: var(--accent); }
+.run-input::placeholder { color: var(--text-ghost); }
 
-.artifact-row {
-  display: flex;
+/* Complexity hint (DS only) */
+.complexity-row {
+  display: none;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  background: var(--bg-void);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-dim);
+  gap: 8px;
+  margin-bottom: 12px;
 }
-.artifact-row .art-type {
+.complexity-row.visible { display: flex; }
+.complexity-select {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
-  color: var(--accent-bright);
-  min-width: 80px;
-}
-.artifact-row .art-agent {
-  font-size: 11.5px;
-  color: var(--text-secondary);
-  flex: 1;
-}
-.artifact-row .art-time {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-ghost);
+  padding: 5px 10px;
+  cursor: pointer;
 }
 
-.checkpoint-list { display: flex; flex-direction: column; gap: 6px; }
-.checkpoint-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  background: var(--bg-void);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-dim);
-}
-.checkpoint-row .cp-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-  flex: 1;
-}
-.checkpoint-row .cp-status {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-sm);
-}
-.cp-status.approved { background: rgba(16, 185, 129, 0.15); color: var(--status-done); border: 1px solid rgba(16, 185, 129, 0.3); }
-.cp-status.rejected { background: rgba(239, 68, 68, 0.15); color: var(--status-error); border: 1px solid rgba(239, 68, 68, 0.3); }
-.cp-status.pending  { background: rgba(245, 158, 11, 0.15); color: var(--status-checkpoint); border: 1px solid rgba(245, 158, 11, 0.3); }
-
-.audit-log {
-  max-height: 300px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.audit-entry {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  color: var(--text-dim);
-  display: flex;
-  gap: 10px;
-}
-.audit-entry:nth-child(odd) { background: var(--bg-void); }
-.audit-entry .ts { color: var(--text-ghost); min-width: 150px; flex-shrink: 0; }
-.audit-entry .ev { color: var(--text-secondary); }
-
-/* ═══════════════════════════════════════════════════════════════
-   CHECKPOINT REVIEW INTERFACE
-   ═══════════════════════════════════════════════════════════════ */
-.checkpoint-review {
-  background: var(--bg-raised);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-top: 20px;
-}
-
-.checkpoint-review h3 {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.checkpoint-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 16px;
-}
-
+/* Run button */
 .btn {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -764,18 +429,348 @@ body::after {
   transition: all 0.15s;
   letter-spacing: 0.5px;
 }
-.btn-approve {
-  background: var(--status-done);
+.btn-run {
+  background: var(--accent);
   color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
-.btn-approve:hover { background: #0d9668; transform: translateY(-1px); }
-.btn-reject {
+.btn-run:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
+.btn-secondary {
   background: var(--bg-surface);
-  color: var(--status-error);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
 }
-.btn-reject:hover { background: rgba(239, 68, 68, 0.1); }
+.btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+.btn-approve { background: var(--status-done); color: white; }
+.btn-approve:hover { background: #0d9668; }
+.btn-reject { background: var(--bg-surface); color: var(--status-error); border: 1px solid rgba(239,68,68,0.3); }
+.btn-reject:hover { background: rgba(239,68,68,0.1); }
+.btn.loading { opacity: .7; pointer-events: none; }
 
+.run-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── Run Output ── */
+.run-output {
+  margin-top: 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: none;
+}
+.run-output.visible { display: block; }
+.run-output-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-dim);
+}
+.run-output-header .run-id { font-family: var(--font-mono); font-size: 11px; color: var(--accent-bright); }
+.run-status-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+.rs-running  { background: rgba(77,127,255,.15); color: var(--accent-bright); border: 1px solid rgba(77,127,255,.3); animation: pulse-dot 1s infinite; }
+.rs-completed{ background: rgba(16,185,129,.15); color: var(--status-done);  border: 1px solid rgba(16,185,129,.3); }
+.rs-failed   { background: rgba(239,68,68,.15);  color: var(--status-error); border: 1px solid rgba(239,68,68,.3); }
+.rs-timeout  { background: rgba(245,158,11,.15); color: var(--status-warn);  border: 1px solid rgba(245,158,11,.3); }
+.run-cmd { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-ghost); margin-left: auto; max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.run-stdout {
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Right column guide */
+.run-guide { display: flex; flex-direction: column; gap: 12px; }
+.guide-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.guide-card h4 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-dim);
+  background: var(--bg-surface);
+}
+.guide-card-body { padding: 12px 14px; }
+.guide-card-body p { font-size: 11.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 8px; }
+.guide-check { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); padding: 2px 0; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PIPELINE TRACKER — team collapsible sections
+   ═══════════════════════════════════════════════════════════════ */
+.team-section {
+  margin-bottom: 20px;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.team-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: var(--bg-raised);
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+}
+.team-section-header:hover { background: var(--bg-surface); }
+.team-icon { font-size: 16px; }
+.team-name { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.team-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.team-progress { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.team-chevron { color: var(--text-ghost); transition: transform 0.2s; font-size: 11px; }
+.team-section.open .team-chevron { transform: rotate(90deg); }
+.team-section-body { display: none; padding: 16px; background: var(--bg-void); }
+.team-section.open .team-section-body { display: block; }
+
+/* Phase groups within a team */
+.phase-hdr {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  margin-top: 18px;
+}
+.phase-hdr:first-child { margin-top: 0; }
+.phase-badge {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  color: white;
+  background: var(--border-medium);
+}
+.phase-line { flex: 1; height: 1px; background: var(--border-dim); }
+
+.step-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.step-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.step-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--status-pending);
+  transition: background 0.3s;
+}
+.step-card.done::before { background: var(--status-done); }
+.step-card.checkpoint::before { background: var(--status-warn); }
+.step-card:hover { border-color: var(--border-medium); background: var(--bg-surface); transform: translateY(-1px); }
+.step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.step-icon { font-size: 14px; }
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--status-pending); }
+.step-card.done .step-dot { background: var(--status-done); box-shadow: 0 0 5px var(--status-done); }
+.step-name { font-weight: 600; font-size: 12px; color: var(--text-primary); margin-bottom: 3px; }
+.step-artifact { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.step-gate {
+  position: absolute; top: 7px; right: 7px;
+  font-family: var(--font-mono); font-size: 8px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--status-warn);
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  padding: 1px 5px; border-radius: var(--radius-sm);
+}
+
+.step-expand {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s, padding 0.3s;
+}
+.step-card.expanded .step-expand {
+  max-height: 120px;
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-dim);
+}
+.step-cmd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-void);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+.copy-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  transition: all 0.15s;
+}
+.copy-btn:hover { border-color: var(--accent); color: var(--accent-bright); }
+.copy-btn.copied { border-color: var(--status-done); color: var(--status-done); }
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENT REFERENCE
+   ═══════════════════════════════════════════════════════════════ */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+}
+.agent-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.agent-card:hover { border-color: var(--border-medium); }
+.agent-card-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.agent-card-hdr:hover { background: var(--bg-surface); }
+.agent-card-icon {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+.agent-card-title { flex: 1; }
+.agent-card-title h4 { font-size: 12.5px; font-weight: 600; margin-bottom: 2px; }
+.agent-card-title .sub { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.agent-tier {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: var(--radius-sm);
+  background: var(--bg-surface); color: var(--text-secondary);
+  border: 1px solid var(--border-dim);
+}
+.agent-chevron { color: var(--text-ghost); transition: transform 0.2s; font-size: 11px; }
+.agent-card.expanded .agent-chevron { transform: rotate(90deg); }
+.agent-body { max-height: 0; overflow: hidden; transition: max-height 0.3s; }
+.agent-card.expanded .agent-body { max-height: 300px; }
+.agent-content { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.agent-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+.agent-file { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); background: var(--bg-void); padding: 5px 9px; border-radius: var(--radius-sm); border: 1px solid var(--border-dim); }
+
+/* ═══════════════════════════════════════════════════════════════
+   PROJECT STATUS
+   ═══════════════════════════════════════════════════════════════ */
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+.stat-lbl { font-family: var(--font-mono); font-size: 8px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-ghost); margin-bottom: 6px; }
+.stat-val { font-family: var(--font-mono); font-size: 22px; font-weight: 700; }
+.stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.detail-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+.detail-panel h3 { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border-dim); }
+.detail-panel.wide { grid-column: 1/-1; }
+.artifact-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; background: var(--bg-void);
+  border-radius: var(--radius-sm); border: 1px solid var(--border-dim);
+  margin-bottom: 4px;
+}
+.art-type { font-family: var(--font-mono); font-size: 10.5px; font-weight: 600; color: var(--accent-bright); min-width: 70px; }
+.art-agent { font-size: 11px; color: var(--text-secondary); flex: 1; }
+.art-time { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-ghost); }
+.audit-log { max-height: 280px; overflow-y: auto; }
+.audit-entry { font-family: var(--font-mono); font-size: 10px; padding: 3px 6px; border-radius: var(--radius-sm); color: var(--text-dim); display: flex; gap: 8px; }
+.audit-entry:nth-child(odd) { background: var(--bg-void); }
+.audit-ts { color: var(--text-ghost); min-width: 140px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CHECKPOINTS
+   ═══════════════════════════════════════════════════════════════ */
+.cp-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+}
+.cp-id { font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: var(--status-warn); min-width: 50px; }
+.cp-name { font-size: 12px; font-weight: 600; min-width: 160px; }
+.cp-check { font-size: 11px; color: var(--text-dim); flex: 1; }
+.cp-team { font-family: var(--font-mono); font-size: 9px; color: var(--text-ghost); min-width: 70px; text-align: right; }
+.cp-status { font-family: var(--font-mono); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-sm); }
+.cps-approved { background: rgba(16,185,129,.15); color: var(--status-done); border: 1px solid rgba(16,185,129,.3); }
+.cps-rejected  { background: rgba(239,68,68,.15); color: var(--status-error); border: 1px solid rgba(239,68,68,.3); }
+.cps-pending   { background: rgba(245,158,11,.15); color: var(--status-warn); border: 1px solid rgba(245,158,11,.3); }
+
+.cp-review-box {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-top: 20px;
+}
+.cp-review-box h3 { font-family: var(--font-mono); font-size: 13px; margin-bottom: 14px; }
+.cp-pending-list { margin-bottom: 16px; }
+.cp-pending-item {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+.cp-pending-item .gate { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--status-warn); }
+.cp-pending-item .summary { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+.cp-pending-item .req-id { font-family: var(--font-mono); font-size: 10px; color: var(--text-ghost); margin-top: 3px; }
+.cp-actions { display: flex; gap: 10px; align-items: center; margin-top: 14px; }
 .reject-reason {
   width: 100%;
   background: var(--bg-void);
@@ -784,129 +779,43 @@ body::after {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 12px;
-  padding: 10px 12px;
-  margin-top: 12px;
+  padding: 8px 10px;
+  margin-top: 10px;
   resize: vertical;
-  min-height: 60px;
+  min-height: 50px;
   display: none;
 }
 .reject-reason:focus { outline: 1px solid var(--accent); }
 .reject-reason.visible { display: block; }
 
 /* ═══════════════════════════════════════════════════════════════
-   COMMAND CHEAT SHEET
+   RUN HISTORY
    ═══════════════════════════════════════════════════════════════ */
-.cheat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 10px;
-}
-
-.cheat-card {
+.run-history-item {
   background: var(--bg-raised);
   border: 1px solid var(--border-dim);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.cheat-card .cheat-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  margin-bottom: 4px;
-}
-.cheat-card .cheat-cmd {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent-bright);
-  word-break: break-all;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   EMPTY STATES & LOADING
-   ═══════════════════════════════════════════════════════════════ */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
-}
-.empty-state .icon { font-size: 36px; margin-bottom: 12px; }
-.empty-state h3 {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--text-secondary);
+  padding: 12px 14px;
   margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s;
 }
-.empty-state p {
-  font-size: 12px;
-  color: var(--text-dim);
-  max-width: 400px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  padding: 12px 18px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-primary);
-  z-index: 10000;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.2s;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateY(0); }
-
-/* ── No-project info banner ── */
-.info-banner {
-  background: var(--accent-glow);
-  border: 1px solid rgba(77, 127, 255, 0.2);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-.info-banner .info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.info-banner .info-text { font-size: 12.5px; color: var(--text-secondary); line-height: 1.6; }
-.info-banner .info-text strong { color: var(--accent-bright); }
+.run-history-item:hover { border-color: var(--border-medium); }
+.run-history-item.expanded { border-color: var(--accent-dim); }
+.rh-top { display: flex; align-items: center; gap: 10px; }
+.rh-id { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--accent-bright); }
+.rh-team { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); }
+.rh-mode { font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary); }
+.rh-time { margin-left: auto; font-family: var(--font-mono); font-size: 10px; color: var(--text-ghost); }
+.rh-body { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-dim); }
+.run-history-item.expanded .rh-body { display: block; }
+.rh-stdout { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: auto; line-height: 1.7; }
 
 /* ═══════════════════════════════════════════════════════════════
-   NEW PROJECT FORM
+   NEW PROJECT
    ═══════════════════════════════════════════════════════════════ */
-.new-project-layout {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 24px;
-  align-items: start;
-}
-
-.np-field { margin-bottom: 16px; }
-
-.np-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-.np-required { color: var(--status-error); }
-.np-optional { font-weight: 400; color: var(--text-ghost); font-size: 10px; }
-
+.np-layout { display: grid; grid-template-columns: 1fr 340px; gap: 20px; align-items: start; }
+.np-lbl { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
 .np-input, .np-textarea, .np-select {
   width: 100%;
   background: var(--bg-raised);
@@ -915,391 +824,250 @@ body::after {
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 13px;
-  padding: 10px 14px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+  transition: border-color 0.15s;
 }
-.np-input:focus, .np-textarea:focus, .np-select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
-}
-.np-input::placeholder, .np-textarea::placeholder {
-  color: var(--text-ghost);
-}
-
-.np-textarea {
-  min-height: 180px;
-  resize: vertical;
-  line-height: 1.7;
-  font-size: 13px;
-}
-
-.np-select {
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235e6580'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
+.np-input:focus, .np-textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.np-input::placeholder, .np-textarea::placeholder { color: var(--text-ghost); }
+.np-textarea { min-height: 160px; resize: vertical; line-height: 1.7; }
+.np-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235e6580'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
 .np-select option { background: var(--bg-raised); }
+.np-opts { display: flex; gap: 12px; }
+.np-opts .np-select { margin-bottom: 14px; }
+.np-char { font-family: var(--font-mono); font-size: 10px; color: var(--text-ghost); text-align: right; margin-top: -10px; margin-bottom: 14px; }
+.np-result { margin-top: 14px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px 18px; display: none; }
+.np-result.success { border-color: rgba(16,185,129,.4); background: rgba(16,185,129,.06); }
+.np-result.error   { border-color: rgba(239,68,68,.4);  background: rgba(239,68,68,.06); }
+.np-result-id { font-family: var(--font-mono); font-size: 12px; color: var(--accent-bright); background: var(--accent-glow); display: inline-block; padding: 2px 10px; border-radius: var(--radius-sm); margin: 6px 0 8px; }
+.np-next { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; }
+.np-cmd { display: flex; align-items: center; gap: 6px; background: var(--bg-void); border: 1px solid var(--border-dim); border-radius: var(--radius-sm); padding: 7px 10px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); }
+.np-cmd .num { color: var(--text-ghost); font-weight: 700; min-width: 16px; }
+.np-example { padding: 9px 11px; border: 1px solid var(--border-dim); border-radius: var(--radius-sm); margin-bottom: 7px; cursor: pointer; transition: all .15s; }
+.np-example:hover { border-color: var(--accent); background: var(--accent-glow); }
+.np-example-lbl { font-family: var(--font-mono); font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--accent-bright); margin-bottom: 3px; }
+.np-example-txt { font-size: 11px; color: var(--text-dim); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-.np-char-count {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-ghost);
-  margin-top: 4px;
-  text-align: right;
-}
-
-.np-options-row {
-  display: flex;
-  gap: 14px;
-}
-
-.np-checkbox-label {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-.np-checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.np-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-}
-
-.btn-create {
-  background: var(--accent);
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  font-size: 13px;
-}
-.btn-create:hover { background: var(--accent-bright); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-glow); }
-.btn-create:active { transform: translateY(0); }
-.btn-create .btn-icon { font-size: 14px; }
-
-.btn-secondary {
-  background: var(--bg-surface);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-subtle);
-}
-.btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
-
-.btn.loading {
-  opacity: 0.7;
-  pointer-events: none;
-  position: relative;
-}
-.btn.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Result card after creation */
-.np-result {
-  margin-top: 16px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  animation: fadeSlideIn 0.3s ease;
-}
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.np-result.success { border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.06); }
-.np-result.error { border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.06); }
-
-.np-result-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.np-result-header .icon { font-size: 18px; }
-.np-result-header .title {
-  font-family: var(--font-mono);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.np-result-id {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--accent-bright);
-  background: var(--accent-glow);
-  display: inline-block;
-  padding: 2px 10px;
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-}
-.np-result-next {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 10px;
-}
-.np-result-cmd {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--bg-void);
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-secondary);
-}
-.np-result-cmd .num {
-  color: var(--text-ghost);
-  font-weight: 700;
-  min-width: 18px;
-}
-
-/* Guide cards — right column */
-.np-guide-area {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.np-guide-card {
+/* ═══════════════════════════════════════════════════════════════
+   COMMANDS
+   ═══════════════════════════════════════════════════════════════ */
+.cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+.cmd-card {
   background: var(--bg-raised);
   border: 1px solid var(--border-dim);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
-.np-guide-card h4 {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary);
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border-dim);
-  background: var(--bg-surface);
-}
-.np-guide-body {
-  padding: 14px 16px;
-}
-.np-guide-body p {
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
+.cmd-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 3px; }
+.cmd-val { font-family: var(--font-mono); font-size: 10.5px; color: var(--accent-bright); word-break: break-all; }
 
-.np-guide-checklist {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 20px; right: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-primary);
+  z-index: 10000;
+  opacity: 0; transform: translateY(8px);
+  transition: all 0.2s; pointer-events: none;
 }
-.np-check {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--text-dim);
-  padding: 3px 0;
-}
+.toast.show { opacity: 1; transform: translateY(0); }
 
-/* Example cards — clickable */
-.np-example {
-  padding: 10px 12px;
-  border: 1px solid var(--border-dim);
-  border-radius: var(--radius-sm);
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.np-example:last-child { margin-bottom: 0; }
-.np-example:hover {
-  border-color: var(--accent);
-  background: var(--accent-glow);
-}
-.np-example-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--accent-bright);
-  margin-bottom: 4px;
-}
-.np-example-text {
-  font-size: 11px;
-  color: var(--text-dim);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.np-example:hover .np-example-text { color: var(--text-secondary); }
+/* ── Empty State ── */
+.empty { text-align: center; padding: 50px 20px; color: var(--text-dim); }
+.empty .ei { font-size: 32px; margin-bottom: 10px; }
+.empty h3 { font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.empty p { font-size: 11.5px; color: var(--text-dim); max-width: 360px; margin: 0 auto; line-height: 1.6; }
 
-/* Next steps */
-.np-next-steps { padding: 10px 16px; }
-.np-step-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 0;
-  font-size: 12px;
-  color: var(--text-secondary);
-}
-.np-step-row code {
-  font-size: 10px;
-  background: var(--bg-void);
-  padding: 1px 6px;
-  border-radius: 3px;
-  color: var(--text-dim);
-}
-.np-step-num {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: var(--bg-void);
-  border: 1px solid var(--border-dim);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-ghost);
-  flex-shrink: 0;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════════════════════ */
-@media (max-width: 900px) {
-  .app {
-    grid-template-columns: 1fr;
-    grid-template-rows: 56px auto 1fr;
-  }
-  .sidebar {
-    display: flex;
-    overflow-x: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-dim);
-    padding: 0 8px;
-  }
-  .sidebar-section-label { display: none; }
-  .sidebar-item {
-    border-left: none;
-    border-bottom: 2px solid transparent;
-    padding: 10px 14px;
-    white-space: nowrap;
-    font-size: 12px;
-  }
-  .sidebar-item.active { border-bottom-color: var(--accent); border-left: none; }
-  .main { padding: 20px 16px; }
-  .project-overview { grid-template-columns: 1fr; }
-  .project-detail-grid { grid-template-columns: 1fr; }
-  .agent-grid { grid-template-columns: 1fr; }
-  .new-project-layout { grid-template-columns: 1fr; }
-  .np-options-row { flex-direction: column; }
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 56px auto 1fr; }
+  .sidebar { display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border-dim); padding: 0 6px; }
+  .sidebar-lbl { display: none; }
+  .sidebar-item { border-left: none; border-bottom: 2px solid transparent; padding: 8px 12px; white-space: nowrap; font-size: 11.5px; }
+  .sidebar-item.active { border-bottom-color: var(--accent); border-left: none; background: none; color: var(--accent-bright); }
+  .main { padding: 16px; }
+  .run-layout, .np-layout { grid-template-columns: 1fr; }
+  .stat-row, .detail-grid { grid-template-columns: 1fr; }
+  .detail-panel.wide { grid-column: 1; }
 }
 </style>
 </head>
 <body>
-
 <div class="app">
+
   <!-- ═══ TOP BAR ═══ -->
   <div class="topbar">
     <div class="topbar-logo">
       <div class="dot"></div>
-      dev-team
+      protean-pursuits
     </div>
-    <div class="topbar-divider"></div>
+    <div class="topbar-div"></div>
     <select class="topbar-project-select" id="projectSelect">
-      <option value="">— Select a project —</option>
+      <option value="">— Select project —</option>
     </select>
     <div class="topbar-status">
-      <div><span class="label">Status</span><br><span id="topStatus">No project</span></div>
-      <div><span class="label">Classification</span><br><span id="topClass">—</span></div>
-      <div><span class="label">Artifacts</span><br><span id="topArtifacts">0</span></div>
+      <div class="topbar-stat"><span class="lbl">Status</span><span class="val" id="tsStatus">—</span></div>
+      <div class="topbar-stat"><span class="lbl">Artifacts</span><span class="val" id="tsArtifacts">0</span></div>
+      <span class="pending-badge" id="pendingBadge">⏸ 0 pending</span>
     </div>
   </div>
 
   <!-- ═══ SIDEBAR ═══ -->
   <div class="sidebar">
-    <div class="sidebar-section-label">Actions</div>
-    <div class="sidebar-item" data-panel="newproject">
-      <span class="icon">＋</span> New Project
-    </div>
-    <div class="sidebar-section-label">Views</div>
-    <div class="sidebar-item active" data-panel="pipeline">
-      <span class="icon">▸</span> Pipeline Tracker
-    </div>
-    <div class="sidebar-item" data-panel="agents">
-      <span class="icon">◆</span> Agent Reference
-    </div>
-    <div class="sidebar-item" data-panel="project">
-      <span class="icon">◇</span> Project Status
-    </div>
+    <div class="sidebar-lbl">Actions</div>
+    <div class="sidebar-item" data-panel="run"><span class="icon">▸</span> Run Agent</div>
+    <div class="sidebar-item" data-panel="newproject"><span class="icon">＋</span> New Project</div>
+    <div class="sidebar-lbl">Views</div>
+    <div class="sidebar-item active" data-panel="pipeline"><span class="icon">◈</span> Pipeline Tracker</div>
+    <div class="sidebar-item" data-panel="agents"><span class="icon">◆</span> Agent Reference</div>
+    <div class="sidebar-item" data-panel="project"><span class="icon">◇</span> Project Status</div>
     <div class="sidebar-item" data-panel="checkpoints">
       <span class="icon">⏸</span> Checkpoints
+      <span class="badge" id="cpBadge">0</span>
     </div>
-    <div class="sidebar-item" data-panel="commands">
-      <span class="icon">›_</span> Commands
-    </div>
+    <div class="sidebar-item" data-panel="history"><span class="icon">🕐</span> Run History</div>
+    <div class="sidebar-lbl">Reference</div>
+    <div class="sidebar-item" data-panel="commands"><span class="icon">›_</span> Commands</div>
   </div>
 
-  <!-- ═══ MAIN CONTENT ═══ -->
+  <!-- ═══ MAIN ═══ -->
   <div class="main">
+
+    <!-- ── Run Agent Panel ── -->
+    <div class="panel" id="panel-run">
+      <div class="section-hdr"><h2>Run Agent</h2><span class="tag">pp_flow.py</span></div>
+      <div class="run-layout">
+        <div>
+          <!-- Team pills -->
+          <label class="field-lbl">Team</label>
+          <div class="team-pills" id="runTeamPills"></div>
+
+          <!-- Mode / Agent toggle -->
+          <div class="toggle-row">
+            <span class="toggle-label">Invoke via</span>
+            <div class="toggle-switch">
+              <button class="toggle-btn active" id="toggleMode" onclick="setRunType('mode')">Team Mode</button>
+              <button class="toggle-btn" id="toggleAgent" onclick="setRunType('agent')">Agent Direct</button>
+            </div>
+          </div>
+
+          <!-- Mode select -->
+          <div id="modeSelectWrap">
+            <label class="field-lbl">Mode</label>
+            <select class="run-select" id="runModeSelect" onchange="onModeChange()"></select>
+          </div>
+
+          <!-- Agent select -->
+          <div id="agentSelectWrap" style="display:none;">
+            <label class="field-lbl">Agent</label>
+            <select class="run-select" id="runAgentSelect" onchange="onAgentChange()"></select>
+          </div>
+
+          <!-- Selection info -->
+          <div class="selection-info" id="selectionInfo">
+            <div class="si-label">Selection</div>
+            <div class="si-desc">Choose a team and mode or agent above</div>
+          </div>
+
+          <!-- Task -->
+          <label class="field-lbl">Task description <span style="color:var(--status-error)">*</span></label>
+          <textarea class="run-textarea" id="runTask" placeholder="Describe what you want in plain English. Be specific."></textarea>
+
+          <!-- Project (optional) -->
+          <label class="field-lbl">Project <span style="color:var(--text-ghost);font-size:10px;">(optional — enables --save and context loading)</span></label>
+          <input class="run-input" id="runProject" placeholder="e.g. parallaxedge" list="projectList">
+          <datalist id="projectList"></datalist>
+
+          <!-- Complexity (DS only) -->
+          <div class="complexity-row" id="complexityRow">
+            <span class="field-lbl" style="margin-bottom:0;">Complexity</span>
+            <select class="complexity-select" id="runComplexity">
+              <option value="">— auto-detect —</option>
+              <option value="LOW">LOW</option>
+              <option value="MEDIUM" selected>MEDIUM</option>
+              <option value="HIGH">HIGH</option>
+            </select>
+          </div>
+
+          <!-- Actions -->
+          <div class="run-actions">
+            <button class="btn btn-run" id="runBtn" onclick="executeRun()">
+              <span>▸</span> Run
+            </button>
+            <button class="btn btn-secondary" onclick="copyRunCmd()">Copy Command</button>
+          </div>
+
+          <!-- Output -->
+          <div class="run-output" id="runOutput">
+            <div class="run-output-header">
+              <span class="run-id" id="runOutputId"></span>
+              <span class="run-status-badge" id="runOutputStatus"></span>
+              <span class="run-cmd" id="runOutputCmd"></span>
+            </div>
+            <div class="run-stdout" id="runOutputStdout">Starting…</div>
+          </div>
+        </div>
+
+        <!-- Right guide -->
+        <div class="run-guide">
+          <div class="guide-card">
+            <h4>▸ Team Mode vs Agent Direct</h4>
+            <div class="guide-card-body">
+              <p><strong>Team Mode</strong> routes to the team orchestrator and runs a full pipeline (e.g. <code>dev plan</code> runs PM → BA → Architect → Security → UX in sequence).</p>
+              <p><strong>Agent Direct</strong> targets a single specialist — no orchestrator overhead. Best for targeted tasks where you already have context.</p>
+            </div>
+          </div>
+          <div class="guide-card">
+            <h4>💡 Good task descriptions</h4>
+            <div class="guide-card-body">
+              <div class="guide-check">✓ Specific domain and context</div>
+              <div class="guide-check">✓ What you have (existing artifacts)</div>
+              <div class="guide-check">✓ What you need (deliverable)</div>
+              <div class="guide-check">✓ Any constraints or requirements</div>
+              <div class="guide-check">✓ Target platform or audience</div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <h4>⚡ Context resolution order</h4>
+            <div class="guide-card-body">
+              <div class="guide-check">1. --project → output/&lt;name&gt;/context.json</div>
+              <div class="guide-check">2. --context-file → explicit file path</div>
+              <div class="guide-check">3. --context → inline string</div>
+              <div class="guide-check">4. None → runs with task only</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ── New Project Panel ── -->
     <div class="panel" id="panel-newproject">
-      <div class="section-header">
-        <h2>New Project</h2>
-        <span class="tag">Describe → Build</span>
-      </div>
+      <div class="section-hdr"><h2>New Project</h2><span class="tag">Describe → Build</span></div>
+      <div class="np-layout">
+        <div>
+          <label class="np-lbl">Project Title <span style="color:var(--text-ghost);font-weight:400;font-size:10px;">(optional)</span></label>
+          <input class="np-input" id="npTitle" placeholder="e.g. ParallaxEdge Odds Feed Pipeline">
 
-      <div class="new-project-layout">
-        <!-- Left: The form -->
-        <div class="np-form-area">
-          <div class="np-field">
-            <label class="np-label">Project Title <span class="np-optional">(optional — auto-generated if blank)</span></label>
-            <input type="text" class="np-input" id="npTitle" placeholder="e.g. VA project Trip Dashboard">
-          </div>
+          <label class="np-lbl">Describe what you want <span style="color:var(--status-error)">*</span></label>
+          <textarea class="np-textarea" id="npDesc" placeholder="Tell the agents what to build. Be specific about features, data sources, deployment targets, and user types."></textarea>
+          <div class="np-char"><span id="npChar">0</span> characters — aim for 200+</div>
 
-          <div class="np-field">
-            <label class="np-label">Describe what you want <span class="np-required">*</span></label>
-            <textarea class="np-textarea" id="npDescription" placeholder="Tell the agents what to build. Be specific about features, data sources, deployment targets, and user types. The more detail you give, the better the output."></textarea>
-            <div class="np-char-count"><span id="npCharCount">0</span> characters — aim for 200+</div>
-          </div>
-
-          <div class="np-options-row">
-            <div class="np-field" style="flex:1;">
-              <label class="np-label">Complexity hint</label>
+          <div class="np-opts">
+            <div style="flex:1">
+              <label class="np-lbl">Complexity hint</label>
               <select class="np-select" id="npComplexity">
                 <option value="LOW">Low — simple CRUD, few screens</option>
                 <option value="MEDIUM" selected>Medium — multiple modules, auth, API</option>
                 <option value="HIGH">High — multi-platform, data pipeline, ML</option>
               </select>
             </div>
-            <div class="np-field" style="flex:1;">
-              <label class="np-label">Involves data analysis?</label>
+            <div style="flex:1">
+              <label class="np-lbl">Data analysis involved?</label>
               <select class="np-select" id="npDataRequired">
                 <option value="false">No — software only (DEV crew)</option>
                 <option value="true">Yes — analyze data first (JOINT crew)</option>
@@ -1307,65 +1075,37 @@ body::after {
             </div>
           </div>
 
-          <div class="np-field">
-            <label class="np-label np-checkbox-label">
-              <input type="checkbox" id="npRunClassify">
-              <span>Auto-run Orchestrator after creation <span class="np-optional">(Phase 2 — requires classify.py)</span></span>
-            </label>
+          <div class="run-actions">
+            <button class="btn btn-run" onclick="createProject()"><span>▸</span> Create Project</button>
+            <button class="btn btn-secondary" onclick="clearNpForm()">Clear</button>
           </div>
-
-          <div class="np-actions">
-            <button class="btn btn-create" id="npSubmit" onclick="createProject()">
-              <span class="btn-icon">▸</span> Create Project
-            </button>
-            <button class="btn btn-secondary" onclick="clearProjectForm()">Clear</button>
-          </div>
-
-          <!-- Result area -->
-          <div class="np-result" id="npResult" style="display:none;"></div>
+          <div class="np-result" id="npResult"></div>
         </div>
-
-        <!-- Right: Tips & examples -->
-        <div class="np-guide-area">
-          <div class="np-guide-card">
-            <h4>💡 What makes a good description?</h4>
-            <div class="np-guide-body">
-              <p>The Orchestrator and Product Manager work directly from your text. The more specific you are, the better every downstream agent performs.</p>
-              <div class="np-guide-checklist">
-                <div class="np-check">✓ What the app does (features, screens)</div>
-                <div class="np-check">✓ Who uses it (user types, roles)</div>
-                <div class="np-check">✓ What data it works with</div>
-                <div class="np-check">✓ Where it's deployed (web, mobile, both)</div>
-                <div class="np-check">✓ Any constraints (accessibility, offline, auth)</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="np-guide-card">
+        <div>
+          <div class="guide-card">
             <h4>📝 Example descriptions</h4>
-            <div class="np-guide-body">
-              <div class="np-example" onclick="useExample(this)">
-                <div class="np-example-label">Simple web app</div>
-                <div class="np-example-text">Build an interactive dashboard for tracking monthly project trip data with filters for trip type, date range, provider, and geographic region. The dashboard should display summary statistics, trend charts, and a data table with export functionality. Deploy as a containerized web app with a React frontend and Node.js API backend. Users are VA administrators who need WCAG 2.1 AA accessibility.</div>
+            <div class="guide-card-body">
+              <div class="np-example" onclick="useNpExample(this)">
+                <div class="np-example-lbl">Web app</div>
+                <div class="np-example-txt">Build a sports betting dashboard with live odds feed, user accounts, bet slip, and historical performance tracking. React frontend, Node.js API, PostgreSQL. WCAG 2.1 AA. iOS and Android mobile apps.</div>
               </div>
-              <div class="np-example" onclick="useExample(this)">
-                <div class="np-example-label">Data + app (JOINT)</div>
-                <div class="np-example-text">Analyze our project trip dataset to identify patterns in response times, costs, and geographic distribution. Build statistical models to predict trip costs based on distance, type, and time of day. Then build a web dashboard and cross-platform mobile app that surfaces these insights with interactive filters. The mobile app should work offline with cached data and support both iOS and Android.</div>
+              <div class="np-example" onclick="useNpExample(this)">
+                <div class="np-example-lbl">DS + App (JOINT)</div>
+                <div class="np-example-txt">Analyze historical match data to build a Dixon-Coles xG model. Then build a web dashboard that surfaces model predictions alongside live odds with value bet indicators.</div>
               </div>
-              <div class="np-example" onclick="useExample(this)">
-                <div class="np-example-label">API + automation</div>
-                <div class="np-example-text">Build a REST API and automated reporting system for VA project trip data. The API should support CRUD operations, role-based access control, rate limiting, and webhook notifications when new data is uploaded. Generate weekly PDF reports with summary statistics and anomaly detection. Deploy with CI/CD pipelines and infrastructure-as-code. Include comprehensive API documentation and a Postman collection.</div>
+              <div class="np-example" onclick="useNpExample(this)">
+                <div class="np-example-lbl">Data pipeline</div>
+                <div class="np-example-txt">Design a real-time odds ingestion pipeline from three providers (Pinnacle, BetFair, Sportsbook). Normalize to a common schema, detect stale lines, and publish to a Redis feed for the frontend.</div>
               </div>
             </div>
           </div>
-
-          <div class="np-guide-card">
+          <div class="guide-card" style="margin-top:12px;">
             <h4>⚡ What happens next</h4>
-            <div class="np-guide-body np-next-steps">
-              <div class="np-step-row"><span class="np-step-num">1</span> Project JSON file created in <code>logs/</code></div>
-              <div class="np-step-row"><span class="np-step-num">2</span> Run <strong>Classify</strong> — Orchestrator structures your description</div>
-              <div class="np-step-row"><span class="np-step-num">3</span> Run <strong>Route</strong> — assigns to the right crew (DEV / DS / JOINT)</div>
-              <div class="np-step-row"><span class="np-step-num">4</span> Run agents from the <strong>Pipeline Tracker</strong></div>
+            <div class="guide-card-body">
+              <div class="guide-check">1. Project JSON created in logs/</div>
+              <div class="guide-check">2. Use Run Agent to start with intake_flow or pp_flow</div>
+              <div class="guide-check">3. Review each artifact at checkpoints</div>
+              <div class="guide-check">4. Track progress in Pipeline Tracker</div>
             </div>
           </div>
         </div>
@@ -1374,686 +1114,144 @@ body::after {
 
     <!-- ── Pipeline Tracker Panel ── -->
     <div class="panel active" id="panel-pipeline">
-      <div class="section-header">
-        <h2>Pipeline Tracker</h2>
-        <span class="tag">Live Status</span>
-      </div>
+      <div class="section-hdr"><h2>Pipeline Tracker</h2><span class="tag">All Teams</span></div>
       <div id="pipelineContent"></div>
     </div>
 
     <!-- ── Agent Reference Panel ── -->
     <div class="panel" id="panel-agents">
-      <div class="section-header">
-        <h2>Agent Reference</h2>
-        <span class="tag">20+ Agents</span>
-      </div>
+      <div class="section-hdr"><h2>Agent Reference</h2><span class="tag">70+ Agents</span></div>
       <div id="agentContent"></div>
     </div>
 
     <!-- ── Project Status Panel ── -->
     <div class="panel" id="panel-project">
-      <div class="section-header">
-        <h2>Project Status</h2>
-        <span class="tag">Context Viewer</span>
-      </div>
+      <div class="section-hdr"><h2>Project Status</h2><span class="tag">Context Viewer</span></div>
       <div id="projectContent"></div>
     </div>
 
     <!-- ── Checkpoints Panel ── -->
     <div class="panel" id="panel-checkpoints">
-      <div class="section-header">
-        <h2>Checkpoint Review</h2>
-        <span class="tag">Approve / Reject</span>
-      </div>
+      <div class="section-hdr"><h2>Checkpoints</h2><span class="tag">Approve / Reject</span></div>
       <div id="checkpointContent"></div>
+    </div>
+
+    <!-- ── Run History Panel ── -->
+    <div class="panel" id="panel-history">
+      <div class="section-hdr"><h2>Run History</h2><span class="tag">Recent Runs</span></div>
+      <div id="historyContent"></div>
     </div>
 
     <!-- ── Commands Panel ── -->
     <div class="panel" id="panel-commands">
-      <div class="section-header">
-        <h2>Command Cheat Sheet</h2>
-        <span class="tag">Click to Copy</span>
-      </div>
+      <div class="section-hdr"><h2>Command Cheat Sheet</h2><span class="tag">Click to Copy</span></div>
       <div id="commandContent"></div>
     </div>
 
   </div>
 </div>
-
-<!-- Toast notification -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// APP STATE & DATA
+// STATE
 // ═══════════════════════════════════════════════════════════════
-
-const state = {
-  pipeline: null,
-  agents: null,
+const S = {
+  teams: {},
+  checkpoints: [],
   projects: [],
   currentProject: null,
   completedSteps: new Set(),
+  runType: 'mode',       // 'mode' | 'agent'
+  selectedTeam: 'dev',
+  selectedMode: null,
+  selectedAgent: null,
   activePanel: 'pipeline',
+  currentRunId: null,
+  pollTimer: null,
 };
 
-// ── API calls ────────────────────────────────────────────────
+// ── Utilities ────────────────────────────────────────────────
 
-async function fetchJSON(url) {
+async function api(url, opts) {
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (e) {
-    console.warn(`Fetch failed: ${url}`, e);
+    const r = await fetch(url, opts);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return await r.json();
+  } catch(e) {
+    console.warn(url, e);
     return null;
   }
 }
 
-async function loadPipeline() {
-  state.pipeline = await fetchJSON('/api/pipeline');
-}
-
-async function loadAgents() {
-  state.agents = await fetchJSON('/api/agents');
-}
-
-async function loadProjects() {
-  state.projects = await fetchJSON('/api/projects') || [];
-  renderProjectSelect();
-}
-
-async function loadProject(id) {
-  if (!id) { state.currentProject = null; updateAll(); return; }
-  state.currentProject = await fetchJSON(`/api/projects/${id}`);
-  const status = await fetchJSON(`/api/projects/${id}/status`);
-  state.completedSteps = new Set(status?.completed_steps || []);
-  updateAll();
-}
-
-// ── Toast ────────────────────────────────────────────────────
-
-function showToast(msg) {
+function toast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// ── Clipboard ────────────────────────────────────────────────
-
-function copyCmd(text, btn) {
+function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = '✓';
-    btn.classList.add('copied');
-    showToast(`Copied: ${text.slice(0, 50)}…`);
-    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500);
+    if (btn) { btn.textContent = '✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1500); }
+    toast('Copied to clipboard');
   });
+}
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString();
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RENDERERS
+// DATA LOADING
 // ═══════════════════════════════════════════════════════════════
 
-function renderProjectSelect() {
-  const sel = document.getElementById('projectSelect');
-  sel.innerHTML = '<option value="">— Select a project —</option>';
-  state.projects.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = `${p.id} — ${p.title || 'Untitled'} [${p.status}]`;
-    sel.appendChild(opt);
-  });
+async function loadAll() {
+  const [teams, cps, projs] = await Promise.all([
+    api('/api/teams'),
+    api('/api/checkpoints'),
+    api('/api/projects'),
+  ]);
+  S.teams = teams || {};
+  S.checkpoints = cps || [];
+  S.projects = projs || [];
+  renderAll();
+  checkPendingApprovals();
 }
 
-function updateTopBar() {
-  const p = state.currentProject;
-  document.getElementById('topStatus').textContent = p ? p.status : 'No project';
-  document.getElementById('topClass').textContent = p ? p.classification : '—';
-  document.getElementById('topArtifacts').textContent = p ? (p.artifacts?.length || 0) : '0';
+async function loadProject(id) {
+  if (!id) { S.currentProject = null; S.completedSteps = new Set(); renderAll(); return; }
+  const [proj, status] = await Promise.all([
+    api(`/api/projects/${id}`),
+    api(`/api/projects/${id}/status`),
+  ]);
+  S.currentProject = proj;
+  S.completedSteps = new Set(status?.completed_steps || []);
+  renderAll();
 }
 
-// ── Pipeline Tracker ─────────────────────────────────────────
-
-function renderPipeline() {
-  const container = document.getElementById('pipelineContent');
-  if (!state.pipeline) { container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>Loading pipeline data…</h3></div>'; return; }
-
-  let html = '';
-
-  if (!state.currentProject) {
-    html += `<div class="info-banner">
-      <span class="info-icon">ℹ️</span>
-      <div class="info-text">Select a project from the top bar to see live status. The pipeline below shows the full agent sequence — click any card to see its command.</div>
-    </div>`;
+async function checkPendingApprovals() {
+  const pending = await api('/api/approvals/pending');
+  const count = (pending || []).length;
+  const badge = document.getElementById('cpBadge');
+  const topBadge = document.getElementById('pendingBadge');
+  if (count > 0) {
+    badge.textContent = count;
+    badge.classList.add('visible');
+    topBadge.textContent = `⏸ ${count} pending`;
+    topBadge.classList.add('visible');
+  } else {
+    badge.classList.remove('visible');
+    topBadge.classList.remove('visible');
   }
-
-  const pipelineOrder = ['web', 'mobile'];
-  const phaseLabels = {
-    orchestrate: 'Orchestration',
-    plan: 'Planning',
-    test_spec: 'Test Spec — TDD',
-    build: 'Build (against tests)',
-    verify: 'Verify',
-    mobile_plan: 'Mobile UX',
-    mobile_test: 'Mobile Test Spec — TDD',
-    mobile_build: 'Mobile Build (against tests)',
-    mobile_verify: 'Mobile Verify',
-    mobile: 'Mobile',
-  };
-
-  pipelineOrder.forEach(pipelineName => {
-    const steps = state.pipeline[pipelineName];
-    if (!steps) return;
-
-    // Group by phase
-    const phases = {};
-    steps.forEach(s => {
-      if (!phases[s.phase]) phases[s.phase] = [];
-      phases[s.phase].push(s);
-    });
-
-    Object.entries(phases).forEach(([phase, phaseSteps]) => {
-      html += `<div class="pipeline-phase-header">
-        <span class="phase-badge ${phase}">${phaseLabels[phase] || phase}</span>
-        <span class="phase-line"></span>
-      </div>`;
-
-      html += '<div class="pipeline-steps">';
-      phaseSteps.forEach(step => {
-        const done = state.completedSteps.has(step.id);
-        const classes = ['step-card'];
-        if (done) classes.push('done');
-        if (step.checkpoint) classes.push('checkpoint');
-
-        html += `<div class="${classes.join(' ')}" onclick="toggleStep(this)" data-cmd="${step.command}">
-          ${step.checkpoint ? '<span class="step-checkpoint-badge">⏸ Gate</span>' : ''}
-          <div class="step-top">
-            <span class="step-icon">${step.icon}</span>
-            <span class="step-status"></span>
-          </div>
-          <div class="step-name">${step.name}</div>
-          <div class="step-artifact">→ ${step.produces}</div>
-          <div class="step-expand">
-            <div class="step-command">
-              <span style="flex:1">${step.command}</span>
-              <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('${step.command}', this)">copy</button>
-            </div>
-          </div>
-        </div>`;
-      });
-      html += '</div>';
-    });
-  });
-
-  container.innerHTML = html;
+  return pending || [];
 }
 
-function toggleStep(el) {
-  el.classList.toggle('expanded');
-}
-
-// ── Agent Reference ──────────────────────────────────────────
-
-function renderAgents() {
-  const container = document.getElementById('agentContent');
-  if (!state.agents) { container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><h3>Loading agent data…</h3></div>'; return; }
-
-  // Group agents by phase
-  const phaseMap = {};
-  if (state.pipeline) {
-    Object.values(state.pipeline).flat().forEach(step => {
-      if (state.agents[step.id]) {
-        if (!phaseMap[step.phase]) phaseMap[step.phase] = [];
-        phaseMap[step.phase].push({ ...state.agents[step.id], _id: step.id, _icon: step.icon, _phase: step.phase });
-      }
-    });
-  }
-
-  const phaseLabels = { orchestrate: 'Orchestration', plan: 'Planning', test_spec: 'Test Spec — TDD', build: 'Build (against tests)', verify: 'Verify', mobile_plan: 'Mobile UX', mobile_test: 'Mobile Test Spec — TDD', mobile_build: 'Mobile Build (against tests)', mobile_verify: 'Mobile Verify', mobile: 'Mobile' };
-  let html = '';
-
-  Object.entries(phaseLabels).forEach(([phase, label]) => {
-    const agents = phaseMap[phase];
-    if (!agents || agents.length === 0) return;
-
-    html += `<div class="pipeline-phase-header">
-      <span class="phase-badge ${phase}">${label}</span>
-      <span class="phase-line"></span>
-    </div>`;
-    html += '<div class="agent-grid">';
-
-    agents.forEach(agent => {
-      html += `<div class="agent-card" onclick="this.classList.toggle('expanded')">
-        <div class="agent-card-header">
-          <div class="agent-card-icon ${agent._phase}">${agent._icon}</div>
-          <div class="agent-card-title">
-            <h4>${agent._id.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).replace(/Rn /g, 'RN ').replace(/Ios /g, 'iOS ').replace(/Ux /g, 'UX ').replace(/Qa /g, 'QA ').replace(/Dba/g, 'DBA')}</h4>
-            <span class="subtitle">→ ${agent.produces}</span>
-          </div>
-          <span class="agent-card-tier">${agent.tier}</span>
-          <span class="agent-card-chevron">▸</span>
-        </div>
-        <div class="agent-card-body">
-          <div class="agent-card-content">
-            <div class="agent-desc">${agent.description}</div>
-            <div class="agent-io">
-              <div class="agent-io-box">
-                <div class="label">Consumes</div>
-                <div class="value">${agent.consumes.map(c => `<span class="artifact-tag">${c}</span>`).join(' ')}</div>
-              </div>
-              <div class="agent-io-box">
-                <div class="label">Produces</div>
-                <div class="value"><span class="artifact-tag">${agent.produces}</span></div>
-              </div>
-            </div>
-            <div class="agent-io">
-              <div class="agent-io-box">
-                <div class="label">Model</div>
-                <div class="value">${agent.model}</div>
-              </div>
-              <div class="agent-io-box">
-                <div class="label">File</div>
-                <div class="value" style="font-size:10px;">${agent.file}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>`;
-    });
-
-    html += '</div>';
-  });
-
-  container.innerHTML = html;
-}
-
-// ── Project Status ───────────────────────────────────────────
-
-function renderProject() {
-  const container = document.getElementById('projectContent');
-  const p = state.currentProject;
-
-  if (!p) {
-    container.innerHTML = `<div class="empty-state">
-      <div class="icon">📂</div>
-      <h3>No Project Selected</h3>
-      <p>Select a project from the dropdown in the top bar, or start a new one with:<br><code style="color:var(--accent-bright);font-size:11px;">python agents/orchestrator/classify.py</code></p>
-    </div>`;
-    return;
-  }
-
-  const spec = p.structured_spec || {};
-  const artifacts = p.artifacts || [];
-  const checkpoints = p.checkpoints || [];
-  const auditLog = p.audit_log || [];
-
-  let html = `
-    <div class="project-overview">
-      <div class="stat-card">
-        <div class="stat-label">Project ID</div>
-        <div class="stat-value" style="font-size:16px;">${p.project_id}</div>
-        <div class="stat-sub">${spec.title || 'Untitled'}</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Status</div>
-        <div class="stat-value" style="font-size:16px;">${p.status}</div>
-        <div class="stat-sub">${p.classification} classification</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Progress</div>
-        <div class="stat-value">${artifacts.length}<span style="font-size:14px;color:var(--text-dim);"> artifacts</span></div>
-        <div class="stat-sub">${checkpoints.length} checkpoints reached</div>
-      </div>
-    </div>
-
-    <div class="project-detail-grid">
-      <div class="detail-panel">
-        <h3>Structured Spec</h3>
-        ${spec.description ? `<p style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">${spec.description}</p>` : ''}
-        ${spec.deliverables ? `<div style="margin-bottom:8px;"><strong style="font-size:10px;color:var(--text-ghost);letter-spacing:1px;">DELIVERABLES</strong><br>${spec.deliverables.map(d => `<span style="display:inline-block;font-size:11px;color:var(--text-secondary);background:var(--bg-void);border:1px solid var(--border-dim);padding:2px 8px;border-radius:3px;margin:2px;">${d}</span>`).join('')}</div>` : ''}
-        ${spec.success_criteria ? `<div><strong style="font-size:10px;color:var(--text-ghost);letter-spacing:1px;">SUCCESS CRITERIA</strong><br>${spec.success_criteria.map(c => `<div style="font-size:11px;color:var(--text-dim);padding:2px 0;">✓ ${c}</div>`).join('')}</div>` : ''}
-      </div>
-
-      <div class="detail-panel">
-        <h3>Artifacts (${artifacts.length})</h3>
-        <div class="artifact-list">
-          ${artifacts.length === 0 ? '<div style="color:var(--text-ghost);font-size:12px;">No artifacts yet</div>' :
-            artifacts.map(a => `<div class="artifact-row">
-              <span class="art-type">${a.type || '?'}</span>
-              <span class="art-agent">${a.agent || '—'}</span>
-              <span class="art-time">${a.created_at ? new Date(a.created_at).toLocaleString() : ''}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-
-      <div class="detail-panel full-width">
-        <h3>Audit Log (${auditLog.length} events)</h3>
-        <div class="audit-log">
-          ${auditLog.length === 0 ? '<div style="color:var(--text-ghost);font-size:12px;">No events recorded</div>' :
-            auditLog.slice(-50).reverse().map(e => `<div class="audit-entry">
-              <span class="ts">${e.timestamp ? new Date(e.timestamp).toLocaleString() : ''}</span>
-              <span class="ev">${e.event || ''} ${e.detail ? '— ' + e.detail : ''}</span>
-            </div>`).join('')}
-        </div>
-      </div>
-    </div>`;
-
-  container.innerHTML = html;
-}
-
-// ── Checkpoints ──────────────────────────────────────────────
-
-function renderCheckpoints() {
-  const container = document.getElementById('checkpointContent');
-  const p = state.currentProject;
-
-  // Define all checkpoint gates
-  const gates = [
-    { id: 'CP-1', name: 'Requirements Review', agent: 'Product Manager → PRD', check: 'Are the user stories right? Is the scope right?' },
-    { id: 'CP-2', name: 'Architecture Review', agent: 'Technical Architect → TAD', check: 'Does the technology make sense? Is the system design achievable?' },
-    { id: 'CP-3', name: 'Security Gate', agent: 'Security Reviewer → SRR', check: 'Is the rating acceptable (🟢/🟡/🔴)? Are security requirements reasonable?' },
-    { id: 'CP-4', name: 'Design Review', agent: 'UX Designer → UXD + Content Guide', check: 'Does the UI make sense? Is the language clear? All screens covered?' },
-    { id: 'CP-5', name: 'Test Spec Review (TDD)', agent: 'Test Automation → TAR', check: 'Do the tests cover all acceptance criteria? Are test contracts well-defined before build begins?' },
-    { id: 'CP-6', name: 'Build Complete', agent: 'DevOps Engineer → DIR', check: 'Spot-check the code. Does it reference the test contracts? Search for TODO or placeholder.' },
-    { id: 'CP-7', name: 'Penetration Test', agent: 'Penetration Tester → PTR', check: 'Is the PTR rated 🟢 PASS or 🟡 CONDITIONAL? Are all CRITICAL/HIGH findings addressed? Any 🔴 FAIL blocks release.' },
-    { id: 'CP-8', name: 'Scalability Review', agent: 'Scalability Architect → SAR', check: 'Is the SAR rated 🟢 SCALE-READY? Multi-tenant, high-throughput, large dataset, and global distribution all addressed?' },
-    { id: 'CP-9', name: 'Performance Audit', agent: 'Performance Auditor → PAR', check: 'Does the PAR show 🟢 MEETS BUDGETS? All PBD targets met? No CRITICAL/HIGH violations?' },
-    { id: 'CP-10', name: 'Accessibility Audit', agent: 'Accessibility Specialist → AAR', check: 'Is the AAR rated 🟢 ACCESSIBLE? WCAG 2.2 AA compliant across all platforms? No CRITICAL barriers?' },
-    { id: 'CP-11', name: 'Verification Gate (TDD)', agent: 'Test Verification → Report', check: 'Do all pre-written tests pass? Coverage targets met? No regressions?' },
-  ];
-
-  let html = '';
-
-  if (!p) {
-    html += `<div class="info-banner">
-      <span class="info-icon">ℹ️</span>
-      <div class="info-text">Select a project to see checkpoint status. Below is the reference for what each checkpoint validates.</div>
-    </div>`;
-  }
-
-  const checkpoints = p?.checkpoints || [];
-
-  html += '<div class="checkpoint-list" style="margin-bottom:24px;">';
-  gates.forEach(gate => {
-    const match = checkpoints.find(c => c.name?.includes(gate.id) || c.name?.includes(gate.name));
-    const status = match ? (match.action || match.status || 'APPROVED').toUpperCase() : 'PENDING';
-    const statusClass = status === 'APPROVED' ? 'approved' : status === 'REJECTED' ? 'rejected' : 'pending';
-
-    html += `<div class="checkpoint-row">
-      <span style="font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--status-checkpoint);min-width:40px;">${gate.id}</span>
-      <span class="cp-name">${gate.name}</span>
-      <span style="font-size:11px;color:var(--text-dim);flex:1;">${gate.check}</span>
-      <span class="cp-status ${statusClass}">${status}</span>
-    </div>`;
-  });
-  html += '</div>';
-
-  // Active checkpoint review (Phase 2 ready)
-  html += `<div class="checkpoint-review">
-    <h3>⏸ Review Active Checkpoint</h3>
-    <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">When a checkpoint fires, review the artifact file, then approve or reject here.</p>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-ghost);">Quick check:</span>
-      <button class="copy-btn" onclick="copyCmd('grep -ri \"todo\\\\|placeholder\\\\|implement here\\\\|TBD\" dev/requirements/ dev/build/ dev/quality/', this)" style="font-size:11px;padding:5px 10px;">Copy: grep for TODOs</button>
-      <button class="copy-btn" onclick="copyCmd('cat FLAGS.md', this)" style="font-size:11px;padding:5px 10px;">Copy: check FLAGS.md</button>
-    </div>
-    <div class="checkpoint-actions">
-      <button class="btn btn-approve" onclick="handleCheckpoint('APPROVE')">✓ Approve</button>
-      <button class="btn btn-reject" onclick="document.getElementById('rejectReason').classList.toggle('visible')">✗ Reject</button>
-    </div>
-    <textarea class="reject-reason" id="rejectReason" placeholder="Reason for rejection (helps guide the re-run)…"></textarea>
-  </div>`;
-
-  container.innerHTML = html;
-}
-
-async function handleCheckpoint(action) {
-  const reason = document.getElementById('rejectReason')?.value || '';
-  const projectId = state.currentProject?.project_id;
-  if (!projectId) { showToast('No project selected'); return; }
-
-  const res = await fetch(`/api/checkpoint/${projectId}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action, reason })
-  });
-  const data = await res.json();
-  showToast(`${action}: ${data.message}`);
-}
-
-// ── Commands ─────────────────────────────────────────────────
-
-function renderCommands() {
-  const container = document.getElementById('commandContent');
-
-  const sections = [
-    {
-      title: 'Startup',
-      commands: [
-        { label: 'Activate virtualenv', cmd: 'cd ~/dev-team && source .venv/bin/activate' },
-        { label: 'Check Ollama is running', cmd: 'curl http://localhost:11434/api/tags' },
-        { label: 'Start Ollama', cmd: 'sudo systemctl start ollama' },
-        { label: 'Check GPU/RAM', cmd: 'ollama ps' },
-      ]
-    },
-    {
-      title: 'Git',
-      commands: [
-        { label: 'Commit (replace XXXXX)', cmd: 'git add -A && git commit -m "PROJ-XXXXX: Agent → Artifact complete"' },
-        { label: 'Tag release', cmd: 'git tag PROJ-XXXXX-v1.0' },
-      ]
-    },
-    {
-      title: 'Troubleshooting',
-      commands: [
-        { label: 'Grep for placeholders', cmd: 'grep -ri "todo\\|placeholder\\|implement here\\|TBD" dev/' },
-        { label: 'Check FLAGS.md', cmd: 'cat FLAGS.md' },
-        { label: 'Archive & start over', cmd: 'mkdir -p logs/archive && mv logs/PROJ-*.json logs/archive/ && python agents/orchestrator/classify.py' },
-        { label: 'Restart Ollama', cmd: 'sudo systemctl restart ollama && curl http://localhost:11434/api/tags' },
-      ]
-    }
-  ];
-
-  let html = '';
-
-  sections.forEach(section => {
-    html += `<div class="pipeline-phase-header">
-      <span class="phase-badge plan">${section.title}</span>
-      <span class="phase-line"></span>
-    </div>`;
-    html += '<div class="cheat-grid">';
-    section.commands.forEach(c => {
-      html += `<div class="cheat-card">
-        <div>
-          <div class="cheat-label">${c.label}</div>
-          <div class="cheat-cmd">${c.cmd}</div>
-        </div>
-        <button class="copy-btn" onclick="copyCmd(\`${c.cmd.replace(/`/g, '\\`')}\`, this)">copy</button>
-      </div>`;
-    });
-    html += '</div>';
-  });
-
-  // Full pipeline commands
-  if (state.pipeline) {
-    ['web', 'mobile'].forEach(pipelineName => {
-      const steps = state.pipeline[pipelineName];
-      if (!steps) return;
-      const label = pipelineName.charAt(0).toUpperCase() + pipelineName.slice(1) + ' Pipeline';
-      const phaseClass = pipelineName === 'web' ? 'build' : 'mobile';
-
-      html += `<div class="pipeline-phase-header" style="margin-top:20px;">
-        <span class="phase-badge ${phaseClass}">${label}</span>
-        <span class="phase-line"></span>
-      </div>`;
-      html += '<div class="cheat-grid">';
-      steps.forEach((s, i) => {
-        html += `<div class="cheat-card">
-          <div>
-            <div class="cheat-label">${i + 1}. ${s.name} ${s.checkpoint ? '⏸' : ''}</div>
-            <div class="cheat-cmd">${s.command}</div>
-          </div>
-          <button class="copy-btn" onclick="copyCmd('${s.command}', this)">copy</button>
-        </div>`;
-      });
-      html += '</div>';
-    });
-  }
-
-  container.innerHTML = html;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// NEW PROJECT
-// ═══════════════════════════════════════════════════════════════
-
-// Character counter
-document.getElementById('npDescription')?.addEventListener('input', (e) => {
-  document.getElementById('npCharCount').textContent = e.target.value.length;
-});
-
-function useExample(el) {
-  const text = el.querySelector('.np-example-text').textContent;
-  const label = el.querySelector('.np-example-label').textContent;
-  document.getElementById('npDescription').value = text;
-  document.getElementById('npTitle').value = '';
-  document.getElementById('npCharCount').textContent = text.length;
-  // Auto-set complexity/data based on label
-  if (label.toLowerCase().includes('joint') || label.toLowerCase().includes('data')) {
-    document.getElementById('npComplexity').value = 'HIGH';
-    document.getElementById('npDataRequired').value = 'true';
-  } else if (label.toLowerCase().includes('simple')) {
-    document.getElementById('npComplexity').value = 'MEDIUM';
-    document.getElementById('npDataRequired').value = 'false';
-  }
-  showToast('Example loaded — edit it to fit your needs');
-}
-
-function clearProjectForm() {
-  document.getElementById('npTitle').value = '';
-  document.getElementById('npDescription').value = '';
-  document.getElementById('npComplexity').value = 'MEDIUM';
-  document.getElementById('npDataRequired').value = 'false';
-  document.getElementById('npRunClassify').checked = false;
-  document.getElementById('npCharCount').textContent = '0';
-  document.getElementById('npResult').style.display = 'none';
-}
-
-async function createProject() {
-  const description = document.getElementById('npDescription').value.trim();
-  if (!description) {
-    showToast('Please enter a project description');
-    document.getElementById('npDescription').focus();
-    return;
-  }
-
-  const title = document.getElementById('npTitle').value.trim();
-  const complexity = document.getElementById('npComplexity').value;
-  const dataRequired = document.getElementById('npDataRequired').value === 'true';
-  const runClassify = document.getElementById('npRunClassify').checked;
-
-  const btn = document.getElementById('npSubmit');
-  btn.classList.add('loading');
-  btn.innerHTML = '<span class="btn-icon">⏳</span> Creating…';
-
-  try {
-    const res = await fetch('/api/projects', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ description, title, complexity, data_required: dataRequired, run_classify: runClassify })
-    });
-    const data = await res.json();
-
-    const resultEl = document.getElementById('npResult');
-    resultEl.style.display = 'block';
-
-    if (res.ok) {
-      resultEl.className = 'np-result success';
-      resultEl.innerHTML = `
-        <div class="np-result-header">
-          <span class="icon">✅</span>
-          <span class="title">Project Created</span>
-        </div>
-        <div class="np-result-id">${data.project_id}</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">${data.message}</div>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-dim);margin-bottom:12px;">File: ${data.path}</div>
-        <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">Next steps:</div>
-        <div class="np-result-next">
-          <div class="np-result-cmd">
-            <span class="num">1</span>
-            <span style="flex:1;">python agents/orchestrator/classify.py</span>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/orchestrator/classify.py', this)">copy</button>
-          </div>
-          <div class="np-result-cmd">
-            <span class="num">2</span>
-            <span style="flex:1;">python agents/orchestrator/router.py</span>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/orchestrator/router.py', this)">copy</button>
-          </div>
-          <div class="np-result-cmd">
-            <span class="num">3</span>
-            <span style="flex:1;">python agents/dev/strategy/product_manager.py</span>
-            <button class="copy-btn" onclick="event.stopPropagation(); copyCmd('python agents/dev/strategy/product_manager.py', this)">copy</button>
-          </div>
-        </div>
-        <div style="margin-top:12px;display:flex;gap:8px;">
-          <button class="btn btn-secondary" onclick="selectNewProject('${data.project_id}')" style="font-size:11px;padding:8px 14px;">
-            Open in Pipeline Tracker →
-          </button>
-          <button class="btn btn-secondary" onclick="clearProjectForm()" style="font-size:11px;padding:8px 14px;">
-            Create Another
-          </button>
-        </div>
-      `;
-
-      // Refresh project list
-      await loadProjects();
-      showToast(`Project ${data.project_id} created!`);
-    } else {
-      resultEl.className = 'np-result error';
-      resultEl.innerHTML = `
-        <div class="np-result-header">
-          <span class="icon">❌</span>
-          <span class="title">Creation Failed</span>
-        </div>
-        <div style="font-size:12px;color:var(--status-error);">${data.error || 'Unknown error'}</div>
-      `;
-    }
-  } catch (e) {
-    const resultEl = document.getElementById('npResult');
-    resultEl.style.display = 'block';
-    resultEl.className = 'np-result error';
-    resultEl.innerHTML = `
-      <div class="np-result-header">
-        <span class="icon">⚠️</span>
-        <span class="title">Connection Error</span>
-      </div>
-      <div style="font-size:12px;color:var(--text-secondary);">Could not reach the server. Make sure <code>python app.py</code> is running.</div>
-    `;
-  }
-
-  btn.classList.remove('loading');
-  btn.innerHTML = '<span class="btn-icon">▸</span> Create Project';
-}
-
-function selectNewProject(projectId) {
-  // Select the project and switch to pipeline view
-  const sel = document.getElementById('projectSelect');
-  sel.value = projectId;
-  loadProject(projectId);
-  // Switch to pipeline panel
-  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-  document.querySelector('[data-panel="pipeline"]').classList.add('active');
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-pipeline').classList.add('active');
-}
-
-// ═══════════════════════════════════════════════════════════════
-// UPDATE & NAVIGATION
-// ═══════════════════════════════════════════════════════════════
-
-function updateAll() {
+function renderAll() {
   updateTopBar();
+  renderProjectSelect();
+  renderRunPanel();
   renderPipeline();
   renderAgents();
   renderProject();
@@ -2061,30 +1259,692 @@ function updateAll() {
   renderCommands();
 }
 
-// Sidebar navigation
-document.querySelectorAll('.sidebar-item').forEach(item => {
-  item.addEventListener('click', () => {
-    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-    item.classList.add('active');
-    const panel = item.dataset.panel;
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById(`panel-${panel}`).classList.add('active');
-    state.activePanel = panel;
+// ── Top bar ──────────────────────────────────────────────────
+
+function updateTopBar() {
+  const p = S.currentProject;
+  document.getElementById('tsStatus').textContent    = p ? p.status : '—';
+  document.getElementById('tsArtifacts').textContent = p ? (p.artifacts?.length || 0) : '0';
+}
+
+function renderProjectSelect() {
+  const sel = document.getElementById('projectSelect');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Select project —</option>';
+  S.projects.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id;
+    o.textContent = `${p.id} — ${p.title || 'Untitled'} [${p.status}]`;
+    sel.appendChild(o);
   });
+  if (cur) sel.value = cur;
+
+  // Populate datalist for run panel
+  const dl = document.getElementById('projectList');
+  dl.innerHTML = '';
+  S.projects.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id;
+    dl.appendChild(o);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RUN PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function renderRunPanel() {
+  // Team pills
+  const pillsEl = document.getElementById('runTeamPills');
+  pillsEl.innerHTML = '';
+  Object.entries(S.teams).forEach(([tid, t]) => {
+    const pill = document.createElement('div');
+    pill.className = 'team-pill' + (tid === S.selectedTeam ? ' active' : '');
+    pill.style.setProperty('--tc', t.color || '#4d7fff');
+    if (tid === S.selectedTeam) {
+      pill.style.background = t.color || '#4d7fff';
+      pill.style.boxShadow = `0 0 12px ${(t.color || '#4d7fff')}40`;
+    }
+    pill.innerHTML = `${t.icon || ''} ${t.label}`;
+    pill.onclick = () => selectRunTeam(tid);
+    pillsEl.appendChild(pill);
+  });
+  populateModeAgentSelects();
+}
+
+function selectRunTeam(tid) {
+  S.selectedTeam = tid;
+  S.selectedMode = null;
+  S.selectedAgent = null;
+  renderRunPanel();
+  // Show/hide complexity for DS
+  document.getElementById('complexityRow').classList.toggle('visible', tid === 'ds');
+}
+
+function setRunType(type) {
+  S.runType = type;
+  document.getElementById('toggleMode').classList.toggle('active', type === 'mode');
+  document.getElementById('toggleAgent').classList.toggle('active', type === 'agent');
+  document.getElementById('modeSelectWrap').style.display  = type === 'mode'  ? '' : 'none';
+  document.getElementById('agentSelectWrap').style.display = type === 'agent' ? '' : 'none';
+  updateSelectionInfo();
+}
+
+function populateModeAgentSelects() {
+  const team = S.teams[S.selectedTeam];
+  if (!team) return;
+
+  const mSel = document.getElementById('runModeSelect');
+  mSel.innerHTML = '<option value="">— Select mode —</option>';
+  (team.modes || []).forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.id;
+    o.textContent = `${m.icon || ''} ${m.name} → ${m.produces}`;
+    mSel.appendChild(o);
+  });
+  if (S.selectedMode) mSel.value = S.selectedMode;
+
+  const aSel = document.getElementById('runAgentSelect');
+  aSel.innerHTML = '<option value="">— Select agent —</option>';
+  (team.agents || []).forEach(a => {
+    const o = document.createElement('option');
+    o.value = a.id;
+    o.textContent = `[${a.tier}] ${a.name} → ${a.produces}`;
+    aSel.appendChild(o);
+  });
+  if (S.selectedAgent) aSel.value = S.selectedAgent;
+
+  updateSelectionInfo();
+}
+
+function onModeChange() {
+  S.selectedMode = document.getElementById('runModeSelect').value || null;
+  updateSelectionInfo();
+}
+
+function onAgentChange() {
+  S.selectedAgent = document.getElementById('runAgentSelect').value || null;
+  updateSelectionInfo();
+}
+
+function updateSelectionInfo() {
+  const el = document.getElementById('selectionInfo');
+  const team = S.teams[S.selectedTeam];
+  if (!team) { el.querySelector('.si-desc').textContent = 'Choose a team above'; return; }
+
+  let item = null;
+  if (S.runType === 'mode' && S.selectedMode) {
+    item = (team.modes || []).find(m => m.id === S.selectedMode);
+  } else if (S.runType === 'agent' && S.selectedAgent) {
+    item = (team.agents || []).find(a => a.id === S.selectedAgent);
+  }
+
+  if (!item) {
+    el.querySelector('.si-label').textContent = `${team.label} — ${S.runType === 'mode' ? 'Select mode' : 'Select agent'}`;
+    el.querySelector('.si-desc').textContent = '';
+    el.innerHTML = `<div class="si-label">${team.label} — ${S.runType === 'mode' ? 'Select a mode' : 'Select an agent'}</div><div class="si-desc"></div>`;
+    return;
+  }
+
+  const checkpoint = item.checkpoint ? '<span class="si-checkpoint">⏸ HITL gate</span>' : '';
+  el.innerHTML = `
+    <div class="si-label">${team.label} — ${S.runType === 'mode' ? 'mode' : 'agent direct'}</div>
+    <div class="si-desc">${item.description || ''}</div>
+    ${checkpoint}
+  `;
+}
+
+function buildRunCmd() {
+  const team    = S.selectedTeam;
+  const mode    = S.runType === 'mode'  ? (document.getElementById('runModeSelect').value  || '') : '';
+  const agent   = S.runType === 'agent' ? (document.getElementById('runAgentSelect').value || '') : '';
+  const task    = document.getElementById('runTask').value.trim();
+  const project = document.getElementById('runProject').value.trim();
+  const complexity = S.selectedTeam === 'ds' ? document.getElementById('runComplexity').value : '';
+
+  let cmd = `python flows/pp_flow.py --team ${team}`;
+  if (mode)    cmd += ` --mode ${mode}`;
+  if (agent)   cmd += ` --agent ${agent}`;
+  if (task)    cmd += ` --task "${task.replace(/"/g, '\\"')}"`;
+  if (project) cmd += ` --project ${project} --save`;
+  if (complexity && S.runType === 'mode') cmd += ` --context "complexity: ${complexity}"`;
+  return cmd;
+}
+
+function copyRunCmd() {
+  copyText(buildRunCmd(), null);
+}
+
+async function executeRun() {
+  const team  = S.selectedTeam;
+  const mode  = S.runType === 'mode'  ? (document.getElementById('runModeSelect').value  || '') : '';
+  const agent = S.runType === 'agent' ? (document.getElementById('runAgentSelect').value || '') : '';
+  const task  = document.getElementById('runTask').value.trim();
+
+  if (!task) { toast('Task description is required'); document.getElementById('runTask').focus(); return; }
+  if (!mode && !agent) { toast('Select a mode or agent first'); return; }
+
+  const project    = document.getElementById('runProject').value.trim() || null;
+  const complexity = S.selectedTeam === 'ds' ? document.getElementById('runComplexity').value : '';
+  const contextStr = complexity ? `Complexity hint: ${complexity}` : null;
+
+  document.getElementById('runBtn').classList.add('loading');
+  document.getElementById('runBtn').innerHTML = '<span>⏳</span> Starting…';
+
+  const result = await api('/api/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ team, mode: mode || null, agent: agent || null, task, project, context: contextStr }),
+  });
+
+  document.getElementById('runBtn').classList.remove('loading');
+  document.getElementById('runBtn').innerHTML = '<span>▸</span> Run';
+
+  if (!result) { toast('Failed to start run — is the server running?'); return; }
+
+  S.currentRunId = result.run_id;
+
+  const outEl = document.getElementById('runOutput');
+  outEl.classList.add('visible');
+  document.getElementById('runOutputId').textContent = result.run_id;
+  document.getElementById('runOutputCmd').textContent = result.cmd || '';
+  document.getElementById('runOutputStatus').textContent = 'running';
+  document.getElementById('runOutputStatus').className = 'run-status-badge rs-running';
+  document.getElementById('runOutputStdout').textContent = 'Agent running… (this may take several minutes)';
+
+  toast(`Run ${result.run_id} started`);
+  pollRun(result.run_id);
+}
+
+function pollRun(runId) {
+  if (S.pollTimer) clearInterval(S.pollTimer);
+  S.pollTimer = setInterval(async () => {
+    const r = await api(`/api/run/${runId}`);
+    if (!r) return;
+
+    const statusEl = document.getElementById('runOutputStatus');
+    statusEl.textContent = r.status;
+    statusEl.className = `run-status-badge rs-${r.status}`;
+
+    if (r.stdout) {
+      document.getElementById('runOutputStdout').textContent = r.stdout;
+    }
+
+    if (r.status !== 'running') {
+      clearInterval(S.pollTimer);
+      S.pollTimer = null;
+      toast(`Run ${runId} ${r.status}`);
+      // refresh run history
+      renderHistory();
+      // refresh project artifacts
+      if (S.currentProject) loadProject(S.currentProject.project_id);
+    }
+  }, 4000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PIPELINE TRACKER
+// ═══════════════════════════════════════════════════════════════
+
+function renderPipeline() {
+  const el = document.getElementById('pipelineContent');
+
+  if (!S.currentProject) {
+    el.innerHTML = `<div class="info-banner"><span class="ii">ℹ️</span><div>Select a project from the top bar to see live completion status. All teams are shown below — click any section to expand it, click any step card to see its pp_flow command.</div></div>`;
+  }
+
+  let html = '';
+  Object.entries(S.teams).forEach(([tid, team]) => {
+    // count completed steps for this team
+    const allSteps = team.modes || [];
+    const doneCount = allSteps.filter(m => S.completedSteps.has(m.id)).length;
+
+    html += `<div class="team-section" id="ts-${tid}">
+      <div class="team-section-header" onclick="toggleTeamSection('${tid}')">
+        <span class="team-icon">${team.icon}</span>
+        <span class="team-name">${team.label}</span>
+        <span class="team-dot" style="background:${team.color}"></span>
+        <span class="team-progress">${doneCount}/${allSteps.length} modes</span>
+        <span class="team-chevron">▸</span>
+      </div>
+      <div class="team-section-body">`;
+
+    // Group modes by phase
+    const phases = {};
+    (team.modes || []).forEach(m => {
+      if (!phases[m.phase]) phases[m.phase] = [];
+      phases[m.phase].push(m);
+    });
+
+    Object.entries(phases).forEach(([phase, items]) => {
+      html += `<div class="phase-hdr">
+        <span class="phase-badge" style="background:${team.color}80">${phase.replace(/_/g,' ')}</span>
+        <span class="phase-line"></span>
+      </div>
+      <div class="step-grid">`;
+
+      items.forEach(m => {
+        const done = S.completedSteps.has(m.id);
+        const cmd = `python flows/pp_flow.py --team ${tid} --mode ${m.id} --task "..."`;
+        html += `<div class="step-card${done?' done':''}${m.checkpoint?' checkpoint':''}" onclick="toggleStep(this)">
+          ${m.checkpoint ? '<span class="step-gate">⏸ Gate</span>' : ''}
+          <div class="step-top"><span class="step-icon">${m.icon||'▸'}</span><span class="step-dot"></span></div>
+          <div class="step-name">${m.name}</div>
+          <div class="step-artifact">→ ${m.produces}</div>
+          <div class="step-expand">
+            <div class="step-cmd">
+              <span style="flex:1">${cmd}</span>
+              <button class="copy-btn" onclick="event.stopPropagation();copyText('${cmd}',this)">copy</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  el.innerHTML = html;
+  // Open dev team by default
+  const devSection = document.getElementById('ts-dev');
+  if (devSection) devSection.classList.add('open');
+}
+
+function toggleTeamSection(tid) {
+  document.getElementById(`ts-${tid}`)?.classList.toggle('open');
+}
+
+function toggleStep(el) {
+  el.classList.toggle('expanded');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AGENT REFERENCE
+// ═══════════════════════════════════════════════════════════════
+
+function renderAgents() {
+  const el = document.getElementById('agentContent');
+  let html = '';
+
+  Object.entries(S.teams).forEach(([tid, team]) => {
+    html += `<div class="team-section" id="ar-${tid}">
+      <div class="team-section-header" onclick="document.getElementById('ar-${tid}').classList.toggle('open')">
+        <span class="team-icon">${team.icon}</span>
+        <span class="team-name">${team.label}</span>
+        <span class="team-dot" style="background:${team.color}"></span>
+        <span class="team-progress">${(team.agents||[]).length} agents</span>
+        <span class="team-chevron">▸</span>
+      </div>
+      <div class="team-section-body">
+        <div class="agent-grid">`;
+
+    (team.agents || []).forEach(a => {
+      html += `<div class="agent-card" onclick="this.classList.toggle('expanded')">
+        <div class="agent-card-hdr">
+          <div class="agent-card-icon" style="background:${team.color}20">${team.icon}</div>
+          <div class="agent-card-title">
+            <h4>${a.name}</h4>
+            <span class="sub">→ ${a.produces}</span>
+          </div>
+          <span class="agent-tier">${a.tier}</span>
+          <span class="agent-chevron">▸</span>
+        </div>
+        <div class="agent-body">
+          <div class="agent-content">
+            <div class="agent-desc">${a.description}</div>
+            <div class="agent-file">${a.file}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    html += '</div></div></div>';
+  });
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROJECT STATUS
+// ═══════════════════════════════════════════════════════════════
+
+function renderProject() {
+  const el = document.getElementById('projectContent');
+  const p = S.currentProject;
+  if (!p) {
+    el.innerHTML = `<div class="empty"><div class="ei">📂</div><h3>No Project Selected</h3><p>Select a project from the top bar dropdown.</p></div>`;
+    return;
+  }
+  const spec = p.structured_spec || {};
+  const arts = p.artifacts || [];
+  const log  = p.audit_log  || [];
+
+  el.innerHTML = `
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-lbl">Project ID</div><div class="stat-val" style="font-size:15px">${p.project_id}</div><div class="stat-sub">${spec.title||'Untitled'}</div></div>
+      <div class="stat-card"><div class="stat-lbl">Status</div><div class="stat-val" style="font-size:15px">${p.status}</div><div class="stat-sub">${p.classification||'?'} classification</div></div>
+      <div class="stat-card"><div class="stat-lbl">Progress</div><div class="stat-val">${arts.length}<span style="font-size:13px;color:var(--text-dim)"> artifacts</span></div><div class="stat-sub">${(p.checkpoints||[]).length} checkpoints</div></div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-panel">
+        <h3>Artifacts (${arts.length})</h3>
+        ${arts.length === 0
+          ? '<div style="color:var(--text-ghost);font-size:12px;">No artifacts yet</div>'
+          : arts.map(a => `<div class="artifact-row"><span class="art-type">${a.type||'?'}</span><span class="art-agent">${a.agent||'—'}</span><span class="art-time">${fmtTime(a.created_at)}</span></div>`).join('')}
+      </div>
+      <div class="detail-panel">
+        <h3>Spec</h3>
+        ${spec.description ? `<p style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">${spec.description}</p>` : ''}
+        ${spec.estimated_complexity ? `<div class="guide-check">Complexity: ${spec.estimated_complexity}</div>` : ''}
+        ${spec.primary_crew ? `<div class="guide-check">Crew: ${spec.primary_crew}</div>` : ''}
+      </div>
+      <div class="detail-panel wide">
+        <h3>Audit Log (${log.length} events)</h3>
+        <div class="audit-log">
+          ${log.length === 0
+            ? '<div style="color:var(--text-ghost);font-size:12px;">No events</div>'
+            : [...log].reverse().slice(0,60).map(e => `<div class="audit-entry"><span class="audit-ts">${fmtTime(e.timestamp)}</span><span>${e.event||''} ${e.detail ? '— '+e.detail : ''}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CHECKPOINTS
+// ═══════════════════════════════════════════════════════════════
+
+async function renderCheckpoints() {
+  const el = document.getElementById('checkpointContent');
+  const pending = await checkPendingApprovals();
+  const cps = S.checkpoints;
+  const projCps = (S.currentProject?.checkpoints || []);
+
+  let html = '';
+
+  // Live pending approvals
+  if (pending.length > 0) {
+    html += `<div style="margin-bottom:20px">
+      <div class="section-hdr" style="margin-bottom:12px"><h2 style="font-size:14px;color:var(--status-warn)">⏸ ${pending.length} Pending Approval${pending.length>1?'s':''}</h2></div>`;
+    pending.forEach(req => {
+      html += `<div class="cp-pending-item">
+        <div class="gate">${req.gate_type || 'APPROVAL'}</div>
+        <div class="summary">${req.summary || ''}</div>
+        <div class="req-id">ID: ${req.approval_id}</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-approve" style="padding:6px 14px;font-size:11px;" onclick="submitCheckpoint('APPROVE','${req.approval_id}')">✓ Approve</button>
+          <button class="btn btn-reject" style="padding:6px 14px;font-size:11px;" onclick="toggleRejectInput('${req.approval_id}')">✗ Reject</button>
+        </div>
+        <textarea class="reject-reason" id="rr-${req.approval_id}" placeholder="Reason for rejection…"></textarea>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // All checkpoint reference
+  html += `<div style="margin-bottom:14px;font-family:var(--font-mono);font-size:10px;color:var(--text-ghost);letter-spacing:1px;text-transform:uppercase;">All Checkpoint Gates</div>`;
+  cps.forEach(cp => {
+    const match = projCps.find(c => c.name?.includes(cp.id) || c.name?.includes(cp.name));
+    const status = match ? (match.action || match.status || 'APPROVED').toUpperCase() : 'PENDING';
+    const cls = status === 'APPROVED' ? 'cps-approved' : status === 'REJECTED' ? 'cps-rejected' : 'cps-pending';
+    html += `<div class="cp-row">
+      <span class="cp-id">${cp.id}</span>
+      <span class="cp-name">${cp.name}</span>
+      <span class="cp-check">${cp.check}</span>
+      <span class="cp-team" style="color:${S.teams[cp.team]?.color||'var(--text-ghost)'}">${cp.team}</span>
+      <span class="cp-status ${cls}">${status}</span>
+    </div>`;
+  });
+
+  // Generic approve/reject (project-level fallback)
+  html += `<div class="cp-review-box">
+    <h3>Submit Checkpoint Decision</h3>
+    <p style="font-size:12px;color:var(--text-dim);margin-bottom:14px;">When a gate fires, the system writes an approval request file and waits. Review the artifact, then approve or reject below.</p>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <button class="copy-btn" onclick="copyText('grep -ri &quot;todo|placeholder|TBD&quot; output/',null)" style="font-size:11px;padding:5px 10px;">grep for TODOs</button>
+      <button class="copy-btn" onclick="copyText('cat FLAGS.md',null)" style="font-size:11px;padding:5px 10px;">cat FLAGS.md</button>
+    </div>
+    <div class="cp-actions">
+      <button class="btn btn-approve" onclick="submitCheckpoint('APPROVE',null)">✓ Approve</button>
+      <button class="btn btn-reject" onclick="toggleRejectInput('main')">✗ Reject</button>
+    </div>
+    <textarea class="reject-reason" id="rr-main" placeholder="Reason for rejection…"></textarea>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function toggleRejectInput(id) {
+  document.getElementById(`rr-${id}`)?.classList.toggle('visible');
+}
+
+async function submitCheckpoint(action, approvalId) {
+  const reason = approvalId
+    ? (document.getElementById(`rr-${approvalId}`)?.value || '')
+    : (document.getElementById('rr-main')?.value || '');
+  const projectId = S.currentProject?.project_id || '';
+
+  const body = { action, reason };
+  if (approvalId) body.approval_id = approvalId;
+
+  const r = await api(`/api/checkpoint/${projectId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (r?.status === 'written') {
+    toast(`${action} written for ${r.approval_id || 'checkpoint'}`);
+    renderCheckpoints();
+  } else {
+    toast(r?.message || `${action} submitted`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RUN HISTORY
+// ═══════════════════════════════════════════════════════════════
+
+async function renderHistory() {
+  const runs = await api('/api/runs') || [];
+  const el = document.getElementById('historyContent');
+
+  if (runs.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="ei">🕐</div><h3>No Runs Yet</h3><p>Use the Run Agent panel to execute pp_flow.py. Runs appear here.</p></div>`;
+    return;
+  }
+
+  let html = '';
+  runs.forEach(r => {
+    const statusCls = `rs-${r.status}`;
+    const label = r.mode ? `${r.team} --mode ${r.mode}` : `${r.team} --agent ${r.agent}`;
+    html += `<div class="run-history-item" onclick="this.classList.toggle('expanded')">
+      <div class="rh-top">
+        <span class="rh-id">${r.run_id}</span>
+        <span class="run-status-badge ${statusCls}">${r.status}</span>
+        <span class="rh-mode">${label}</span>
+        <span class="rh-time">${fmtTime(r.started_at)}</span>
+      </div>
+      <div class="rh-body">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-ghost);margin-bottom:8px;">${r.cmd||''}</div>
+        ${r.stdout ? `<div class="rh-stdout">${r.stdout.slice(-3000)}</div>` : ''}
+        ${r.stderr ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--status-error);margin-top:6px;white-space:pre-wrap;">${r.stderr.slice(-500)}</div>` : ''}
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// COMMANDS
+// ═══════════════════════════════════════════════════════════════
+
+function renderCommands() {
+  const el = document.getElementById('commandContent');
+
+  const sections = [
+    { title: 'Flow Entry Points', cmds: [
+      { lbl: 'Full intake (new project)',        cmd: 'python flows/intake_flow.py' },
+      { lbl: 'Team mode (pp_flow)',              cmd: 'python flows/pp_flow.py --team <team> --mode <mode> --project <n> --task "..." --save' },
+      { lbl: 'Agent direct (pp_flow)',           cmd: 'python flows/pp_flow.py --team <team> --agent <key> --project <n> --task "..." --save' },
+      { lbl: 'List team modes & agents',         cmd: 'python flows/pp_flow.py --team <team> --list-modes' },
+      { lbl: 'Inline context (no project file)', cmd: 'python flows/pp_flow.py --team legal --agent contract_drafter --task "..." --context "Michigan law"' },
+    ]},
+    { title: 'System', cmds: [
+      { lbl: 'Check Ollama',        cmd: 'curl http://localhost:11434/api/tags' },
+      { lbl: 'Start Ollama',        cmd: 'sudo systemctl start ollama' },
+      { lbl: 'Check GPU / RAM',     cmd: 'ollama ps' },
+      { lbl: 'Refresh knowledge',   cmd: 'python agents/shared/knowledge_curator/curator.py --source github --source security' },
+    ]},
+    { title: 'Git', cmds: [
+      { lbl: 'Commit',              cmd: 'git add -A && git commit -m "PROJ-XXXXX: Agent → artifact"' },
+      { lbl: 'Export patch',        cmd: 'git format-patch HEAD~1 --stdout > ~/Downloads/patch.patch' },
+      { lbl: 'Apply patch',         cmd: 'git am ~/Downloads/patch.patch' },
+      { lbl: 'Abort stale rebase',  cmd: 'git am --abort' },
+    ]},
+    { title: 'Troubleshooting', cmds: [
+      { lbl: 'Grep for TODOs',      cmd: 'grep -ri "todo|placeholder|TBD" output/' },
+      { lbl: 'Check FLAGS.md',      cmd: 'cat FLAGS.md' },
+      { lbl: 'Archive project',     cmd: 'mkdir -p logs/archive && mv logs/PROJ-*.json logs/archive/' },
+      { lbl: 'Restart Ollama',      cmd: 'sudo systemctl restart ollama' },
+    ]},
+  ];
+
+  let html = '';
+  sections.forEach(sec => {
+    html += `<div class="phase-hdr" style="margin-top:${html?'20px':'0'}">
+      <span class="phase-badge" style="background:var(--accent-dim)">${sec.title}</span>
+      <span class="phase-line"></span>
+    </div>
+    <div class="cmd-grid">`;
+    sec.cmds.forEach(c => {
+      const safeCmd = c.cmd.replace(/`/g, '\\`');
+      html += `<div class="cmd-card">
+        <div><div class="cmd-lbl">${c.lbl}</div><div class="cmd-val">${c.cmd}</div></div>
+        <button class="copy-btn" onclick="copyText(\`${safeCmd}\`,this)">copy</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+
+  // Per-team quick commands
+  html += `<div class="phase-hdr" style="margin-top:20px;">
+    <span class="phase-badge" style="background:var(--accent-dim)">Team Quick Commands</span>
+    <span class="phase-line"></span>
+  </div><div class="cmd-grid">`;
+  Object.entries(S.teams).forEach(([tid, t]) => {
+    const firstMode = (t.modes||[])[0];
+    if (firstMode) {
+      const cmd = `python flows/pp_flow.py --team ${tid} --mode ${firstMode.id} --task "..." --save`;
+      const safeCmd = cmd.replace(/`/g, '\\`');
+      html += `<div class="cmd-card">
+        <div><div class="cmd-lbl">${t.icon} ${t.label} — ${firstMode.name}</div><div class="cmd-val">${cmd}</div></div>
+        <button class="copy-btn" onclick="copyText(\`${safeCmd}\`,this)">copy</button>
+      </div>`;
+    }
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NEW PROJECT
+// ═══════════════════════════════════════════════════════════════
+
+document.getElementById('npDesc')?.addEventListener('input', e => {
+  document.getElementById('npChar').textContent = e.target.value.length;
 });
 
-// Project select
-document.getElementById('projectSelect').addEventListener('change', (e) => {
-  loadProject(e.target.value);
+function useNpExample(el) {
+  document.getElementById('npDesc').value = el.querySelector('.np-example-txt').textContent;
+  document.getElementById('npChar').textContent = document.getElementById('npDesc').value.length;
+  toast('Example loaded — edit it to fit your project');
+}
+
+function clearNpForm() {
+  ['npTitle','npDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('npChar').textContent = '0';
+  document.getElementById('npResult').style.display = 'none';
+}
+
+async function createProject() {
+  const desc = document.getElementById('npDesc').value.trim();
+  if (!desc) { toast('Description required'); document.getElementById('npDesc').focus(); return; }
+
+  const r = await api('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: document.getElementById('npTitle').value.trim(),
+      description: desc,
+      complexity: document.getElementById('npComplexity').value,
+      data_required: document.getElementById('npDataRequired').value === 'true',
+    }),
+  });
+
+  const el = document.getElementById('npResult');
+  el.style.display = 'block';
+  if (r?.project_id) {
+    el.className = 'np-result success';
+    el.innerHTML = `
+      <div style="font-weight:600;margin-bottom:6px;">✅ Project Created</div>
+      <div class="np-result-id">${r.project_id}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">${r.path||''}</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;">Next steps:</div>
+      <div class="np-next">
+        <div class="np-cmd"><span class="num">1</span><span style="flex:1">python flows/pp_flow.py --team dev --mode plan --project ${r.project_id} --task "..." --save</span><button class="copy-btn" onclick="copyText('python flows/pp_flow.py --team dev --mode plan --project ${r.project_id} --task &quot;...&quot; --save',this)">copy</button></div>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px;">
+        <button class="btn btn-secondary" style="font-size:11px;padding:7px 12px;" onclick="jumpToProject('${r.project_id}')">Open in Pipeline Tracker →</button>
+        <button class="btn btn-secondary" style="font-size:11px;padding:7px 12px;" onclick="clearNpForm()">Create Another</button>
+      </div>`;
+    await loadAll();
+    toast(`Project ${r.project_id} created`);
+  } else {
+    el.className = 'np-result error';
+    el.innerHTML = `<div style="color:var(--status-error)">❌ ${r?.error || 'Creation failed'}</div>`;
+  }
+}
+
+function jumpToProject(id) {
+  document.getElementById('projectSelect').value = id;
+  loadProject(id);
+  switchPanel('pipeline');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+
+function switchPanel(panel) {
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelector(`[data-panel="${panel}"]`)?.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${panel}`)?.classList.add('active');
+  S.activePanel = panel;
+  if (panel === 'history') renderHistory();
+  if (panel === 'checkpoints') renderCheckpoints();
+}
+
+document.querySelectorAll('.sidebar-item').forEach(item => {
+  item.addEventListener('click', () => switchPanel(item.dataset.panel));
 });
 
-// ── Initialize ───────────────────────────────────────────────
+document.getElementById('projectSelect').addEventListener('change', e => loadProject(e.target.value));
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
 
 async function init() {
-  await Promise.all([loadPipeline(), loadAgents(), loadProjects()]);
-  updateAll();
-  // Auto-refresh projects every 30s
-  setInterval(loadProjects, 30000);
+  await loadAll();
+  // Auto-refresh every 30s
+  setInterval(() => {
+    api('/api/projects').then(p => { if (p) S.projects = p; renderProjectSelect(); });
+    checkPendingApprovals();
+    if (S.activePanel === 'history') renderHistory();
+  }, 30000);
 }
 
 init();
