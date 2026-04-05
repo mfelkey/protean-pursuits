@@ -188,6 +188,10 @@ readable by a non-technical stakeholder as a standalone document.
         "created_by": "Strategic Corporate Finance Specialist"
     })
     context["status"] = "SCF_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "SCF_COMPLETE", path)
     save_context(context)
     return context, path

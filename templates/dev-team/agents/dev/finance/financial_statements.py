@@ -164,6 +164,10 @@ Output as well-formatted markdown.
         "created_by": "Financial Statements Modeler"
     })
     context["status"] = "FSR_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "FSR_COMPLETE", path)
     save_context(context)
     return context, path

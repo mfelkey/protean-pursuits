@@ -184,6 +184,10 @@ Output as well-formatted markdown.
         "created_by": "Billing Architect"
     })
     context["status"] = "BPS_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "BPS_COMPLETE", path)
     save_context(context)
     return context, path

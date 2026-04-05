@@ -153,6 +153,10 @@ Output as well-formatted markdown.
         "created_by": "Cost Analyst"
     })
     context["status"] = "CEA_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "CEA_COMPLETE", path)
     save_context(context)
     return context, path

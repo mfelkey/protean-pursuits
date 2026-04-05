@@ -159,6 +159,10 @@ Output as well-formatted markdown.
         "created_by": "Infrastructure Finance Modeler"
     })
     context["status"] = "ICM_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "ICM_COMPLETE", path)
     save_context(context)
     return context, path

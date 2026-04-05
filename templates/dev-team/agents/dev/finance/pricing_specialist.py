@@ -211,6 +211,10 @@ Output as well-formatted markdown.
         "created_by": "Pricing Specialist"
     })
     context["status"] = "PRI_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "PRI_COMPLETE", path)
     save_context(context)
     return context, path

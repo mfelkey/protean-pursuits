@@ -274,6 +274,10 @@ Output as well-formatted markdown.
         "created_by": "Sport Pricing Specialist"
     })
     context["status"] = "SPS_COMPLETE"
+    context.setdefault("events", [])
+    context.setdefault("logs", [])
+    context.setdefault("project_name", context.get("project_id", "Unknown"))
+
     log_event(context, "SPS_COMPLETE", path)
     save_context(context)
     return context, path
