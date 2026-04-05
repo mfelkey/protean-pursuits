@@ -345,7 +345,7 @@ if __name__ == "__main__":
 
     # ── Resolve --context-file (wins over --context if both supplied) ──────────
     if args.cli_context_file:
-        _ctx_file_path = pathlib.Path(args.cli_context_file).expanduser()
+        _ctx_file_path = _pathlib.Path(args.cli_context_file).expanduser()
         if not _ctx_file_path.exists():
             print(f"❌ --context-file not found: {_ctx_file_path}")
             import sys; sys.exit(1)
