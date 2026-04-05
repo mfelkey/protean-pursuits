@@ -31,6 +31,7 @@ Run from finance_flow.py:
       --context "Two tiers per sport: Sharp and Pro. Sports: Soccer, NFL, NBA..."
 """
 
+import re
 import sys
 sys.path.insert(0, "/home/mfelkey/dev-team")
 import pathlib as _pathlib
@@ -142,6 +143,21 @@ Do not substitute generic defaults. Do not omit any of the numbered questions.
 ══════════════════════════════════════════════════════════════════════
 """
 
+
+    _questions = []
+    if cli_context and cli_context.strip():
+        _q_src = cli_context
+        _q_start = cli_context.lower().find("questions to answer")
+        if _q_start >= 0:
+            _q_src = cli_context[_q_start:]
+        _q_matches = re.findall(r'\\((\\d+)\\)\\s+([^(]+?)(?=\\s*\\(\\d+\\)|$)', _q_src, re.DOTALL)
+        _questions = [(int(n), q.strip().rstrip('?').strip() + '?') for n, q in _q_matches if len(q.strip()) > 10]
+        _questions.sort(key=lambda x: x[0])
+        _questions = [q for _, q in _questions]
+    _q_count = len(_questions)
+    _q_count_str = str(_q_count) if _q_count else "all"
+    _q_list_str = "\n".join(f"    Q{i+1}: {q}" for i, q in enumerate(_questions)) if _questions else "    (Extract numbered questions from the PROJECT BRIEF above and answer each one.)"
+
     task = Task(
         description=f"""
 You are the Sport Subscription Pricing & Bundle Architect for project
@@ -221,9 +237,17 @@ answer them in the relevant section AND consolidate them in section 10.
    12-month revenue projection table — base case only, with stated assumptions.
    Do not fabricate user volumes without basis; document every assumption.
 
-10. EXPLICIT QUESTION RESPONSES
-    Answer each numbered question from the PROJECT BRIEF in order.
-    Label each: Q1, Q2, Q3 … Match the question count exactly.
+10. EXPLICIT QUESTION RESPONSES — MANDATORY COMPLETION REQUIRED
+    There are {_q_count_str} numbered questions in the PROJECT BRIEF.
+    You MUST answer ALL {_q_count_str} of them. Do not stop before Q{_q_count_str}.
+    Label each answer exactly as Q1, Q2, Q3 … Q{_q_count_str}.
+    Copy the question text before each answer so the reviewer can verify coverage.
+
+    Questions to answer (extracted from brief):
+{_q_list_str}
+
+    STOP CHECK: Before moving to section 11, verify you have written
+    answers for Q1 through Q{_q_count_str}. If any are missing, complete them now.
 
 11. PRICING RISKS
     Top risks specific to sport subscription pricing:
