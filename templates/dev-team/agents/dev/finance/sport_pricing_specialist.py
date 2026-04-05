@@ -322,6 +322,10 @@ def _build_parser() -> argparse.ArgumentParser:
 
 if __name__ == "__main__":
     prd_text = ""
+    bad_text = ""
+    roi_text = ""
+    cea_text = ""
+    cli_context = ""
     parser = _build_parser()
     args   = parser.parse_args()
 
