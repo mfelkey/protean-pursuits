@@ -31,6 +31,8 @@ from agents.orchestrator.orchestrator import log_event, save_context
 
 load_dotenv("config/.env")
 
+from core.input_guard import check_required_inputs, build_assumption_instructions
+
 
 def build_pricing_specialist() -> Agent:
     llm = LLM(
@@ -178,6 +180,8 @@ Produce a complete Pricing Strategy & Model (PRI) covering ALL sections:
     Pricing decisions requiring human input before launch.
 
 Output as well-formatted markdown.
+
+{build_assumption_instructions()}
 """,
         expected_output="Complete Pricing Strategy & Model in markdown.",
         agent=ps
@@ -273,6 +277,11 @@ if __name__ == "__main__":
         with open(logs[0]) as f:
             context = json.load(f)
         print(f"📂 Loaded context: {logs[0]}")
+    project_id = check_required_inputs(
+        context.get("project_id", "PROJ-UNKNOWN"),
+        prd_text,
+        cli_context or "",
+    )
 
     # ── Resolve PRD text ───────────────────────────────────────────────────────
     prd_text = bad_text = roi_text = cea_text = ""

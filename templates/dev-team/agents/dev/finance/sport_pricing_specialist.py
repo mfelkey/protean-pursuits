@@ -45,6 +45,8 @@ from agents.orchestrator.orchestrator import log_event, save_context
 
 load_dotenv("config/.env")
 
+from core.input_guard import check_required_inputs, build_assumption_instructions
+
 
 def build_sport_pricing_specialist() -> Agent:
     llm = LLM(
@@ -235,6 +237,8 @@ answer them in the relevant section AND consolidate them in section 10.
     Unanswered items from the brief that need stakeholder resolution.
 
 Output as well-formatted markdown.
+
+{build_assumption_instructions()}
 """,
         expected_output=(
             "Complete Sport Subscription Pricing & Bundle Architecture (SPS) in markdown. "
@@ -336,6 +340,11 @@ if __name__ == "__main__":
         with open(logs[0]) as f:
             context = json.load(f)
         print(f"📂 Loaded context: {logs[0]}")
+    project_id = check_required_inputs(
+        context.get("project_id", "PROJ-UNKNOWN"),
+        prd_text,
+        cli_context or "",
+    )
 
     # ── Resolve PRD text ───────────────────────────────────────────────────────
     prd_text = bad_text = roi_text = cea_text = ""
