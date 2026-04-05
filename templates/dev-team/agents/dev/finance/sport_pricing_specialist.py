@@ -150,7 +150,7 @@ Do not substitute generic defaults. Do not omit any of the numbered questions.
         _q_start = cli_context.lower().find("questions to answer")
         if _q_start >= 0:
             _q_src = cli_context[_q_start:]
-        _q_matches = re.findall(r'\\((\\d+)\\)\\s+([^(]+?)(?=\\s*\\(\\d+\\)|$)', _q_src, re.DOTALL)
+        _q_matches = re.findall(r'\((\d+)\)\s+([^(]+?)(?=\s*\(\d+\)|$)', _q_src, re.DOTALL)\\)\\s+([^(]+?)(?=\\s*\\(\\d+\\)|$)', _q_src, re.DOTALL)
         _questions = [(int(n), q.strip().rstrip('?').strip() + '?') for n, q in _q_matches if len(q.strip()) > 10]
         _questions.sort(key=lambda x: x[0])
         _questions = [q for _, q in _questions]
