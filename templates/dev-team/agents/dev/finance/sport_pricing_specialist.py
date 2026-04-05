@@ -311,6 +311,16 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to the PRD markdown file.",
     )
     p.add_argument(
+        "--context-file",
+        dest="cli_context_file",
+        default=None,
+        help=(
+            "Path to a .txt or .md file containing the pricing brief. "
+            "Avoids shell $ escaping issues. "
+            "If both --context and --context-file are supplied, --context-file wins."
+        ),
+    )
+    p.add_argument(
         "--context",
         dest="cli_context",
         default=None,
@@ -332,6 +342,15 @@ if __name__ == "__main__":
     cli_context = ""
     parser = _build_parser()
     args   = parser.parse_args()
+
+    # ── Resolve --context-file (wins over --context if both supplied) ──────────
+    if args.cli_context_file:
+        _ctx_file_path = pathlib.Path(args.cli_context_file).expanduser()
+        if not _ctx_file_path.exists():
+            print(f"❌ --context-file not found: {_ctx_file_path}")
+            import sys; sys.exit(1)
+        args.cli_context = _ctx_file_path.read_text(encoding="utf-8").strip()
+        print(f"📋 Context brief loaded from file: {_ctx_file_path} ({len(args.cli_context)} chars)")
 
     # ── Resolve project context ────────────────────────────────────────────────
     if args.project_id:
