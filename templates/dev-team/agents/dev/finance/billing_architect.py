@@ -17,6 +17,10 @@ Run standalone:
 
 import sys
 sys.path.insert(0, "/home/mfelkey/dev-team")
+import pathlib as _pathlib
+_REPO_ROOT = str(_pathlib.Path(__file__).resolve().parents[5])
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import os
 import json
@@ -186,6 +190,9 @@ Output as well-formatted markdown.
 
 
 if __name__ == "__main__":
+    prd_text = ""
+    tad_text = ""
+    srr_text = ""
     import glob
 
     logs = sorted(glob.glob("logs/PROJ-*.json"), key=os.path.getmtime, reverse=True)
