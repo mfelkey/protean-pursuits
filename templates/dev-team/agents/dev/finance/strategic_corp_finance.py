@@ -223,14 +223,7 @@ if __name__ == "__main__":
             if t == "PRI": pri_text = txt
             if t == "FSR": fsr_text = txt
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        prd_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_strategic_corp_finance(
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_strategic_corp_finance(
         context, prd_text, roi_text, icm_text, pri_text, fsr_text, cea_text)
     print(f"\n✅ SCF complete: {path}")
     with open(path) as f:

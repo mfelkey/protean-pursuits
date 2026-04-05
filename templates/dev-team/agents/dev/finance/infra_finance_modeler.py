@@ -186,14 +186,7 @@ if __name__ == "__main__":
             if t == "TAD": tad_text = txt
             if t == "CEA": cea_text = txt
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        tad_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_infra_model(context, tad_text, cea_text)
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_infra_model(context, tad_text, cea_text)
     print(f"\n✅ ICM complete: {path}")
     with open(path) as f:
         print(f.read(500))

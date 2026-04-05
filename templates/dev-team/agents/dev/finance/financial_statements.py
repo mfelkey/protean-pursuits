@@ -195,14 +195,7 @@ if __name__ == "__main__":
             if t == "ICM": icm_text = txt
             if t == "PRI": pri_text = txt
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        cea_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_financial_statements(context, cea_text, roi_text, icm_text, pri_text)
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_financial_statements(context, cea_text, roi_text, icm_text, pri_text)
     print(f"\n✅ FSR complete: {path}")
     with open(path) as f:
         print(f.read(500))

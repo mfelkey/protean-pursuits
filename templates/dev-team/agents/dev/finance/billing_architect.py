@@ -213,14 +213,7 @@ if __name__ == "__main__":
             if t == "TAD": tad_text = txt
             if t == "SRR": srr_text = txt
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        prd_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_billing_spec(context, prd_text, tad_text, srr_text)
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_billing_spec(context, prd_text, tad_text, srr_text)
     print(f"\n✅ BPS complete: {path}")
     with open(path) as f:
         print(f.read(500))

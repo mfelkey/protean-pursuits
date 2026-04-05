@@ -286,12 +286,6 @@ if __name__ == "__main__":
         with open(logs[0]) as f:
             context = json.load(f)
         print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        prd_text,
-        cli_context or "",
-    )
-
     # ── Resolve PRD text ───────────────────────────────────────────────────────
     prd_text = bad_text = roi_text = cea_text = ""
 
@@ -321,6 +315,14 @@ if __name__ == "__main__":
         print("⚠️  No PRD and no --context brief provided. Agent will produce generic output.")
 
     # ── Run ───────────────────────────────────────────────────────────────────
+    # ── Input guard ───────────────────────────────────────────────────────────
+    project_id = check_required_inputs(
+        context.get("project_id", "PROJ-UNKNOWN"),
+        prd_text,
+        args.cli_context or "",
+    )
+    context["project_id"] = project_id
+
     context, path = run_pricing_model(
         context,
         prd_text=prd_text,

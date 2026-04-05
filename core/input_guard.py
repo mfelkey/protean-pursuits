@@ -86,7 +86,6 @@ def _print_missing_inputs(missing: list[str]) -> None:
     ]
     output = "\n".join(lines)
     print(output, file=sys.stderr)
-    print(output)
 
 
 # ── Public API ────────────────────────────────────────────────────────────────

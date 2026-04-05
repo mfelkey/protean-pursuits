@@ -182,14 +182,7 @@ if __name__ == "__main__":
     if not prd_text:
         print("⚠️  PRD not found — proceeding with project name only.")
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        prd_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_cost_analysis(context, prd_text, tad_text)
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_cost_analysis(context, prd_text, tad_text)
     print(f"\n✅ CEA complete: {path}")
     with open(path) as f:
         print(f.read(500))

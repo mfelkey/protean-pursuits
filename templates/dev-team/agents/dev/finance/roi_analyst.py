@@ -182,14 +182,7 @@ if __name__ == "__main__":
             if t == "BAD":   bad_text = txt
             if t == "CEA":   cea_text = txt
 
-    print(f"📂 Loaded context: {logs[0]}")
-    project_id = check_required_inputs(
-        context.get("project_id", "PROJ-UNKNOWN"),
-        prd_text,
-        "",
-    )
-    context["project_id"] = project_id
-    context, path = run_roi_analysis(context, prd_text, bad_text, cea_text)
+    print(f"📂 Loaded context: {logs[0]}")    context, path = run_roi_analysis(context, prd_text, bad_text, cea_text)
     print(f"\n✅ ROI complete: {path}")
     with open(path) as f:
         print(f.read(500))
