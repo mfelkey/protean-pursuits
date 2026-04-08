@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.1 — April 2026  ·  Reflects commit `4b46593` and beyond
+Version 3.2 — April 2026  ·  Reflects commit `4b46593` and beyond
 
 ## Contents
 
@@ -413,6 +413,24 @@ HITL gate type: `QA_SIGN_OFF`.
 
 HITL gate types: `VIDEO_TOOL_SELECTION` (after Tool Analyst, before creative work) · `SCRIPT_REVIEW` (after Script Writer, before API calls) · `VIDEO_FINAL` (after Compliance Reviewer, before any publish action). Nothing publishes without all three gates passing.
 
+## Training Team — Knowledge Management
+
+Manages the knowledge bases that all 9 agent teams draw on. Runs 7 domain curators, monitors knowledge freshness, and sends Pushover alerts for CRITICAL updates. Lives at `teams/training-team/` with its own `knowledge/` module (`teams/training-team/knowledge/knowledge_base.py`).
+
+**Run modes:** `FULL | TEAM | ON_DEMAND | STATUS | ALERTS`
+
+| Agent / Function | File | What it does |
+| --- | --- | --- |
+| Training Orchestrator | `agents/orchestrator/orchestrator.py` | Sequences curators, monitors freshness, fires alerts |
+| `run_curator(brief, context)` | — | Targeted knowledge refresh for a specific domain or team |
+| `run_full_refresh(brief, context)` | — | Full refresh of all 7 team knowledge bases |
+
+**Important:** The training orchestrator imports from its own `knowledge/` module at `teams/training-team/knowledge/`. The `sys.path` entry in `orchestrator.py` uses `Path(__file__).resolve().parents[2]` (resolves to `teams/training-team/`) — this is intentional and differs from the standard `parents[4]` pattern used by other teams whose agents are nested one level deeper.
+
+**Invocation:**
+
+    python flows/training_intake_flow.py --project parallaxedge --brief "Refresh all knowledge bases" --save
+
 # 4. Agent Groups
 
 Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.
@@ -766,6 +784,10 @@ Abort stale rebase state
 
 `git am --abort`
 
+Run Training Team (knowledge refresh)
+
+`python flows/training_intake_flow.py --project <n> --brief "Refresh all" --save`
+
 Run Finance Team (standalone)
 
 `python flows/finance_intake_flow.py --project <name> --brief "..." --save`
@@ -1049,6 +1071,7 @@ Detailed reference material. You don't need to read this to use the system — i
 | Policy & Compliance Specialist | `agents/hr/policy_compliance/policy_compliance_agent.py` | T1 | Policy docs, compliance audit |
 | Culture & Engagement Specialist | `agents/hr/culture_engagement/culture_engagement_agent.py` | T1 | Engagement plan |
 | Benefits Specialist | `agents/hr/benefits/benefits_agent.py` | T1 | Benefits analysis |
+| Training Team | Training Orchestrator | `teams/training-team/agents/orchestrator/orchestrator.py` | T1 | Sequences domain curators, monitors freshness, fires CRITICAL alerts (`run_curator`, `run_full_refresh`) |
 
 # Appendix B — Artifact Registry
 
@@ -1265,5 +1288,5 @@ The project context is the JSON file (`logs/PROJ-{id}.json`) that holds the enti
 
 All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.
 
-Protean Pursuits — Agent System Operating Manual — Version 3.1 — April 2026
-Grounded in commit `4b46593` · github.com/mfelkey/protean-pursuits
+Protean Pursuits — Agent System Operating Manual — Version 3.2 — April 2026
+Grounded in commit `61c6c68` · github.com/mfelkey/protean-pursuits
