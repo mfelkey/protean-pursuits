@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.3 — April 2026  ·  Reflects commit `4b46593` and beyond
+Version 3.3 — April 2026  ·  Reflects commit `fc6a239` and beyond
 
 ## Contents
 
