@@ -28,7 +28,7 @@ Single-agent shortcut:
 """
 
 import sys
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 import os
 import re

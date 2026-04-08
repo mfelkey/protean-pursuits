@@ -1,5 +1,5 @@
 """Litigation & Dispute Risk Agent"""
-import sys; sys.path.insert(0, "/home/mfelkey/legal-team")
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_legal_agent
 
 def build_litigation_agent():

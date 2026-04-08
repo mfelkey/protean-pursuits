@@ -1,5 +1,5 @@
 """Policy & Compliance Specialist Agent"""
-import sys; sys.path.insert(0, "/home/mfelkey/hr-team")
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.hr.orchestrator.base_agent import build_hr_agent
 
 

@@ -15,7 +15,7 @@ After assembly, the flow triggers the VIDEO_FINAL HITL gate before
 marking any file as publishable.
 """
 import sys
-sys.path.insert(0, "/home/mfelkey/video-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 import os
 import json

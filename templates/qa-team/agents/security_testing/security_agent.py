@@ -1,5 +1,5 @@
 """Security & Penetration Testing Agent"""
-import sys; sys.path.insert(0, "/home/mfelkey/qa-team")
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_qa_agent
 def build_security_agent():
     return build_qa_agent(

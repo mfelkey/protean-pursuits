@@ -54,7 +54,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/video-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "teams" / "video-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -86,7 +86,7 @@ def _import_orchestrator():
         sys.exit(
             f"[video_intake_flow] ERROR: Cannot import Video Team Orchestrator.\n"
             f"  Ensure agents/orchestrator/orchestrator.py is on sys.path.\n"
-            f"  sys.path includes /home/mfelkey/video-team — verify team is installed.\n"
+            f"  sys.path includes teams/video-team — verify team is installed.\n"
             f"  Original error: {e}"
         )
 

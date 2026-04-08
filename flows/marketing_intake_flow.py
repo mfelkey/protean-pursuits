@@ -51,7 +51,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/marketing-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "teams" / "marketing-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -77,13 +77,13 @@ def _notify(title: str, message: str):
 def _import_orchestrator():
     """Import the Marketing Orchestrator run function. Exits with clear message on failure."""
     try:
-        from agents.marketing.orchestrator.orchestrator import run_marketing_orchestrator
+        from agents.orchestrator.orchestrator import run_marketing_orchestrator
         return run_marketing_orchestrator
     except ImportError as e:
         sys.exit(
             f"[marketing_intake_flow] ERROR: Cannot import Marketing Orchestrator.\n"
-            f"  Ensure agents/marketing/orchestrator/orchestrator.py is on sys.path.\n"
-            f"  sys.path includes /home/mfelkey/marketing-team — verify team is installed.\n"
+            f"  Ensure agents/orchestrator/orchestrator.py is on sys.path.\n"
+            f"  sys.path includes teams/marketing-team — verify team is installed.\n"
             f"  Original error: {e}"
         )
 

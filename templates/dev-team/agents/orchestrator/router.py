@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 import json
 from agents.orchestrator.orchestrator import log_event, save_context, notify_human
 

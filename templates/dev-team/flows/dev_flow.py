@@ -35,7 +35,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from core.context_loader import load_context, require_artifact, save_output  # noqa: E402
 

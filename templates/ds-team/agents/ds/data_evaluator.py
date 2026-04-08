@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
-sys.path.insert(0, "/home/mfelkey/ds-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from crewai import Agent, LLM
 from dotenv import load_dotenv

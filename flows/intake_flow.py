@@ -1,3 +1,4 @@
+from pathlib import Path
 """
 flows/intake_flow.py
 
@@ -13,7 +14,7 @@ Usage:
 """
 
 import sys
-sys.path.insert(0, "/home/mfelkey/protean-pursuits")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import os
 import json

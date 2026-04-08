@@ -1,5 +1,5 @@
 """Brand & Visual Identity Agent"""
-import sys; sys.path.insert(0, "/home/mfelkey/design-team")
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_design_agent
 def build_brand_identity_agent():
     return build_design_agent(

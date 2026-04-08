@@ -52,7 +52,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/hr-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "teams" / "hr-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -78,13 +78,13 @@ def _notify(title: str, message: str):
 def _import_orchestrator():
     """Import the HR Team Orchestrator run function. Exits with clear message on failure."""
     try:
-        from agents.hr.orchestrator.orchestrator import run_hr_orchestrator
+        from agents.orchestrator.orchestrator import run_hr_orchestrator
         return run_hr_orchestrator
     except ImportError as e:
         sys.exit(
             f"[hr_intake_flow] ERROR: Cannot import HR Team Orchestrator.\n"
             f"  Ensure agents/hr/orchestrator/orchestrator.py is on sys.path.\n"
-            f"  sys.path includes /home/mfelkey/hr-team — verify team is installed.\n"
+            f"  sys.path includes teams/hr-team — verify team is installed.\n"
             f"  Original error: {e}"
         )
 

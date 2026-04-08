@@ -27,7 +27,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(_REPO_ROOT / "teams" / "finance-team"))
 
 from core.context_loader import load_context, save_agent_direct_output  # noqa: E402
 

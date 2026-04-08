@@ -1,5 +1,5 @@
 """Go-to-Market Strategy Agent"""
-import sys; sys.path.insert(0, "/home/mfelkey/strategy-team")
+import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_strategy_agent
 
 def build_gtm_agent():

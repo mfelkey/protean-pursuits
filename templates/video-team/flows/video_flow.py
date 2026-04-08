@@ -38,7 +38,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/video-team")
+sys.path.insert(0, str(_REPO_ROOT / "teams" / "video-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 

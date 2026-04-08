@@ -52,7 +52,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/qa-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "teams" / "qa-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -78,13 +78,13 @@ def _notify(title: str, message: str):
 def _import_orchestrator():
     """Import the QA Team Orchestrator run function. Exits with clear message on failure."""
     try:
-        from agents.qa.orchestrator.orchestrator import run_qa_orchestrator
+        from agents.orchestrator.orchestrator import run_qa_orchestrator
         return run_qa_orchestrator
     except ImportError as e:
         sys.exit(
             f"[qa_intake_flow] ERROR: Cannot import QA Team Orchestrator.\n"
             f"  Ensure agents/qa/orchestrator/orchestrator.py is on sys.path.\n"
-            f"  sys.path includes /home/mfelkey/qa-team — verify team is installed.\n"
+            f"  sys.path includes teams/qa-team — verify team is installed.\n"
             f"  Original error: {e}"
         )
 

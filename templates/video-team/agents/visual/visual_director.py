@@ -1,6 +1,6 @@
 """Visual Director — scene briefs, shot types, motion direction, AI prompt strings"""
 import sys
-sys.path.insert(0, "/home/mfelkey/video-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_video_agent
 
 

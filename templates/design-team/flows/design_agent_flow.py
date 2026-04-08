@@ -12,7 +12,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/design-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from core.context_loader import load_context, save_agent_direct_output  # noqa: E402
 
@@ -37,7 +37,7 @@ AGENT_REGISTRY = {
     },
     "brand_identity_specialist": {
         "module":   "agents.brand_identity.brand_identity_agent",
-        "build_fn": "build_brand_identity_specialist",
+        "build_fn": "build_brand_identity_agent",
         "description": "Brand Identity Specialist — brand guide, visual language",
     },
     "design_system_architect": {

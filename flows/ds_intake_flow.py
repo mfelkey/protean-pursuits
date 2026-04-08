@@ -48,7 +48,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, "/home/mfelkey/ds-team")
+sys.path.insert(0, str(_REPO_ROOT / "teams" / "ds-team"))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -80,7 +80,7 @@ def _import_orchestrator():
         sys.exit(
             f"[ds_intake_flow] ERROR: Cannot import DS Team Orchestrator.\n"
             f"  Ensure agents/ds/ds_orchestrator.py is on sys.path.\n"
-            f"  sys.path includes /home/mfelkey/ds-team — verify team is installed.\n"
+            f"  sys.path includes teams/ds-team — verify team is installed.\n"
             f"  Original error: {e}"
         )
 

@@ -40,7 +40,7 @@ Usage:
 """
 
 import sys
-sys.path.insert(0, "/home/mfelkey/hr-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 import os
 import json

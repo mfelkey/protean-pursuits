@@ -29,7 +29,7 @@ Cron setup (see install instructions at bottom of file).
 """
 
 import sys
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 import os
 import json

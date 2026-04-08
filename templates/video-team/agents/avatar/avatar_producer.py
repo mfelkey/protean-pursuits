@@ -1,6 +1,6 @@
 """Avatar & Spokesperson Producer — per-project avatar config and production brief"""
 import sys
-sys.path.insert(0, "/home/mfelkey/video-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_video_agent
 
 

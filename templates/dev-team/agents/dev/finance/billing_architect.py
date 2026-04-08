@@ -16,7 +16,7 @@ Run standalone:
 """
 
 import sys
-sys.path.insert(0, "/home/mfelkey/dev-team")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 import pathlib as _pathlib
 _REPO_ROOT = str(_pathlib.Path(__file__).resolve().parents[5])
 if _REPO_ROOT not in sys.path:
