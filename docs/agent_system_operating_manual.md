@@ -16,7 +16,7 @@ Version 3.1 — April 2026  ·  Reflects commit `fdaabc3` and beyond
 1. [How It Works — The Big Picture](#s1)
 2. [What Kind of Project Am I Running?](#s2)
 3. [Meet the Teams](#s3)
-4. [Agent Groups (Finance, SME, HR)](#s4)
+4. [Agent Groups (Finance, SME) & HR Team](#s4)
 5. [Run Your First Project](#s5)
 6. [Command Cheat Sheet](#s6)
 7. [Checkpoints — When It Asks You Something](#s7)
@@ -289,6 +289,21 @@ Anti-hallucination discipline is enforced via a `validators.py` module with six 
 
 **DS → DEV handoff (JOINT projects):** The DS team produces a formal handoff package. The DEV team receives it as authoritative upstream context and does not re-run the analysis.
 
+**Run modes:** `brief | evaluation | analysis | model | pipeline`
+
+| Agent | File |
+| --- | --- |
+| DS Orchestrator | `agents/ds/ds_orchestrator.py` |
+| Data Framing Specialist | `agents/ds/data_framer.py` |
+| Data Evaluation Specialist | `agents/ds/data_evaluator.py` |
+| EDA Analyst | `agents/ds/eda_analyst.py` |
+| Statistical Analyst | `agents/ds/statistical_analyst.py` |
+| ML Engineer | `agents/ds/ml_engineer.py` |
+| Pipeline Engineer | `agents/ds/pipeline_engineer.py` |
+| Reporting Analyst | `agents/ds/reporting_analyst.py` |
+
+HITL gate type: `HITL_DS_REVIEW`. DS Orchestrator is an **authorized SME caller**.
+
 ## Design Team
 
 | Agent | File |
@@ -325,41 +340,16 @@ HITL gate type: `LEGAL_REVIEW`. Legal is an **authorized SME caller** — it may
 
 Location: `templates/marketing-team/` · HITL gate types: `POST`, `EMAIL`, `VIDEO`. Every deliverable is submitted for human approval before publishing or execution — no agent publishes autonomously.
 
-#### Marketing Orchestrator
+**Run modes:** `brief | copy | email | social | video | analytics | campaign`
 
-Plans, coordinates, and tracks all marketing campaigns across social, video, email, and analytics workstreams — ensuring every deliverable is on-brand, on-schedule, and approved by the human before publishing.
-
-File: `agents/orchestrator/orchestrator.py`
-
-#### Marketing Analyst
-
-Pulls data from analytics dashboards across all marketing channels, synthesises performance against KPIs from the Marketing Plan, identifies optimisation opportunities, and produces structured reports for the Marketing Orchestrator and human review.
-
-📄 Channel performance reports, KPI dashboards · File: `agents/analyst/analyst_agent.py`
-
-#### Copywriter
-
-Writes persuasive, on-brand copy for every marketing surface — landing pages, paid ads, app store listings, push notifications, in-product marketing, campaign messaging, and brand campaigns — that converts readers into users and users into advocates.
-
-📄 Landing page copy, ad creative, app store listings, push copy, campaign messaging · File: `agents/copywriter/copywriter_agent.py`
-
-#### Email Specialist
-
-Writes and structures all email communications — newsletters, drip sequences, transactional emails, and re-engagement campaigns — using CRM segmentation data to personalise at scale. Submits every send for human approval before execution.
-
-📄 Email sequences, drip campaigns, transactional templates · File: `agents/email/email_agent.py` · Gate: `EMAIL`
-
-#### Social Media Specialist
-
-Researches trending topics, drafts daily on-brand posts for X, Instagram, TikTok, and Discord, generates or sources supporting visuals, and submits every post for human approval before scheduling or publishing.
-
-📄 Social post drafts, visual briefs · File: `agents/social/social_agent.py` · Gate: `POST`
-
-#### Video Producer
-
-Scripts, structures, and produces video content for TikTok, YouTube Shorts, and long-form YouTube — including Veo visual direction briefs and Lyria 3 music briefs. Submits every video for human approval before publishing.
-
-📄 Scripts, visual direction briefs, music briefs · File: `agents/video/video_agent.py` · Gate: `VIDEO`
+| Agent | File | Produces | Gate |
+| --- | --- | --- | --- |
+| Marketing Orchestrator | `agents/orchestrator/orchestrator.py` | Campaign brief, channel plan — plans, coordinates, and tracks all marketing campaigns across social, video, email, and analytics workstreams | — |
+| Marketing Analyst | `agents/analyst/analyst_agent.py` | Channel performance reports, KPI dashboards — pulls data from analytics dashboards, synthesises against KPIs, identifies optimisation opportunities | — |
+| Copywriter | `agents/copywriter/copywriter_agent.py` | Landing page copy, ad creative, app store listings, push copy, campaign messaging — persuasive, on-brand copy for every marketing surface | — |
+| Email Specialist | `agents/email/email_agent.py` | Email sequences, drip campaigns, transactional templates — personalised at scale using CRM segmentation data | `EMAIL` |
+| Social Media Specialist | `agents/social/social_agent.py` | Social post drafts, visual briefs — on-brand posts for X, Instagram, TikTok, and Discord with supporting visuals | `POST` |
+| Video Producer | `agents/video/video_agent.py` | Scripts, visual direction briefs (Veo), music briefs (Lyria 3) — TikTok, YouTube Shorts, and long-form YouTube | `VIDEO` |
 
 ## Strategy Team
 
@@ -415,7 +405,7 @@ HITL gate types: `VIDEO_TOOL_SELECTION` (after Tool Analyst, before any creative
 
 Run modes: `BRIEF_ONLY | SHORT_FORM | LONG_FORM | AVATAR | DEMO | EXPLAINER | VOICEOVER | FULL`
 
-# 4. Agent Groups
+# 4. Agent Groups & HR Team
 
 Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.
 
@@ -603,7 +593,7 @@ Deep domain expertise on LPGA Tour and women's professional golf betting markets
 
 File: `lpga_expert.py`
 
-## HR Team Standalone Team
+## HR Team — Standalone Team
 
 A fully standalone team with its own template and live submodule at `teams/hr-team/` (`github.com/mfelkey/hr-team`). Lead: `agents/leads/hr/hr_lead.py`.
 
@@ -712,6 +702,27 @@ python agents/dev/reconciliation.py
 
 cd ~/projects/hr-team
 python flows/hr\_flow.py --mode RECRUIT # or ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL\_CYCLE
+
+## Faster runs with pp_flow.py
+
+Once a project context exists, `pp_flow.py` is the fastest way to re-enter any team or target a single agent without repeating the full intake:
+
+```bash
+# Route to a team orchestrator with a specific mode
+python flows/pp_flow.py --team marketing --mode campaign \
+    --project parallaxedge --task "Launch campaign for Q3" --save
+
+# Jump straight to a specific agent by registry key
+python flows/pp_flow.py --team dev --agent technical_architect \
+    --task "Review TAD for new payments module" --project parallaxedge --save
+
+# Inline context — no project file needed
+python flows/pp_flow.py --team legal --agent contract_drafter \
+    --task "Draft NDA for contractor" --context "Michigan law, 2yr term"
+
+# See all modes and agents available for a team
+python flows/pp_flow.py --team strategy --list-modes
+```
 
 ## Direct team access (post-initiation)
 
@@ -906,6 +917,14 @@ curl http://localhost:11434/api/tags # verify
 git am --abort # safe to run even on a clean repo
 git am ~/Downloads/<patch>.patch # retry
 
+## 🔄 Patch fails with "already exists in index"
+
+The file being patched already exists in the repo. Skip past it:
+
+git am --skip # skip this commit and continue applying remaining commits
+
+Repeat `git am --skip` for each commit that hits the same error. Use `git am --abort` only if you want to cancel the entire patch apply and start over.
+
 ## 🔄 How to start over
 
 mkdir -p logs/archive
@@ -1031,79 +1050,132 @@ Detailed reference material. You don't need to read this to use the system — i
 
 # Appendix A — Full Agent Roster
 
-| Layer | Agent | File (relative to team root) | Tier | Produces |
-| --- | --- | --- | --- | --- |
-| PP Core | PP Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Project context, PRD, team routing |
-| Project Manager | `agents/project_manager/project_manager.py` | T1 | Sprint plan, status reports, blocker escalation |
-| Dev — Plan | Product Manager | `agents/dev/strategy/product_manager.py` | T1 | PRD |
-| Business Analyst | `agents/dev/strategy/business_analyst.py` | T1 | BAD |
-| Scrum Master | `agents/dev/strategy/scrum_master.py` | T1 | Sprint Plan |
-| Technical Architect | `agents/dev/strategy/technical_architect.py` | T1 | TAD |
-| Security Reviewer | `agents/dev/strategy/security_reviewer.py` | T1 | SRR 🟢/🟡/🔴 |
-| UX/UI Designer | `agents/dev/strategy/ux_designer.py` | T1 | UXD |
-| UX Content Guide | `agents/dev/strategy/ux_content_guide.py` | T1 | UI Content Guide |
-| Dev — Build | Senior Developer | `agents/dev/build/senior_developer.py` | T2 | TIP |
-| Backend Developer | `agents/dev/build/backend_developer.py` | T2 | BIR |
-| Frontend Developer | `agents/dev/build/frontend_developer.py` | T2 | FIR |
-| Database Administrator | `agents/dev/build/database_admin.py` | T2 | DBAR |
-| DevOps Engineer | `agents/dev/build/devops_engineer.py` | T2 | DIR |
-| Dev — Quality | QA Lead | `agents/dev/quality/qa_lead.py` | T1 | MTP |
-| Test Automation Engineer | `agents/dev/quality/test_automation_engineer.py` | T2 | TAR |
-| Dev — Docs | DevEx Writer | `agents/docs/devex_writer.py` | T1 | API docs, README, developer guides |
-| Technical Writer | `agents/docs/technical_writer.py` | T1 | User guides, runbooks, release notes |
-| Mobile | Mobile UX Designer | `agents/mobile/ux/mobile_ux_designer.py` | T1 | MUXD |
-| iOS Developer | `agents/mobile/ios/ios_developer.py` | T2 | IIR + Swift |
-| Android Developer | `agents/mobile/android/android_developer.py` | T2 | AIR + Kotlin |
-| RN Architect (Pt1+2) | `agents/mobile/rn/react_native_architect_part*.py` | T2 | RNAD P1, P2 |
-| RN Developer | `agents/mobile/rn/react_native_developer.py` | T2 | RN Guide |
-| Mobile DevOps | `agents/mobile/devops/mobile_devops_engineer.py` | T2 | MDIR |
-| Mobile QA Specialist | `agents/mobile/qa/mobile_qa_specialist.py` | T1 | Mobile test suite |
-| Retrofit | TAD Retrofit | `agents/dev/build/tad_retrofit.py` | T2 | TAD-R |
-| BIR Retrofit | `agents/dev/build/backend_developer_retrofit.py` | T2 | BIR-R |
-| DIR Retrofit | `agents/dev/build/devops_engineer_retrofit.py` | T2 | DIR-R |
-| SRR Retrofit | `agents/dev/build/srr_retrofit.py` | T2 | SRR-R |
-| MTP Retrofit | `agents/dev/quality/qa_lead_retrofit.py` | T2 | MTP-R |
-| Reconciliation | `agents/dev/reconciliation.py` | T2 | Gap report |
-| Finance Group | Finance Orchestrator | `agents/finance/finance_orchestrator.py` | T1 | FSP |
-| Cost Analyst | `agents/finance/cost_analyst.py` | T1 | CEA |
-| ROI Analyst | `agents/finance/roi_analyst.py` | T1 | ROI |
-| Infrastructure Finance Modeler | `agents/finance/infra_finance_modeler.py` | T1 | ICM |
-| Billing Architect | `agents/finance/billing_architect.py` | T1 | BPS (conditional) |
-| Pricing Specialist | `agents/finance/pricing_specialist.py` | T1 | PRI (conditional) |
-| Financial Statements Modeler | `agents/finance/financial_statements.py` | T1 | FSR |
-| Strategic Corp Finance Specialist | `agents/finance/strategic_corp_finance.py` | T1 | SCF |
-| SME Group | SME Orchestrator | `agents/sme/sme_orchestrator.py` | T1 | Domain Intelligence Brief |
-| Sports Betting Expert | `agents/sme/sports_betting_expert.py` | T1 | Domain assessment |
-| World Football Expert | `agents/sme/world_football_expert.py` | T1 | Domain assessment |
-| NBA/NCAA Basketball Expert | `agents/sme/nba_ncaa_basketball_expert.py` | T1 | Domain assessment |
-| NFL/NCAA Football Expert | `agents/sme/nfl_ncaa_football_expert.py` | T1 | Domain assessment |
-| MLB Expert | `agents/sme/mlb_expert.py` | T1 | Domain assessment |
-| NHL/NCAA Hockey Expert | `agents/sme/nhl_ncaa_hockey_expert.py` | T1 | Domain assessment |
-| MMA Expert | `agents/sme/mma_expert.py` | T1 | Domain assessment |
-| Tennis Expert | `agents/sme/tennis_expert.py` | T1 | Domain assessment |
-| World Rugby Expert | `agents/sme/world_rugby_expert.py` | T1 | Domain assessment |
-| Cricket Expert | `agents/sme/cricket_expert.py` | T1 | Domain assessment |
-| WNBA/NCAA Women's Basketball Expert | `agents/sme/wnba_ncaa_womens_basketball_expert.py` | T1 | Domain assessment |
-| Thoroughbred Horse Racing Expert | `agents/sme/thoroughbred_horse_racing_expert.py` | T1 | Domain assessment |
-| Harness Racing Expert | `agents/sme/harness_racing_expert.py` | T1 | Domain assessment |
-| Men's Boxing Expert | `agents/sme/mens_boxing_expert.py` | T1 | Domain assessment |
-| PGA Expert | `agents/sme/pga_expert.py` | T1 | Domain assessment |
-| LPGA Expert | `agents/sme/lpga_expert.py` | T1 | Domain assessment |
-| HR Team | HR Orchestrator | `agents/hr/orchestrator/orchestrator.py` | T1 | Sequences HR crew |
-| Recruiting Specialist | `agents/hr/recruiting/recruiting_agent.py` | T1 | JD, sourcing plan, interview guide |
-| Onboarding Specialist | `agents/hr/onboarding/onboarding_agent.py` | T1 | Onboarding plan |
-| Performance & Comp Specialist | `agents/hr/performance_comp/performance_comp_agent.py` | T1 | Review framework, comp analysis |
-| Policy & Compliance Specialist | `agents/hr/policy_compliance/policy_compliance_agent.py` | T1 | Policy docs, compliance audit |
-| Culture & Engagement Specialist | `agents/hr/culture_engagement/culture_engagement_agent.py` | T1 | Engagement plan |
-| Benefits Specialist | `agents/hr/benefits/benefits_agent.py` | T1 | Benefits analysis |
-| Video Team | Video Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences video crew, selects mode from brief |
-| Script Writer | `agents/script/script_writer.py` | T1 | Video scripts — all formats |
-| Visual Director | `agents/visual/visual_director.py` | T1 | Visual direction briefs, shot lists |
-| Audio Producer | `agents/audio/audio_producer.py` | T1 | Music briefs, SFX notes |
-| Avatar Producer | `agents/avatar/avatar_producer.py` | T1 | Avatar/spokesperson direction briefs |
-| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` | T1 | Tool selection report — VIDEO\_TOOL\_SELECTION gate |
-| API Engineer | `agents/production/api_engineer.py` | T1 | Production pipeline config |
-| Compliance Reviewer | `agents/compliance/compliance_reviewer.py` | T1 | Compliance clearance — VIDEO\_FINAL gate |
+| Layer | Agent | File (relative to team root) | Tier | Produces | Registry Key |
+| --- | --- | --- | --- | --- | --- |
+| PP Core | PP Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Project context, PRD, team routing | — |
+| Project Manager | `agents/project_manager/project_manager.py` | T1 | Sprint plan, status reports, blocker escalation | — |
+| Dev — Plan | Product Manager | `agents/dev/strategy/product_manager.py` | T1 | PRD | `product_manager` |
+| Business Analyst | `agents/dev/strategy/business_analyst.py` | T1 | BAD | `business_analyst` |
+| Scrum Master | `agents/dev/strategy/scrum_master.py` | T1 | Sprint Plan | `scrum_master` |
+| Technical Architect | `agents/dev/strategy/technical_architect.py` | T1 | TAD | `technical_architect` |
+| Security Reviewer | `agents/dev/strategy/security_reviewer.py` | T1 | SRR 🟢/🟡/🔴 | `security_reviewer` |
+| UX/UI Designer | `agents/dev/strategy/ux_designer.py` | T1 | UXD | `ux_designer` |
+| UX Content Guide | `agents/dev/strategy/ux_content_guide.py` | T1 | UI Content Guide | `ux_content_guide` |
+| Dev — Build | Senior Developer | `agents/dev/build/senior_developer.py` | T2 | TIP | `senior_developer` |
+| Backend Developer | `agents/dev/build/backend_developer.py` | T2 | BIR | `backend_developer` |
+| Frontend Developer | `agents/dev/build/frontend_developer.py` | T2 | FIR | `frontend_developer` |
+| Database Administrator | `agents/dev/build/database_admin.py` | T2 | DBAR | `dba` |
+| DevOps Engineer | `agents/dev/build/devops_engineer.py` | T2 | DIR | `devops_engineer` |
+| Dev — Quality | QA Lead | `agents/dev/quality/qa_lead.py` | T1 | MTP | `qa_lead` |
+| Test Automation Engineer | `agents/dev/quality/test_automation_engineer.py` | T2 | TAR | `test_automation_engineer` |
+| Dev — Docs | DevEx Writer | `agents/docs/devex_writer.py` | T1 | API docs, README, developer guides | `devex_writer` |
+| Technical Writer | `agents/docs/technical_writer.py` | T1 | User guides, runbooks, release notes | `technical_writer` |
+| Mobile | Mobile UX Designer | `agents/mobile/ux/mobile_ux_designer.py` | T1 | MUXD | `mobile_ux_designer` |
+| iOS Developer | `agents/mobile/ios/ios_developer.py` | T2 | IIR + Swift | `ios_developer` |
+| Android Developer | `agents/mobile/android/android_developer.py` | T2 | AIR + Kotlin | `android_developer` |
+| RN Architect (Pt1+2) | `agents/mobile/rn/react_native_architect_part*.py` | T2 | RNAD P1, P2 | `rn_architect` |
+| RN Developer | `agents/mobile/rn/react_native_developer.py` | T2 | RN Guide | `rn_developer` |
+| Mobile DevOps | `agents/mobile/devops/mobile_devops_engineer.py` | T2 | MDIR | `mobile_devops` |
+| Mobile QA Specialist | `agents/mobile/qa/mobile_qa_specialist.py` | T1 | Mobile test suite | `mobile_qa_specialist` |
+| Retrofit | TAD Retrofit | `agents/dev/build/tad_retrofit.py` | T2 | TAD-R | — |
+| BIR Retrofit | `agents/dev/build/backend_developer_retrofit.py` | T2 | BIR-R | — |
+| DIR Retrofit | `agents/dev/build/devops_engineer_retrofit.py` | T2 | DIR-R | — |
+| SRR Retrofit | `agents/dev/build/srr_retrofit.py` | T2 | SRR-R | — |
+| MTP Retrofit | `agents/dev/quality/qa_lead_retrofit.py` | T2 | MTP-R | — |
+| Reconciliation | `agents/dev/reconciliation.py` | T2 | Gap report | — |
+| DS Team | DS Orchestrator | `agents/ds/ds_orchestrator.py` | T1 | Scoping brief, crew sequencing, synthesis | `ds_orchestrator` |
+| Data Framing Specialist | `agents/ds/data_framer.py` | T1 | Problem framing, complexity classification (LOW/MEDIUM/HIGH) | `data_framer` |
+| Data Evaluation Specialist | `agents/ds/data_evaluator.py` | T1 | Data source / API / tool evaluation, GO/NO-GO | `data_evaluator` |
+| EDA Analyst | `agents/ds/eda_analyst.py` | T1 | Distributions, missing values, feature signal assessment | `eda_analyst` |
+| Statistical Analyst | `agents/ds/statistical_analyst.py` | T1 | Hypothesis tests, credible intervals, uncertainty quantification | `statistical_analyst` |
+| ML Engineer | `agents/ds/ml_engineer.py` | T1 | Algorithm selection, feature engineering, evaluation framework | `ml_engineer` |
+| Pipeline Engineer | `agents/ds/pipeline_engineer.py` | T1 | ETL architecture, orchestration, error handling, observability | `pipeline_engineer` |
+| Reporting Analyst | `agents/ds/reporting_analyst.py` | T1 | Six-section final reports: Executive Summary through PRD Impact | `reporting_analyst` |
+| Design Team | Design Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences design crew | — |
+| UX Researcher | `agents/ux_research/ux_research_agent.py` | T1 | User research report, journey maps | `ux_researcher` |
+| Wireframing Specialist | `agents/wireframing/wireframing_agent.py` | T1 | Wireframes, interaction flows | `wireframing_specialist` |
+| UI Designer | `agents/ui_design/ui_design_agent.py` | T1 | UI designs, screen specs | `ui_designer` |
+| Brand Identity Specialist | `agents/brand_identity/brand_identity_agent.py` | T1 | Brand guide, visual identity | `brand_identity_specialist` |
+| Design System Architect | `agents/design_system/design_system_agent.py` | T1 | Design system, component library | `design_system_architect` |
+| Motion & Animation Designer | `agents/motion_animation/motion_agent.py` | T1 | Motion spec, animation briefs | `motion_designer` |
+| Accessibility Specialist | `agents/accessibility/accessibility_agent.py` | T1 | Accessibility audit (WCAG 2.1 AA) | `accessibility_specialist` |
+| Usability Analyst | `agents/usability/usability_agent.py` | T1 | Usability report, testing results | `usability_analyst` |
+| Legal Team | Legal Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences legal crew | — |
+| Contract Drafter | `agents/contract_drafting/contract_agent.py` | T1 | Draft contracts | `contract_drafter` |
+| Document Reviewer | `agents/document_review/review_agent.py` | T1 | Redlined document, risk memo | `document_reviewer` |
+| Corporate Entity Specialist | `agents/corporate_entity/corporate_agent.py` | T1 | Entity structure recommendation | `corporate_entity_specialist` |
+| IP & Licensing Specialist | `agents/ip_licensing/ip_agent.py` | T1 | IP assessment, licensing framework | `ip_licensing_specialist` |
+| Privacy & Data Counsel | `agents/privacy_data/privacy_agent.py` | T1 | Privacy analysis, GDPR/CCPA assessment | `privacy_data_counsel` |
+| Regulatory Compliance Specialist | `agents/regulatory_compliance/compliance_agent.py` | T1 | Compliance gap report | `regulatory_compliance_specialist` |
+| Employment & Contractor Counsel | `agents/employment_contractor/employment_agent.py` | T1 | Employment agreement, contractor framework | `employment_contractor_counsel` |
+| Litigation & Dispute Specialist | `agents/litigation_dispute/litigation_agent.py` | T1 | Dispute assessment, strategy memo | `litigation_dispute_specialist` |
+| Marketing Team | Marketing Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Campaign brief, channel plan | — |
+| Marketing Analyst | `agents/analyst/analyst_agent.py` | T1 | Channel performance reports, KPI dashboards | `marketing_analyst` |
+| Copywriter | `agents/copywriter/copywriter_agent.py` | T1 | Landing page copy, ad creative, app store listings | `copywriter` |
+| Email Specialist | `agents/email/email_agent.py` | T1 | Email sequences, drip campaigns | `email_specialist` |
+| Social Media Specialist | `agents/social/social_agent.py` | T1 | Social post drafts, visual briefs | `social_media_specialist` |
+| Video Producer | `agents/video/video_agent.py` | T1 | Scripts, visual direction briefs, music briefs | `video_producer` |
+| Strategy Team | Strategy Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences strategy crew | — |
+| Brand Positioning Strategist | `agents/brand_positioning/brand_agent.py` | T1 | Brand positioning framework | `brand_positioning_strategist` |
+| Business Model Designer | `agents/business_model/business_model_agent.py` | T1 | Business model canvas + narrative | `business_model_designer` |
+| Competitive Intelligence Analyst | `agents/competitive_intel/competitive_intel_agent.py` | T1 | Competitive landscape, positioning gaps | `competitive_intel_analyst` |
+| Financial Strategist | `agents/financial_strategy/financial_strategy_agent.py` | T1 | Financial strategy, funding roadmap | `financial_strategist` |
+| GTM Strategist | `agents/gtm/gtm_agent.py` | T1 | GTM plan, channel strategy, launch sequencing | `gtm_strategist` |
+| OKR Planner | `agents/okr_planning/okr_agent.py` | T1 | OKR framework, measurement plan | `okr_planner` |
+| Partnership Strategist | `agents/partnership/partnership_agent.py` | T1 | Partnership framework, target list | `partnership_strategist` |
+| Product Strategist | `agents/product_strategy/product_strategy_agent.py` | T1 | Product strategy, roadmap | `product_strategist` |
+| Risk & Scenario Planner | `agents/risk_scenario/risk_agent.py` | T1 | Risk register, scenario analysis | `risk_scenario_planner` |
+| Talent & Org Designer | `agents/talent_org/talent_agent.py` | T1 | Org design, hiring plan | `talent_org_designer` |
+| Technology Strategist | `agents/technology_strategy/tech_strategy_agent.py` | T1 | Technology strategy, build/buy/partner rec | `technology_strategist` |
+| QA Team | QA Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences QA crew | — |
+| Functional Testing Specialist | `agents/functional_testing/functional_agent.py` | T1 | Functional test results, bug report | `functional_testing_specialist` |
+| Performance Testing Specialist | `agents/performance_testing/performance_agent.py` | T1 | Performance benchmarks, bottleneck analysis | `performance_testing_specialist` |
+| Security Testing Specialist | `agents/security_testing/security_agent.py` | T1 | Security test report 🟢/🟡/🔴 | `security_testing_specialist` |
+| Accessibility Auditor | `agents/accessibility_audit/accessibility_audit_agent.py` | T1 | Accessibility audit (WCAG 2.1 AA) | `accessibility_auditor` |
+| Data Quality Analyst | `agents/data_quality/data_quality_agent.py` | T1 | Data quality scorecard | `data_quality_analyst` |
+| Legal Completeness Reviewer | `agents/legal_completeness/legal_qa_agent.py` | T1 | Legal completeness report | `legal_completeness_reviewer` |
+| Marketing Compliance Reviewer | `agents/marketing_compliance/marketing_qa_agent.py` | T1 | Marketing compliance report | `marketing_compliance_reviewer` |
+| Test Case Developer | `agents/test_case_development/test_case_agent.py` | T1 | Test case library | `test_case_developer` |
+| Finance Group | Finance Orchestrator | `agents/finance/finance_orchestrator.py` | T1 | FSP | `finance_orchestrator` |
+| Cost Analyst | `agents/finance/cost_analyst.py` | T1 | CEA | `cost_analyst` |
+| ROI Analyst | `agents/finance/roi_analyst.py` | T1 | ROI | `roi_analyst` |
+| Infrastructure Finance Modeler | `agents/finance/infra_finance_modeler.py` | T1 | ICM | `infra_finance_modeler` |
+| Billing Architect | `agents/finance/billing_architect.py` | T1 | BPS (conditional) | `billing_architect` |
+| Pricing Specialist | `agents/finance/pricing_specialist.py` | T1 | PRI (conditional) | `pricing_specialist` |
+| Financial Statements Modeler | `agents/finance/financial_statements.py` | T1 | FSR | `financial_statements_modeler` |
+| Strategic Corp Finance Specialist | `agents/finance/strategic_corp_finance.py` | T1 | SCF | `strategic_corp_finance_specialist` |
+| SME Group | SME Orchestrator | `agents/sme/sme_orchestrator.py` | T1 | Domain Intelligence Brief | — |
+| Sports Betting Expert | `agents/sme/sports_betting_expert.py` | T1 | Domain assessment | `sports_betting` |
+| World Football Expert | `agents/sme/world_football_expert.py` | T1 | Domain assessment | `world_football` |
+| NBA/NCAA Basketball Expert | `agents/sme/nba_ncaa_basketball_expert.py` | T1 | Domain assessment | `nba_ncaa_basketball` |
+| NFL/NCAA Football Expert | `agents/sme/nfl_ncaa_football_expert.py` | T1 | Domain assessment | `nfl_ncaa_football` |
+| MLB Expert | `agents/sme/mlb_expert.py` | T1 | Domain assessment | `mlb` |
+| NHL/NCAA Hockey Expert | `agents/sme/nhl_ncaa_hockey_expert.py` | T1 | Domain assessment | `nhl_ncaa_hockey` |
+| MMA Expert | `agents/sme/mma_expert.py` | T1 | Domain assessment | `mma` |
+| Tennis Expert | `agents/sme/tennis_expert.py` | T1 | Domain assessment | `tennis` |
+| World Rugby Expert | `agents/sme/world_rugby_expert.py` | T1 | Domain assessment | `world_rugby` |
+| Cricket Expert | `agents/sme/cricket_expert.py` | T1 | Domain assessment | `cricket` |
+| WNBA/NCAA Women's Basketball Expert | `agents/sme/wnba_ncaa_womens_basketball_expert.py` | T1 | Domain assessment | `wnba_ncaa_womens_basketball` |
+| Thoroughbred Horse Racing Expert | `agents/sme/thoroughbred_horse_racing_expert.py` | T1 | Domain assessment | `thoroughbred_horse_racing` |
+| Harness Racing Expert | `agents/sme/harness_racing_expert.py` | T1 | Domain assessment | `harness_racing` |
+| Men's Boxing Expert | `agents/sme/mens_boxing_expert.py` | T1 | Domain assessment | `mens_boxing` |
+| PGA Expert | `agents/sme/pga_expert.py` | T1 | Domain assessment | `pga` |
+| LPGA Expert | `agents/sme/lpga_expert.py` | T1 | Domain assessment | `lpga` |
+| HR Team | HR Orchestrator | `agents/hr/orchestrator/orchestrator.py` | T1 | Sequences HR crew | — |
+| Recruiting Specialist | `agents/hr/recruiting/recruiting_agent.py` | T1 | JD, sourcing plan, interview guide | `recruiting_specialist` |
+| Onboarding Specialist | `agents/hr/onboarding/onboarding_agent.py` | T1 | Onboarding plan | `onboarding_specialist` |
+| Performance & Comp Specialist | `agents/hr/performance_comp/performance_comp_agent.py` | T1 | Review framework, comp analysis | `performance_comp_specialist` |
+| Policy & Compliance Specialist | `agents/hr/policy_compliance/policy_compliance_agent.py` | T1 | Policy docs, compliance audit | `policy_compliance_specialist` |
+| Culture & Engagement Specialist | `agents/hr/culture_engagement/culture_engagement_agent.py` | T1 | Engagement plan | `culture_engagement_specialist` |
+| Benefits Specialist | `agents/hr/benefits/benefits_agent.py` | T1 | Benefits analysis | `benefits_specialist` |
+| Video Team | Video Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences video crew, selects mode from brief | — |
+| Script Writer | `agents/script/script_writer.py` | T1 | Video scripts — all formats | `script_writer` |
+| Visual Director | `agents/visual/visual_director.py` | T1 | Visual direction briefs, shot lists | `visual_director` |
+| Audio Producer | `agents/audio/audio_producer.py` | T1 | Music briefs, SFX notes | `audio_producer` |
+| Avatar Producer | `agents/avatar/avatar_producer.py` | T1 | Avatar/spokesperson direction briefs | `avatar_producer` |
+| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` | T1 | Tool selection report — VIDEO\_TOOL\_SELECTION gate | `tool_analyst` |
+| API Engineer | `agents/production/api_engineer.py` | T1 | Production pipeline config | `api_engineer` |
+| Compliance Reviewer | `agents/compliance/compliance_reviewer.py` | T1 | Compliance clearance — VIDEO\_FINAL gate | `compliance_reviewer` |
 
 # Appendix B — Artifact Registry
 
