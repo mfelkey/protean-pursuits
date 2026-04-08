@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.2 — April 2026  ·  Reflects commit `4b46593` and beyond
+Version 3.3 — April 2026  ·  Reflects commit `4b46593` and beyond
 
 ## Contents
 
@@ -644,7 +644,7 @@ A fully standalone team with its own template and live submodule at `teams/hr-te
 
 | Agent | File |
 | --- | --- |
-| HR Orchestrator | `agents/hr/orchestrator/orchestrator.py` |
+| HR Orchestrator | `teams/hr-team/agents/orchestrator/orchestrator.py` |
 | Recruiting Specialist | `agents/hr/recruiting/recruiting_agent.py` |
 | Onboarding Specialist | `agents/hr/onboarding/onboarding_agent.py` |
 | Performance & Compensation Specialist | `agents/hr/performance_comp/performance_comp_agent.py` |
@@ -1288,5 +1288,5 @@ The project context is the JSON file (`logs/PROJ-{id}.json`) that holds the enti
 
 All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.
 
-Protean Pursuits — Agent System Operating Manual — Version 3.2 — April 2026
-Grounded in commit `61c6c68` · github.com/mfelkey/protean-pursuits
+Protean Pursuits — Agent System Operating Manual — Version 3.3 — April 2026
+Grounded in commit `fc6a239` · github.com/mfelkey/protean-pursuits
