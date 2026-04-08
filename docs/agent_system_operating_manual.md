@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.2 — April 2026  ·  Reflects commit `fdaabc3` and beyond + flow architecture
+Version 3.1 — April 2026  ·  Reflects commit `fdaabc3` and beyond
 
 ## Contents
 
@@ -18,15 +18,14 @@ Version 3.2 — April 2026  ·  Reflects commit `fdaabc3` and beyond + flow arch
 3. [Meet the Teams](#s3)
 4. [Agent Groups (Finance, SME, HR)](#s4)
 5. [Run Your First Project](#s5)
-6. [Flow Architecture — pp\_flow, Team Flows, Agent Direct](#s6)
-7. [Command Cheat Sheet](#s7)
-8. [Checkpoints — When It Asks You Something](#s8)
-9. [When Things Go Wrong](#s9)
+6. [Command Cheat Sheet](#s6)
+7. [Checkpoints — When It Asks You Something](#s7)
+8. [When Things Go Wrong](#s8)
 
 **Part II — Customize It**
 
-10. [Change Models, Tune Agents, Add New Ones](#s10)
-11. [Day-to-Day Operations](#s11)
+9. [Change Models, Tune Agents, Add New Ones](#s9)
+10. [Day-to-Day Operations](#s10)
 
 **Part III — Reference**
 
@@ -41,55 +40,32 @@ Version 3.2 — April 2026  ·  Reflects commit `fdaabc3` and beyond + flow arch
 
 You describe what you want in plain English. Protean Pursuits routes it through a hierarchy of AI agents — each an expert at a specific job — in a fixed sequence. You approve the work at key checkpoints. At the end you have a full set of documents, architecture, code, and tests.
 
-### Three entry points — pick the right one
-
-| Entry point | File | When to use |
-| --- | --- | --- |
-| **Full intake** | `flows/intake_flow.py` | New project from scratch — full orchestrator-led pipeline |
-| **Team flow** | `flows/pp_flow.py --team X --mode Y` | Existing project — run one team's pipeline or a specific mode |
-| **Agent direct** | `flows/pp_flow.py --team X --agent Y` | Targeted task — single agent, no orchestrator overhead |
-
-All three share the same context resolution, output paths, and HITL gates. See Section 6 for full reference.
-
 ### The orchestration hierarchy
 
-```
-YOU
- │
- ├─── intake_flow.py ────────────────────────────────────┐
- │    (new projects)                                      │
- │                                                        ▼
- ├─── pp_flow.py --mode  ──→  Team Flow  ──→  Team Orchestrator
- │    (team pipeline)                               │
- │                                                  ▼
- └─── pp_flow.py --agent ──→  Agent Direct ──→  Specialist Agent
-      (single agent)
-                                    │
-                          (all paths converge)
-                                    │
-                                    ▼
-                         ┌──────────────────────────────┐
-                         │  PP ORCHESTRATOR             │
-                         │  agents/orchestrator/        │
-                         │  Discovery · PRD · Routing   │
-                         └──────────────┬───────────────┘
-                                        │
-                                        ▼
-                         ┌──────────────────────────────┐
-                         │  PROJECT MANAGER             │
-                         │  Sprint · Timeline · Status  │
-                         └──────┬───────────────┬───────┘
-                                │               │
-                                ▼               ▼
-                           Team Lead       Team Lead
-                         (leads/dev/)   (leads/hr/) …etc
-                                │               │
-                                ▼               ▼
-                         Team Orchestrator  Team Orchestrator
-                                │               │
-                                ▼               ▼
-                         Specialist Agents  Specialist Agents
-```
+YOU ──→ Plain-English project description
+│
+▼
+┌──────────────────────────────────────────────────────────┐
+│ PP ORCHESTRATOR (agents/orchestrator/orchestrator.py) │
+│ Discovery interview · PRD auto-gen · Team assignment │
+│ Cross-project memory · Blocker escalation │
+└────────────────────┬─────────────────────────────────────┘
+│
+▼
+┌──────────────────────────────────────────────────────────┐
+│ PROJECT MANAGER (agents/project\_manager/) │
+│ Sprint planning · Timeline · Cross-team deps · Status │
+└──┬────────────────────────────────────────────────┬──────┘
+│ │
+▼ ▼
+Team Lead Team Lead
+(agents/leads/dev/) (agents/leads/hr/) …etc
+│ │
+▼ ▼
+Team Orchestrator Team Orchestrator
+│ │
+▼ ▼
+Specialist Agents Specialist Agents
 
 ### Three rules the system never breaks
 
@@ -307,26 +283,11 @@ python agents/shared/knowledge\_curator/curator.py --source arxiv --source va\_c
 
 ## DS Team — Data Science Pipeline
 
-Handles analytical workflows from initial framing through final reporting. Features **complexity-adaptive filtering** — pipeline depth scales automatically to LOW / MEDIUM / HIGH classifications. LOW projects skip EDA, statistical analysis, and ML detail passes.
+Handles analytical workflows from initial framing through final reporting. Features **complexity-adaptive filtering** — the pipeline depth scales automatically to LOW / MEDIUM / HIGH complexity classifications. LOW projects skip agents and checkpoints that aren't needed.
 
-Anti-hallucination discipline: all DS agent outputs require `[ASSUMPTION]` tags on inferences and `[VERIFY]` tags on unresolved items. No fabricated statistics — when actual data is unavailable agents produce prescriptive analysis plans specifying what to compute and why.
+Anti-hallucination discipline is enforced via a `validators.py` module with six checks: source grounding, fabricated statistics detection, confidence marker enforcement, section completeness, forbidden content filtering, and upstream consistency. All DS agent outputs require `[ASSUMPTION]` and `[VERIFY]` tags where applicable.
 
 **DS → DEV handoff (JOINT projects):** The DS team produces a formal handoff package. The DEV team receives it as authoritative upstream context and does not re-run the analysis.
-
-**DS Orchestrator is an authorized SME caller** — it may invoke the SME Group directly by passing `caller="ds_orchestrator"`.
-
-| Agent | File | Tier | What It Produces |
-| --- | --- | --- | --- |
-| DS Orchestrator | `agents/ds/ds_orchestrator.py` | T1 | Scoping, crew sequencing, synthesis, SME delegation |
-| Data Evaluator | `agents/ds/data_evaluator.py` | T1 | GO/NO-GO evaluation of data sources, APIs, and tools — scored comparison matrix |
-| Data Framer | `agents/ds/data_framer.py` | T1 | Problem Frame — target variable, feature requirements, complexity classification, pipeline recommendation |
-| EDA Analyst | `agents/ds/eda_analyst.py` | T1 | EDA report — distributions, data quality flags, feature signal assessment |
-| Statistical Analyst | `agents/ds/statistical_analyst.py` | T1 | Hypothesis tests, credible intervals, uncertainty quantification |
-| ML Engineer | `agents/ds/ml_engineer.py` | T1 | Model Development Plan — algorithm selection, feature engineering, training strategy, evaluation framework |
-| Pipeline Engineer | `agents/ds/pipeline_engineer.py` | T1 | Pipeline Design — ETL architecture, orchestration, error handling, observability |
-| Reporting Analyst | `agents/ds/reporting_analyst.py` | T1 | Six-section final report — Executive Summary, Findings, Recommendation, Implementation Notes, Risk Flags, PRD Impact |
-
-All outputs end with **CROSS-TEAM FLAGS** and **OPEN QUESTIONS**.
 
 ## Design Team
 
@@ -439,33 +400,28 @@ HITL gate type: `QA_SIGN_OFF`.
 
 ## Video Team
 
-Produces complete, platform-optimised video packages — from tool evaluation and scripting through API-generated renders. Supports short-form social, long-form YouTube, avatar spokesperson, product demo, animated explainer, and voiceover-only formats.
+| Agent | File |
+| --- | --- |
+| Video Orchestrator | `agents/orchestrator/orchestrator.py` |
+| Script Writer | `agents/script/script_writer.py` |
+| Visual Director | `agents/visual/visual_director.py` |
+| Audio Producer | `agents/audio/audio_producer.py` |
+| Avatar Producer | `agents/avatar/avatar_producer.py` |
+| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` |
+| API Engineer | `agents/production/api_engineer.py` |
+| Compliance Reviewer | `agents/compliance/compliance_reviewer.py` |
 
-| Agent | File | Tier | What It Produces |
-| --- | --- | --- | --- |
-| Video Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences crew, fires HITL gates, produces Video Package cover doc |
-| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` | T1 | Tool Recommendation Report (TRR) — scored rankings for video + audio tools, API signatures |
-| Script & Narrative Writer | `agents/script/script_writer.py` | T1 | Script Package — spoken copy with timestamps, on-screen text, B-roll cues, compliance checklist |
-| Visual Director | `agents/visual/visual_director.py` | T1 | Visual Direction Brief (VDB) — shot types, motion direction, colour grading, AI prompt strings |
-| Avatar & Spokesperson Producer | `agents/avatar/avatar_producer.py` | T1 | Avatar Production Brief (APB) — HeyGen/Synthesia execution params, dialogue segmentation, expression direction |
-| Audio & Music Producer | `agents/audio/audio_producer.py` | T1 | Audio Production Brief (AUB) — music generation prompts, TTS direction, SFX cue sheet, mix guide |
-| Compliance & Brand Reviewer | `agents/compliance/compliance_reviewer.py` | T1 | Compliance Report (COR) — PASS / CONDITIONAL PASS / FAIL rating across brand, platform policy, legal, and technical spec |
-| API Production Engineer | `agents/production/api_engineer.py` | T2 | Executes approved APIs (Runway, HeyGen, ElevenLabs, etc.), saves raw assets, produces Assembly Manifest (JSON) |
+HITL gate types: `VIDEO_TOOL_SELECTION` (after Tool Analyst, before any creative work), `SCRIPT_REVIEW` (after Script Writer, before API calls), `VIDEO_FINAL` (after Compliance Reviewer, before any publish action). No video deliverable is produced autonomously.
 
-**HITL gates (three, in sequence):**
-- `VIDEO_TOOL_SELECTION` — after Tool Intelligence Analyst, before any creative work
-- `SCRIPT_REVIEW` — after Script Writer, before any API calls
-- `VIDEO_FINAL` — after Compliance Reviewer, before any publish action
-
-No video is marked publishable without human approval at all three gates. The API Production Engineer never runs before `SCRIPT_REVIEW` is approved.
+Run modes: `BRIEF_ONLY | SHORT_FORM | LONG_FORM | AVATAR | DEMO | EXPLAINER | VOICEOVER | FULL`
 
 # 4. Agent Groups
 
 Agent groups are specialized crews that operate alongside the main teams. They have their own access rules, invocation patterns, and behavioral constraints.
 
-## Finance Group
+## Finance Group Dev Team Sub-Crew
 
-A dev-team sub-crew — agents live at `templates/dev-team/agents/finance/` — now also accessible as a **standalone team** via `flows/finance_flow.py` and `--team finance` in `pp_flow.py`. Advisory only — it **never auto-blocks the pipeline**. Fires checkpoint CP-4.5 on FSP completion.
+**Not a standalone team.** Runs as a sub-crew of the Dev team — after full planning (post UX Content Guide), before the build phase. Advisory only — it **never auto-blocks the pipeline**. Fires checkpoint CP-4.5 on FSP completion. Location: `templates/dev-team/agents/finance/`
 
 **Auto-detection rules:** Billing Architect (`BPS`) is skipped if no billing/payment/subscription language is found in the PRD. Pricing Specialist (`PRI`) is skipped for internal tooling projects. The orchestrator scans PRD keywords at runtime and logs any skip with its reason.
 
@@ -473,12 +429,8 @@ A dev-team sub-crew — agents live at `templates/dev-team/agents/finance/` — 
 
 **Invocation:**
 
-```bash
-python flows/pp_flow.py --team finance --mode full --project <n> --task "..." --save
-python flows/pp_flow.py --team finance --mode roi --task "ROI for $2M build"
-python flows/pp_flow.py --team finance --agent cost_analyst --task "..." --project <n>
-```
-Available modes: `full` `cost` `roi` `infra` `billing` `pricing` `statements` `strategy`
+python agents/finance/finance\_orchestrator.py # full crew run
+python agents/finance/cost\_analyst.py # single-agent shortcut
 
 #### Finance Orchestrator Tier 1
 
@@ -722,7 +674,7 @@ python agents/dev/strategy/ux\_designer.py
 python agents/dev/strategy/ux\_content\_guide.py
 ⏸️ CP-4: Review UX & content
 # 5. (Optional) Finance Group
-python flows/pp_flow.py --team finance --mode full --project <n> --task "Full financial analysis" --save
+python agents/finance/finance\_orchestrator.py
 ⏸️ CP-4.5: Review Finance Summary Package
 # 6. Build phase
 python agents/dev/build/senior\_developer.py
@@ -761,273 +713,53 @@ python agents/dev/reconciliation.py
 cd ~/projects/hr-team
 python flows/hr\_flow.py --mode RECRUIT # or ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL\_CYCLE
 
-## Faster runs with pp\_flow.py
+## Direct team access (post-initiation)
 
-Once a project context exists, `pp_flow.py` is the fastest way to re-enter any team or hit a single agent without repeating the full intake.
+After a project is running, any team can be contacted directly with a plain-English brief — no full intake required. Each intake flow loads existing project context if you supply `--project`, or builds a minimal stub on cold start. The team orchestrator selects the appropriate run mode from the brief.
 
-```bash
-# Run a team pipeline from the top-level dispatcher
-python flows/pp_flow.py --team dev --mode plan \
-    --project my-project --task "Sports betting web app" --save
-
-# Jump straight to a specific agent
-python flows/pp_flow.py --team marketing --agent copywriter \
-    --task "App Store listing for ParallaxEdge" --project parallaxedge --save
-
-# See all modes and agents for a team
-python flows/pp_flow.py --team strategy --list-modes
-
-# Inline context — no project file needed
-python flows/pp_flow.py --team legal --agent contract_drafter \
-    --task "Draft NDA for contractor" --context "Michigan law, 2yr term"
-```
-
-See Section 6 for the full flow architecture reference.
-
-# 6. Flow Architecture — pp\_flow, Team Flows, Agent Direct
-
-## Overview
-
-Three layers sit between you and the agent hierarchy. Use the lightest one that fits the job.
-
-```
-Layer 0   flows/pp_flow.py                  Top-level dispatcher
-Layer 1   flows/intake_flow.py              Full project bootstrap (unchanged)
-Layer 2   templates/{team}/flows/{team}_flow.py        Team orchestrator entry points
-Layer 3   templates/{team}/flows/{team}_agent_flow.py  Single-agent direct access
-```
-
-**Context is always loaded the same way across all layers** — `core/context_loader.py` resolves in order: `--project` → `--context-file` → `--context` → none.
-
-**Output paths:**
-- Team flow (with `--save`): `output/<project>/<team>/<mode>_<timestamp>.md`
-- Agent direct (with `--save`): `output/<project>/agent_direct/<agent_key>_<timestamp>.md`
-
----
-
-## Layer 0 — `flows/pp_flow.py`
-
-The single top-level command for everything except a cold-start new project.
+**All 8 teams have a dedicated intake flow at `flows/`:**
 
 ```bash
-python flows/pp_flow.py \
-    --team  <team>          # dev | ds | design | legal | marketing |
-                            #   strategy | qa | hr | video
-    --mode  <mode>          # team-specific run mode (routes to orchestrator)
-  OR
-    --agent <agent_key>     # registry key (bypasses orchestrator)
-    --task  "<description>" # plain-English task
-    [--project <name>]      # loads output/<project>/context.json
-    [--context-file <path>] # explicit context file
-    [--context "<string>"]  # inline context
-    [--save]                # write output to disk (requires --project)
-    [--list-modes]          # show available modes and agents for --team, then exit
+# Marketing — campaigns, copy, social, email, video, analytics
+python flows/marketing_intake_flow.py \
+    --project <name> --brief "Refresh App Store listing and 3-email drip for lapsed users" --save
+
+# DS — EDA, analysis, models, pipeline
+python flows/ds_intake_flow.py \
+    --project <name> --brief "Run churn analysis on Q3 user cohort" --save
+
+# Legal — contracts, review, IP, privacy, regulatory, employment, corporate, dispute
+python flows/legal_intake_flow.py \
+    --project <name> --brief "Review Terms of Service for GDPR compliance gaps" --save
+
+# Strategy — positioning, GTM, competitive, OKR, financial, partnership, product, risk, talent, technology
+python flows/strategy_intake_flow.py \
+    --project <name> --brief "Build a competitive landscape for the US sports betting market" --save
+
+# Design — research, wireframe, visual, motion, accessibility
+python flows/design_intake_flow.py \
+    --project <name> --brief "Wireframe the bet slip flow and onboarding screens" --save
+
+# QA — functional, performance, security, accessibility, data quality, legal/marketing review, test cases
+python flows/qa_intake_flow.py \
+    --project <name> --brief "Security and accessibility audit on the new bet slip feature" --save
+
+# HR — recruit, onboard, review, policy, culture, benefits (humans-only model enforced)
+python flows/hr_intake_flow.py \
+    --project <name> --brief "Draft onboarding plan for two new frontend engineers" --save
+
+# Video — brief only, short form, long form, avatar, demo, explainer, voiceover, full campaign
+python flows/video_intake_flow.py \
+    --project <name> --brief "60s TikTok ad for ParallaxEdge launch — Q3, US market" --save
 ```
 
-`--mode` and `--agent` are mutually exclusive. One is required.
+**Cold start (no existing project):** omit `--project` — you will be prompted for a project name and a minimal context stub is created automatically.
 
----
+**Non-interactive (scripted use):** add `--non-interactive --project <name>` to suppress all prompts.
 
-## Layer 2 — Team Flows
+**Brief too short?** The flow detects briefs under 20 words and asks for additional context before proceeding. Skip with Enter or pass a fuller brief up front.
 
-One `{team}_flow.py` per team. Each exposes a set of modes that route to the team orchestrator and the appropriate specialist subset. All follow the `ds_flow.py` pattern: `build_crew()` + `run_<mode>(context, task, save)` + argparse CLI.
-
-### Dev Team (`dev_flow.py`)
-
-| Mode | Pipeline | Prerequisites |
-| --- | --- | --- |
-| `plan` | PM → BA → Scrum Master → Tech Arch → Security Reviewer → UX Designer → UX Content Guide | None |
-| `build` | Senior Dev → Backend → Frontend → DBA → DevOps | **TAD required in context** |
-| `quality` | QA Lead → Test Automation Engineer | None |
-| `finance` | Finance Orchestrator (full Finance Group sub-crew) | None |
-| `mobile` | Mobile UX → iOS → Android → RN Arch → RN Dev → Mobile DevOps → Mobile QA | **UXD required in context** |
-| `full` | plan → finance → build → quality in sequence | None (reloads context between phases) |
-
-### DS Team (`ds_flow.py`)
-
-Complexity-adaptive routing applies to `analysis`, `model`, and `pipeline` modes — pass `--complexity LOW|MEDIUM|HIGH` (default: MEDIUM). LOW skips EDA and statistical detail to reduce runtime.
-
-| Mode | Crew (MEDIUM/HIGH) | Crew (LOW) |
-| --- | --- | --- |
-| `brief` | DS Orchestrator | DS Orchestrator |
-| `evaluation` | Data Evaluator → Reporting Analyst → DS Orchestrator | ← same |
-| `analysis` | Data Framer → EDA Analyst → Statistical Analyst → Reporting Analyst → DS Orchestrator | Data Framer → Reporting Analyst → DS Orchestrator |
-| `model` | Data Framer → EDA Analyst → ML Engineer → Reporting Analyst → DS Orchestrator | Data Framer → ML Engineer → Reporting Analyst → DS Orchestrator |
-| `pipeline` | Data Framer → Pipeline Engineer → ML Engineer → Reporting Analyst → DS Orchestrator | Data Framer → Pipeline Engineer → Reporting Analyst → DS Orchestrator |
-
-All modes produce the six-section report structure. `ds_flow.py` also accepts `--name` and `--brief` directly from the CLI (original interface preserved).
-
-### Design Team (`design_flow.py`)
-
-| Mode | Pipeline | Notes |
-| --- | --- | --- |
-| `research` | UX Researcher | |
-| `wireframe` | UX Researcher → Wireframing Specialist | |
-| `visual` | UI Designer → Brand Identity Specialist → Design System Architect | Expects wireframes in context if standalone |
-| `motion` | Motion & Animation Designer | |
-| `accessibility` | Accessibility Specialist → Usability Analyst | |
-| `full` | All agents in sequence | DESIGN\_REVIEW gate on all modes |
-
-### Legal Team (`legal_flow.py`)
-
-| Mode | Agent | HITL |
-| --- | --- | --- |
-| `contract` | Contract Drafter | LEGAL\_REVIEW |
-| `review` | Document Reviewer | LEGAL\_REVIEW |
-| `ip` | IP & Licensing Specialist | LEGAL\_REVIEW |
-| `privacy` | Privacy & Data Counsel | LEGAL\_REVIEW |
-| `regulatory` | Regulatory Compliance Specialist | LEGAL\_REVIEW |
-| `employment` | Employment & Contractor Counsel | LEGAL\_REVIEW |
-| `corporate` | Corporate Entity Specialist | LEGAL\_REVIEW |
-| `dispute` | Litigation & Dispute Specialist | LEGAL\_REVIEW |
-| `full` | All agents in sequence | LEGAL\_REVIEW |
-
-Legal is an authorized SME caller — SME invocations from `legal_flow.py` propagate the correct `caller="legal"` automatically.
-
-### Marketing Team (`marketing_flow.py`)
-
-| Mode | Pipeline | HITL gate |
-| --- | --- | --- |
-| `brief` | Marketing Orchestrator | — |
-| `copy` | Copywriter | — |
-| `email` | Email Specialist | EMAIL |
-| `social` | Social Media Specialist | POST |
-| `video` | Video Producer | VIDEO |
-| `analytics` | Marketing Analyst | — |
-| `campaign` | Orchestrator → all specialists | POST / EMAIL / VIDEO |
-
-No deliverable publishes autonomously.
-
-### Strategy Team (`strategy_flow.py`)
-
-| Mode | Agent | HITL |
-| --- | --- | --- |
-| `positioning` | Brand Positioning Strategist | STRATEGY |
-| `business_model` | Business Model Designer | STRATEGY |
-| `competitive` | Competitive Intelligence Analyst | COMPETITIVE |
-| `gtm` | GTM Strategist | STRATEGY |
-| `okr` | OKR Planner | OKR\_CYCLE |
-| `financial` | Financial Strategist | STRATEGY |
-| `partnership` | Partnership Strategist | STRATEGY |
-| `product` | Product Strategist | STRATEGY |
-| `risk` | Risk & Scenario Planner | STRATEGY |
-| `talent` | Talent & Org Designer | STRATEGY |
-| `technology` | Technology Strategist | STRATEGY |
-| `full` | All agents in sequence | STRATEGY / OKR\_CYCLE / COMPETITIVE |
-
-Strategy is an authorized SME caller — `caller="strategy"` propagated automatically.
-
-### QA Team (`qa_flow.py`)
-
-| Mode | Agent | Notes |
-| --- | --- | --- |
-| `functional` | Functional Testing Specialist | |
-| `performance` | Performance Testing Specialist | |
-| `security` | Security Testing Specialist | Returns 🟢/🟡/🔴 rating |
-| `accessibility` | Accessibility Auditor | WCAG 2.1 AA |
-| `data_quality` | Data Quality Analyst | |
-| `legal_review` | Legal Completeness Reviewer | |
-| `marketing_review` | Marketing Compliance Reviewer | |
-| `test_cases` | Test Case Developer | |
-| `full` | All agents in sequence | QA\_SIGN\_OFF gate |
-
-### HR Team (`hr_flow.py`) — existing, unchanged
-
-Modes: `RECRUIT | ONBOARD | REVIEW | POLICY | CULTURE | BENEFITS | FULL_CYCLE`
-
-### Video Team (`video_flow.py`)
-
-**Note: Mode names are uppercase** — consistent with the orchestrator definition and HR team convention.
-
-| Mode | Pipeline | HITL gates |
-| --- | --- | --- |
-| `BRIEF_ONLY` | Tool Analyst → Script → Visual → Audio | TOOL_SELECTION, SCRIPT_REVIEW |
-| `SHORT_FORM` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
-| `LONG_FORM` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
-| `AVATAR` | Tool Analyst → Script → **Avatar** → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
-| `DEMO` | Script → Audio → API Engineer → Compliance | SCRIPT_REVIEW, VIDEO_FINAL |
-| `EXPLAINER` | Tool Analyst → Script → Visual → Audio → Compliance → API Engineer | TOOL_SELECTION, SCRIPT_REVIEW, VIDEO_FINAL |
-| `VOICEOVER` | Script → Audio → API Engineer → Compliance | SCRIPT_REVIEW, VIDEO_FINAL |
-| `FULL` | BRIEF_ONLY → SHORT_FORM → LONG_FORM → AVATAR in sequence | All gates for each sub-mode |
-
-`DEMO` and `VOICEOVER` skip visual generation and tool evaluation — they accept a screen recording or audio-only brief as input.
-`AVATAR` substitutes Avatar Producer for Visual Director.
-`FULL` sequences four sub-modes as a complete campaign package.
-
----
-
-## Layer 3 — Agent Direct Flows
-
-One `{team}_agent_flow.py` per team. Each exposes an `AGENT_REGISTRY` dict and a `run_agent(agent_key, task, context, save)` function callable from `pp_flow.py` or directly.
-
-**Output:** stdout always. File written only with `--save` (requires `--project`).
-**Path:** `output/<project>/agent_direct/<agent_key>_<timestamp>.md`
-
-To list available agents for a team:
-```bash
-python flows/pp_flow.py --team marketing --list-modes
-# or directly:
-python templates/marketing-team/flows/marketing_agent_flow.py --list-agents
-```
-
-### Agent registries by team
-
-**Dev** — 16 agents: `product_manager`, `business_analyst`, `scrum_master`, `technical_architect`, `security_reviewer`, `ux_designer`, `ux_content_guide`, `senior_developer`, `backend_developer`, `frontend_developer`, `dba`, `devops_engineer`, `qa_lead`, `test_automation_engineer`, `devex_writer`, `technical_writer`
-
-**DS** — 8 agents: `ds_orchestrator`, `data_evaluator`, `data_framer`, `eda_analyst`, `statistical_analyst`, `ml_engineer`, `pipeline_engineer`, `reporting_analyst` — DS Orchestrator is an authorized SME caller
-
-**Design** — 8 agents: `ux_researcher`, `wireframing_specialist`, `ui_designer`, `brand_identity_specialist`, `design_system_architect`, `motion_designer`, `accessibility_specialist`, `usability_analyst`
-
-**Legal** — 8 agents: `contract_drafter`, `document_reviewer`, `corporate_entity_specialist`, `ip_licensing_specialist`, `privacy_data_counsel`, `regulatory_compliance_specialist`, `employment_contractor_counsel`, `litigation_dispute_specialist`
-
-**Marketing** — 5 agents: `marketing_analyst`, `copywriter`, `email_specialist`, `social_media_specialist`, `video_producer`
-
-**Strategy** — 11 agents: `brand_positioning_strategist`, `business_model_designer`, `competitive_intel_analyst`, `financial_strategist`, `gtm_strategist`, `okr_planner`, `partnership_strategist`, `product_strategist`, `risk_scenario_planner`, `talent_org_designer`, `technology_strategist`
-
-**QA** — 8 agents: `functional_testing_specialist`, `performance_testing_specialist`, `security_testing_specialist`, `accessibility_auditor`, `data_quality_analyst`, `legal_completeness_reviewer`, `marketing_compliance_reviewer`, `test_case_developer`
-
-**HR** — 6 agents: `recruiting_specialist`, `onboarding_specialist`, `performance_comp_specialist`, `policy_compliance_specialist`, `culture_engagement_specialist`, `benefits_specialist` *(HR guardrails enforced at flow level — cannot be bypassed)*
-
-**Video** — 7 agents: `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `tool_analyst`, `api_engineer`, `compliance_reviewer` — `api_engineer` is Tier 2; `tool_analyst` performs web search at runtime. `avatar_producer` requires `avatar_config` in context.
-
----
-
-## `core/context_loader.py`
-
-Shared utility imported by all team flows and agent flows. Not called directly.
-
-| Function | Purpose |
-| --- | --- |
-| `load_context(project, context_file, context_str)` | Resolves context from project JSON, file, inline string, or none |
-| `require_artifact(context, key, hint)` | Asserts an artifact exists in context — exits with clear error if missing |
-| `save_output(content, project, team, filename)` | Writes to `output/<project>/<team>/<filename>` |
-| `save_agent_direct_output(content, project, agent_key)` | Writes to `output/<project>/agent_direct/<key>_<ts>.md` |
-
-# 7. Command Cheat Sheet
-
-## Flow commands
-
-Run a team pipeline (routes to team orchestrator)
-
-`python flows/pp_flow.py --team <team> --mode <mode> --project <n> --task "<desc>" --save`
-
-Run a single agent directly (bypasses orchestrator)
-
-`python flows/pp_flow.py --team <team> --agent <key> --project <n> --task "<desc>" --save`
-
-List available modes and agents for a team
-
-`python flows/pp_flow.py --team <team> --list-modes`
-
-Run with inline context — no project file needed
-
-`python flows/pp_flow.py --team legal --agent contract_drafter --task "Draft NDA" --context "Michigan law"`
-
-Run with a context file
-
-`python flows/pp_flow.py --team ds --mode analysis --context-file ~/briefs/brief.txt --task "Q1 churn analysis"`
-
-## System commands
+# 6. Command Cheat Sheet
 
 Check Ollama is running
 
@@ -1077,7 +809,23 @@ Approve a checkpoint
 
 Type `APPROVE` at the terminal prompt
 
-# 8. Checkpoints — When It Asks You Something
+Contact a team directly (post-initiation)
+
+`python flows/<team>_intake_flow.py --project <name> --brief "<what you need>" --save`
+
+List available teams for direct intake
+
+`ls flows/*_intake_flow.py`
+
+Cold-start a team without an existing project
+
+`python flows/marketing_intake_flow.py --brief "<brief>"` *(prompts for project name)*
+
+Non-interactive intake (scripted use)
+
+`python flows/ds_intake_flow.py --project <name> --non-interactive --brief "<brief>" --save`
+
+# 7. Checkpoints — When It Asks You Something
 
 At defined points in every pipeline, the system stops and waits for you. It sends an SMS (AT&T gateway) and email (Outlook SMTP), prints the checkpoint summary in the terminal, writes a request file to `logs/approvals/`, and polls for a JSON response file.
 
@@ -1104,12 +852,15 @@ At defined points in every pipeline, the system stops and waits for you. It send
 | **DESIGN\_REVIEW** | Design team deliverables | Design assets approved before handoff to Dev. |
 | **QA\_SIGN\_OFF** | QA team | Cross-team quality audit results. |
 | **LEGAL\_REVIEW** | Legal team | Legal deliverables approved before any action. |
+| **VIDEO\_TOOL\_SELECTION** | Video Tool Analyst | Tool choices locked in before any creative work begins. |
+| **SCRIPT\_REVIEW** | Video Script Writer | Script approved before API calls or asset generation. |
+| **VIDEO\_FINAL** | Video Compliance Reviewer | Final review before any publish or distribution action. |
 
 **Security RED block:** If the Security Reviewer rates the architecture 🔴 RED, the pipeline halts entirely. No build agents run until a human resolves the finding and the security review is re-run and approved.
 
 **Terminal dies during a checkpoint?** The project context was saved before the gate fired. Re-run the same agent — it picks up where it left off. The approval request file in `logs/approvals/` persists across restarts.
 
-# 9. When Things Go Wrong
+# 8. When Things Go Wrong
 
 ## 🔇 Agent sits there doing nothing (30+ minutes)
 
@@ -1169,26 +920,9 @@ Just run it again. It overwrites its previous output and updates the project con
 
 **What happened:** A dev-team agent tried to call the SME group directly — this is blocked by `validate_caller()`.
 
-**Fix:** SME calls must go through an authorized caller: `pp_orchestrator`, `project_manager`, `strategy`, `legal`, `ds_orchestrator`, or `sme_flow`. Restructure your flow accordingly.
+**Fix:** SME calls must go through an authorized caller: `pp_orchestrator`, `project_manager`, `strategy`, or `legal`. Restructure your flow accordingly.
 
-## 🗂️ `pp_flow.py` — "No context found" or empty output
-
-**What happened:** `--project` was specified but `output/<project>/context.json` doesn't exist yet, or the project name is misspelled.
-
-**Fix options:**
-1. Run `python flows/intake_flow.py` first to create the context file, then re-run `pp_flow.py`.
-2. Use `--context-file <path>` or `--context "<string>"` to supply context inline.
-3. Check the path: `ls output/<project>/context.json`.
-
-Note: running without any context is valid — agents will produce output, but quality may be reduced. A warning is printed to stderr.
-
-## ⚠️ `pp_flow.py` — "Unknown agent key" error
-
-**What happened:** The registry key passed to `--agent` doesn't match any entry in the team's `AGENT_REGISTRY`.
-
-**Fix:** Run `python flows/pp_flow.py --team <team> --list-modes` to see all valid agent keys for that team.
-
-# 10. Change Models, Tune Agents, Add New Ones
+# 9. Change Models, Tune Agents, Add New Ones
 
 ## Switch to a different LLM
 
@@ -1216,7 +950,6 @@ To change: `ollama pull <model-name>` → update the env var → done. No code c
 4. Add a `__main__` block that loads the project context and finds upstream artifacts
 5. Set `sys.path.insert(0, "/home/mfelkey/<team-name>")` at the top
 6. Match the artifact naming pattern: `{PROJ}_{TYPE}.md`
-7. Register the agent in the team's `{team}_agent_flow.py` — add an entry to `AGENT_REGISTRY` with `module`, `build_fn`, and `description`. The agent is then immediately accessible via `pp_flow.py --team <team> --agent <key>`.
 
 **Pattern consistency is non-negotiable.** New agents must exactly match existing structural patterns: file layout, orchestrator shape, artifact naming, cross-team flag utilities. Read a comparable agent before writing a new one.
 
@@ -1226,17 +959,7 @@ To change: `ollama pull <model-name>` → update the env var → done. No code c
 
 **Undefined variable discipline:** Template variables like `{tad_content}` must be defined before use. The uniform fallback is `{prompt_context}` from the context manager.
 
-# 11. Day-to-Day Operations
-
-## Mission Control GUI
-
-A Flask-based vibe-coder dashboard covering all 11 teams.
-```bash
-python3.11 templates/dev-team/dev-team-gui/app.py
-# Open: http://localhost:5000
-```
-
-**Panels:** Run Agent (team pills, Mode / Agent Direct toggle, live `pp_flow.py` execution, stdout streaming), Pipeline Tracker (all teams collapsible, step completion status), Checkpoints (pending approvals, one-click approve/reject), Run History, Agent Reference, Commands cheat sheet.
+# 10. Day-to-Day Operations
 
 ## What to watch in the terminal
 
@@ -1286,6 +1009,19 @@ python agents/orchestrator/classify.py # new project
 | ChromaDB | `pip install --upgrade chromadb` |
 
 **Key pattern reminder:** Every agent reads upstream artifacts from the `artifacts` array in the project context JSON by `type` (e.g. `"PRD"`, `"TAD"`). When it finishes, it appends its own artifact to the same array. That's how agents find each other's work.
+
+## Flow architecture — choosing the right entry point
+
+Four layers sit between you and the agent hierarchy. Use the lightest one that fits:
+
+| Layer | File | Use when |
+| --- | --- | --- |
+| **0 — Full intake** | `flows/intake_flow.py` | Starting a brand new project from scratch |
+| **1 — Team intake** | `flows/<team>_intake_flow.py` | Post-initiation task for a specific team — plain-English brief, orchestrator picks mode |
+| **2 — Team flow** | `templates/<team>/flows/<team>_flow.py` | You know exactly which mode you want |
+| **3 — Agent direct** | `templates/<team>/flows/<team>_agent_flow.py` | Bypass the orchestrator entirely — one agent, one task |
+
+Context resolution is identical across all layers: `--project` → `--context-file` → `--context` → none.
 
 ---
 
@@ -1353,14 +1089,6 @@ Detailed reference material. You don't need to read this to use the system — i
 | Men's Boxing Expert | `agents/sme/mens_boxing_expert.py` | T1 | Domain assessment |
 | PGA Expert | `agents/sme/pga_expert.py` | T1 | Domain assessment |
 | LPGA Expert | `agents/sme/lpga_expert.py` | T1 | Domain assessment |
-| DS Team | DS Orchestrator | `agents/ds/ds_orchestrator.py` | T1 | Scoping, crew sequencing, synthesis |
-| Data Evaluator | `agents/ds/data_evaluator.py` | T1 | GO/NO-GO, scored tool comparison |
-| Data Framer | `agents/ds/data_framer.py` | T1 | Problem frame, complexity classification |
-| EDA Analyst | `agents/ds/eda_analyst.py` | T1 | Distributions, data quality, feature signal |
-| Statistical Analyst | `agents/ds/statistical_analyst.py` | T1 | Hypothesis tests, credible intervals |
-| ML Engineer | `agents/ds/ml_engineer.py` | T1 | Algorithm selection, training strategy |
-| Pipeline Engineer | `agents/ds/pipeline_engineer.py` | T1 | ETL architecture, orchestration |
-| Reporting Analyst | `agents/ds/reporting_analyst.py` | T1 | Six-section final reports |
 | HR Team | HR Orchestrator | `agents/hr/orchestrator/orchestrator.py` | T1 | Sequences HR crew |
 | Recruiting Specialist | `agents/hr/recruiting/recruiting_agent.py` | T1 | JD, sourcing plan, interview guide |
 | Onboarding Specialist | `agents/hr/onboarding/onboarding_agent.py` | T1 | Onboarding plan |
@@ -1368,33 +1096,14 @@ Detailed reference material. You don't need to read this to use the system — i
 | Policy & Compliance Specialist | `agents/hr/policy_compliance/policy_compliance_agent.py` | T1 | Policy docs, compliance audit |
 | Culture & Engagement Specialist | `agents/hr/culture_engagement/culture_engagement_agent.py` | T1 | Engagement plan |
 | Benefits Specialist | `agents/hr/benefits/benefits_agent.py` | T1 | Benefits analysis |
-
-## Flow & Utility Files
-
-| Type | File | Purpose |
-| --- | --- | --- |
-| Shared utility | `core/context_loader.py` | Context resolution, artifact validation, output path helpers — imported by all flows |
-| Top-level dispatcher | `flows/pp_flow.py` | Routes `--mode` to team flows and `--agent` to agent direct flows |
-| Dev team flow | `templates/dev-team/flows/dev_flow.py` | Modes: `plan`, `build`, `quality`, `finance`, `mobile`, `full` |
-| Dev agent flow | `templates/dev-team/flows/dev_agent_flow.py` | 16 agents — registry key access to all dev specialists |
-| DS agent flow | `templates/ds-team/flows/ds_agent_flow.py` | 8 agents — `ds_orchestrator`, `data_evaluator`, `data_framer`, `eda_analyst`, `statistical_analyst`, `ml_engineer`, `pipeline_engineer`, `reporting_analyst` |
-| Design team flow | `templates/design-team/flows/design_flow.py` | Modes: `research`, `wireframe`, `visual`, `motion`, `accessibility`, `full` |
-| Design agent flow | `templates/design-team/flows/design_agent_flow.py` | 8 agents |
-| Legal team flow | `templates/legal-team/flows/legal_flow.py` | Modes: `contract`, `review`, `ip`, `privacy`, `regulatory`, `employment`, `corporate`, `dispute`, `full` |
-| Legal agent flow | `templates/legal-team/flows/legal_agent_flow.py` | 8 agents |
-| Marketing team flow | `templates/marketing-team/flows/marketing_flow.py` | Modes: `brief`, `copy`, `email`, `social`, `video`, `analytics`, `campaign` |
-| Marketing agent flow | `templates/marketing-team/flows/marketing_agent_flow.py` | 5 agents |
-| Strategy team flow | `templates/strategy-team/flows/strategy_flow.py` | Modes: `positioning`, `business_model`, `competitive`, `gtm`, `okr`, `financial`, `partnership`, `product`, `risk`, `talent`, `technology`, `full` |
-| Strategy agent flow | `templates/strategy-team/flows/strategy_agent_flow.py` | 11 agents |
-| QA team flow | `templates/qa-team/flows/qa_flow.py` | Modes: `functional`, `performance`, `security`, `accessibility`, `data_quality`, `legal_review`, `marketing_review`, `test_cases`, `full` |
-| QA agent flow | `templates/qa-team/flows/qa_agent_flow.py` | 8 agents |
-| HR agent flow | `templates/hr-team/flows/hr_agent_flow.py` | 6 agents — HR guardrails enforced at flow level |
-| Video team flow | `templates/video-team/flows/video_flow.py` | Modes: `BRIEF_ONLY`, `SHORT_FORM`, `LONG_FORM`, `AVATAR`, `DEMO`, `EXPLAINER`, `VOICEOVER`, `FULL` |
-| Video agent flow | `templates/video-team/flows/video_agent_flow.py` | 7 agents — `tool_analyst`, `script_writer`, `visual_director`, `audio_producer`, `avatar_producer`, `api_engineer`, `compliance_reviewer` |
-| Finance flow | `flows/finance_flow.py` | 8 modes — `full` `cost` `roi` `infra` `billing` `pricing` `statements` `strategy` |
-| Finance agent flow | `flows/finance_agent_flow.py` | 8 Finance Group specialists |
-| SME flow | `flows/sme_flow.py` | 3 modes — `consult` `crew` `auto`; authorized caller `sme_flow` |
-| SME agent flow | `flows/sme_agent_flow.py` | 16 SME specialists via `run_sme_consult()` |
+| Video Team | Video Orchestrator | `agents/orchestrator/orchestrator.py` | T1 | Sequences video crew, selects mode from brief |
+| Script Writer | `agents/script/script_writer.py` | T1 | Video scripts — all formats |
+| Visual Director | `agents/visual/visual_director.py` | T1 | Visual direction briefs, shot lists |
+| Audio Producer | `agents/audio/audio_producer.py` | T1 | Music briefs, SFX notes |
+| Avatar Producer | `agents/avatar/avatar_producer.py` | T1 | Avatar/spokesperson direction briefs |
+| Tool Intelligence Analyst | `agents/tool_intelligence/tool_analyst.py` | T1 | Tool selection report — VIDEO\_TOOL\_SELECTION gate |
+| API Engineer | `agents/production/api_engineer.py` | T1 | Production pipeline config |
+| Compliance Reviewer | `agents/compliance/compliance_reviewer.py` | T1 | Compliance clearance — VIDEO\_FINAL gate |
 
 # Appendix B — Artifact Registry
 
@@ -1611,5 +1320,5 @@ The project context is the JSON file (`logs/PROJ-{id}.json`) that holds the enti
 
 All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.
 
-Protean Pursuits — Agent System Operating Manual — Version 3.2 — April 2026
-Grounded in commit `fdaabc3` + flow architecture patch · github.com/mfelkey/protean-pursuits
+Protean Pursuits — Agent System Operating Manual — Version 3.1 — April 2026
+Grounded in commit `fdaabc3` · github.com/mfelkey/protean-pursuits
