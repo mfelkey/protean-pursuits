@@ -33,8 +33,9 @@ from datetime import datetime
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_TEAM_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
+sys.path.insert(0, str(_TEAM_ROOT))
 
 from core.context_loader import load_context, save_output  # noqa: E402
 
@@ -60,25 +61,23 @@ def _notify(title: str, message: str):
 # ---------------------------------------------------------------------------
 
 def _load_agents(keys: list):
-    """Import and build agents by registry key. Returns dict of key → agent."""
-    from agents.orchestrator.orchestrator import build_marketing_orchestrator
-    from agents.analyst.analyst_agent import build_marketing_analyst
-    from agents.copywriter.copywriter_agent import build_copywriter
-    from agents.email.email_agent import build_email_specialist
-    from agents.social.social_agent import build_social_media_specialist
-    from agents.video.video_agent import build_video_producer
-
-    builders = {
-        "orchestrator":       build_marketing_orchestrator,
-        "marketing_analyst":  build_marketing_analyst,
-        "copywriter":         build_copywriter,
-        "email_specialist":   build_email_specialist,
-        "social_specialist":  build_social_media_specialist,
-        "video_producer":     build_video_producer,
+    """Import and build agents by registry key. Truly lazy — only imports what is needed."""
+    import importlib
+    _registry = {
+        "orchestrator":      ("agents.orchestrator.orchestrator",  "build_marketing_orchestrator"),
+        "marketing_analyst": ("agents.analyst.analyst_agent",      "build_marketing_analyst"),
+        "copywriter":        ("agents.copywriter.copywriter_agent", "build_copywriter"),
+        "email_specialist":  ("agents.email.email_agent",          "build_email_specialist"),
+        "social_specialist": ("agents.social.social_agent",        "build_social_media_specialist"),
+        "video_producer":    ("agents.video.video_agent",          "build_video_producer"),
     }
-    return {k: builders[k]() for k in keys if k in builders}
-
-
+    result = {}
+    for k in keys:
+        if k in _registry:
+            module_path, fn_name = _registry[k]
+            mod = importlib.import_module(module_path)
+            result[k] = getattr(mod, fn_name)()
+    return result
 # ---------------------------------------------------------------------------
 # Mode runners
 # ---------------------------------------------------------------------------
