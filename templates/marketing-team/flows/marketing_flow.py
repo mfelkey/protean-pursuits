@@ -51,7 +51,7 @@ TEAM = "marketing"
 def _notify(title: str, message: str):
     try:
         from core.notifications import send_pushover
-        send_pushover(title=title, message=message)
+        send_pushover(subject=title, message=message)
     except Exception as e:
         logger.warning(f"Pushover notification failed: {e}")
 
