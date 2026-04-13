@@ -40,7 +40,11 @@ Usage:
 """
 
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
+from pathlib import Path
+_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_TEAM_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_REPO_ROOT))
+sys.path.insert(0, str(_TEAM_ROOT))
 
 import os
 import json
