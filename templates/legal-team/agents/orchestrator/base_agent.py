@@ -60,7 +60,7 @@ All document reviews must:
 
 def build_legal_agent(role: str, goal: str, backstory: str) -> Agent:
     llm = LLM(
-        model=os.getenv("TIER2_MODEL", "ollama/qwen3-coder:30b"),
+        model=os.getenv("TIER1_MODEL", "ollama/qwen3:32b"),
         base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         timeout=1800
     )
