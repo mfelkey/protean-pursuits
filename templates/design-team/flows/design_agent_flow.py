@@ -32,7 +32,7 @@ AGENT_REGISTRY = {
     },
     "ui_designer": {
         "module":   "agents.ui_design.ui_design_agent",
-        "build_fn": "build_ui_designer",
+        "build_fn": "build_ui_design_agent",
         "description": "UI Designer — high-fidelity UI designs",
     },
     "brand_identity_specialist": {

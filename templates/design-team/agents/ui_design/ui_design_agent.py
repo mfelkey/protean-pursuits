@@ -1,4 +1,5 @@
 """UI Design & Component Library Agent"""
+from pathlib import Path
 import sys; sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 from agents.orchestrator.base_agent import build_design_agent
 def build_ui_design_agent():

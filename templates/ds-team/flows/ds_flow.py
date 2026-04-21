@@ -95,6 +95,8 @@ def send_pushover(subject: str, message: str, priority: int = 0) -> bool:
 # ── Agent loader ──────────────────────────────────────────────────────────────
 
 def _load_agents(keys: list) -> dict:
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from agents.ds.ds_orchestrator import build_ds_orchestrator
     from agents.ds.data_evaluator import build_data_evaluator
     from agents.ds.data_framer import build_data_framer
