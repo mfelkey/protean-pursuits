@@ -12,10 +12,17 @@ QA STANDARDS (apply to all outputs):
 - FAIL/CRITICAL: specify retest requirements and evidence needed for sign-off
 """
 
-def build_qa_agent(role: str, goal: str, backstory: str) -> Agent:
-    llm = LLM(model=os.getenv("TIER2_MODEL", "ollama/qwen3-coder:30b"),
-               base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-               timeout=1800)
+
+def build_qa_agent(role: str, goal: str, backstory: str,
+                   tier: str = "TIER1") -> Agent:
+    """
+    tier: "TIER1" for audit/analysis/planning agents (default — most QA work)
+          "TIER2" for test-automation or code-generating QA agents
+    """
+    model_key = "TIER1_MODEL" if tier == "TIER1" else "TIER2_MODEL"
+    llm = LLM(model=os.getenv(model_key, "ollama/qwen3:32b"),
+              base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+              timeout=1800)
     return Agent(role=role, goal=goal,
                  backstory=backstory + "\n\n" + QA_STANDARDS,
                  llm=llm, verbose=True, allow_delegation=False)
