@@ -7,6 +7,43 @@
 
 ---
 
+## LL-041 — Curators must go through the HITL gate, never write to ChromaDB directly
+
+**Date:** 2026-04-22
+**Discovered via:** Phase 2 training-team rollout
+**Severity:** MEDIUM — architectural shift, not a recovery
+**Affected:** All 11 training-team curators (legal, ds, dev, marketing, strategy, design, qa, finance, hr, video, sme) plus the Lessons Learned curator
+
+### Symptom (the pre-Phase-2 state)
+
+Before Phase 2, every curator wrote directly to ChromaDB via `knowledge.knowledge_base.store_knowledge()`. A bad source — a misformatted feed, a hijacked blog, a typo in a keyword — would silently enter the knowledge base, get embedded, and start influencing every agent's RAG context with no human in the loop. There was no way to preview what a cron run was about to ingest, no way to reject a specific item, and no audit trail between "something got stored" and "an agent started saying something weird."
+
+### The change
+
+Curators no longer touch ChromaDB. They call `propose_knowledge()`, which writes a candidate JSON to `knowledge/candidates/<candidate_id>.json` with `status: "pending"`. Nothing becomes visible to agent RAG until a human runs `scripts/approve_candidates.py --approve <id>`, at which point the candidate is flushed to ChromaDB via `store_knowledge()` and its status flips to `"approved"`. `store_knowledge` still exists — it is just no longer called from curator code paths. A parametrized AST invariant test (`tests/test_all_curator_migrations.py`) enforces this across every curator; any new curator that imports `store_knowledge` or calls it directly fails the test suite.
+
+### Why this matters
+
+The gate turns curators from "black-box cron jobs that quietly mutate the knowledge base" into "proposal engines." Bad sources still get fetched, but they park in a review queue instead of entering production. The approval CLI supports bulk approval (`--approve-all-above HIGH`) for trusted high-priority sources, per-item rejection with a reason, and a `--watch` mode that Pushover-notifies on new pending candidates. Candidate IDs are stable (sha256 of source + content[:200]), so re-running a curator on the same feed is idempotent — duplicates don't flood the queue.
+
+### The real lesson
+
+**If a cron job can silently mutate shared agent state, it needs a review gate.** Not because the cron is wrong, but because the blast radius of a wrong ingestion is every downstream agent's context. The cost of the gate is one CLI command per ingestion batch; the cost of not having it is debugging mysterious agent behaviour weeks after a bad feed landed.
+
+For future training-team additions, the pattern is locked:
+
+1. The curator imports `propose_knowledge` from `knowledge.knowledge_base`, never `store_knowledge`.
+2. The AST invariant test's `SOURCE_FETCH_CURATORS` list gets one new entry for the curator's team key.
+3. Integration happens via `TEAM_DOMAINS` — the orchestrator's `run_full_refresh` picks up every team that's registered there.
+
+### Related
+
+- Phase 2 kickoff doc (`docs/training-team-phase2-kickoff.md` in the parent thread)
+- Commits 2026-04-22: training-team `582ed0e → 2b19e8a` (Days 1–5)
+- LL-040 — the preceding architectural LL about submodule dispatch paths
+
+---
+
 ## LL-040 — Verify runtime dispatch path before patching a submodule-based system
 
 **Date:** 2026-04-21

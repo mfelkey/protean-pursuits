@@ -7,7 +7,7 @@ project description into architecture, code, tests, and deployment.
 
 CrewAI · Ollama · ChromaDB · qwen3 · GitHub
 
-Version 3.3 — April 2026  ·  Reflects commit `fc6a239` and beyond
+Version 3.4 — April 2026  ·  Reflects Phase 2 training-team rollout (HITL gate, LL curator, per-project layer, all 11 curators)
 
 ## Contents
 
@@ -415,21 +415,45 @@ HITL gate types: `VIDEO_TOOL_SELECTION` (after Tool Analyst, before creative wor
 
 ## Training Team — Knowledge Management
 
-Manages the knowledge bases that all 9 agent teams draw on. Runs 7 domain curators, monitors knowledge freshness, and sends Pushover alerts for CRITICAL updates. Lives at `teams/training-team/` with its own `knowledge/` module (`teams/training-team/knowledge/knowledge_base.py`).
+Manages the knowledge bases that all 11 agent teams draw on. Runs 11 domain curators plus a Lessons Learned curator, monitors knowledge freshness, gates every ingestion through human approval, and sends Pushover alerts for CRITICAL updates. Lives at `teams/training-team/` with its own `knowledge/` module (`teams/training-team/knowledge/knowledge_base.py`).
 
-**Run modes:** `FULL | TEAM | ON_DEMAND | STATUS | ALERTS`
+**Run modes:** `FULL | TEAM | ON_DEMAND | STATUS | ALERTS | LL`
+
+**Phase 2 architecture (landed April 2026):**
+
+- **HITL gate.** No curator writes to ChromaDB directly. Curators call `propose_knowledge()` which writes a candidate JSON to `knowledge/candidates/`. The `scripts/approve_candidates.py` CLI is the only path into ChromaDB (via `store_knowledge()` during the flush step).
+- **11 domain curators.** One per team: legal, ds, dev, marketing, strategy, design, qa, finance, hr, video, sme. The SME curator alone covers 16 sports-betting sub-domains (PGA, LPGA, NFL, NBA, MLB, NHL, MMA, tennis, rugby, cricket, WNBA, thoroughbred/harness racing, boxing, soccer, cross-sport).
+- **Lessons Learned curator.** Parses `docs/LESSONS_LEARNED.md` files (umbrella platform + per-project), scores each entry for per-team relevance via a rule-based keyword scorer (universal architectural lessons hit all 11 teams), and proposes one candidate per entry into the top-level `lessons_learned` collection.
+- **3-layer collection model.** Team collections (`{team}_{domain}`), top-level collections (`lessons_learned_platform`, etc.), and per-project collections (`{project_slug}_{domain}`). Agents query team by default; `inject_context(team="legal", project="parallaxedge")` also pulls the project's scoped collections.
+- **Project registration.** `register_project("ParallaxEdge")` auto-normalizes to `parallaxedge` and registers `['domain', 'market']` as default domains; override with an explicit list.
 
 | Agent / Function | File | What it does |
 | --- | --- | --- |
 | Training Orchestrator | `agents/orchestrator/orchestrator.py` | Sequences curators, monitors freshness, fires alerts |
 | `run_curator(brief, context)` | — | Targeted knowledge refresh for a specific domain or team |
-| `run_full_refresh(brief, context)` | — | Full refresh of all 7 team knowledge bases |
+| `run_full_refresh(brief, context)` | — | Full refresh of all 11 team knowledge bases |
+| Lessons Learned Curator | `agents/curators/lessons_learned/curator.py` | Parses LL files, scores per-team relevance, proposes HITL candidates |
+| HITL approval CLI | `scripts/approve_candidates.py` | Only path for candidates to reach ChromaDB (`--list`, `--approve`, `--reject`, `--approve-all-above`, `--watch`) |
 
 **Important:** The training orchestrator imports from its own `knowledge/` module at `teams/training-team/knowledge/`. The `sys.path` entry in `orchestrator.py` uses `Path(__file__).resolve().parents[2]` (resolves to `teams/training-team/`) — this is intentional and differs from the standard `parents[4]` pattern used by other teams whose agents are nested one level deeper.
 
+**Training Team Lead (Phase 2 Day 3):** `agents/leads/training/training_lead.py` wraps `build_team_lead()` for Mission Control dispatch. `run_training_refresh(context, mode, team=, topic=, hours=)` fires the training-team flow as a subprocess.
+
 **Invocation:**
 
-    python flows/training_intake_flow.py --project parallaxedge --brief "Refresh all knowledge bases" --save
+    # Full refresh
+    python3.11 flows/training_flow.py --mode full
+
+    # Ingest Lessons Learned
+    python3.11 flows/training_flow.py --mode ll \
+        --ll-path ~/projects/protean-pursuits/docs/LESSONS_LEARNED.md \
+        --source-type platform
+
+    # HITL approval workflow
+    python3.11 scripts/approve_candidates.py --list
+    python3.11 scripts/approve_candidates.py --approve-all-above HIGH
+
+See `teams/training-team/README.md` for the full capability surface.
 
 # 4. Agent Groups
 
@@ -1288,5 +1312,5 @@ The project context is the JSON file (`logs/PROJ-{id}.json`) that holds the enti
 
 All agents read model selection from env vars — model names are never hardcoded in agent files. To upgrade the entire system to a new model, update the env var and pull the new model with Ollama. No code changes required.
 
-Protean Pursuits — Agent System Operating Manual — Version 3.3 — April 2026
+Protean Pursuits — Agent System Operating Manual — Version 3.4 — April 2026
 Grounded in commit `fc6a239` · github.com/mfelkey/protean-pursuits
