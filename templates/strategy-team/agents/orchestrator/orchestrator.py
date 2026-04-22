@@ -143,7 +143,7 @@ def request_human_review(artifact_path: str, summary: str,
         "status": "PENDING"
     }
     with open(review_file, "w") as f:
-        json.dump(review_request, f, indent=2)
+        json.dump(review_request, f, indent=2, default=str)
 
     notify_human(
         subject=f"[STRATEGY REVIEW] {run_mode} — {review_id}",
@@ -216,7 +216,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['strategy_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 

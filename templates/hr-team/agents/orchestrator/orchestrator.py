@@ -145,7 +145,7 @@ def request_human_approval(
             "summary": summary,
             "requested_at": datetime.utcnow().isoformat(),
             "status": "PENDING",
-        }, f, indent=2)
+        }, f, indent=2, default=str)
 
     notify_human(
         subject=f"[HR ACTION GATE — {action_type}] {approval_id}",
@@ -206,7 +206,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['hr_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 

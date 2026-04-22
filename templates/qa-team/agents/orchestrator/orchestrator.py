@@ -135,7 +135,7 @@ def request_human_review(artifact_path: str, summary: str,
     with open(f"{approval_dir}/{review_id}.json", "w") as f:
         json.dump({"review_id": review_id, "verdict": verdict,
                    "artifact_path": artifact_path, "summary": summary,
-                   "requested_at": datetime.utcnow().isoformat()}, f, indent=2)
+                   "requested_at": datetime.utcnow().isoformat()}, f, indent=2, default=str)
 
     notify_human(
         subject=f"[QA REVIEW — {verdict}] {review_id}",
@@ -189,7 +189,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['qa_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 

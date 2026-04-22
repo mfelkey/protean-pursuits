@@ -111,7 +111,7 @@ def request_human_approval(
         "status": "PENDING",
     }
     with open(request_file, "w") as f:
-        json.dump(request, f, indent=2)
+        json.dump(request, f, indent=2, default=str)
 
     notify_human(
         subject=f"[APPROVAL REQUIRED] {gate_type} — {approval_id}",
@@ -192,7 +192,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['video_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 

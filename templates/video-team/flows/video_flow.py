@@ -176,7 +176,8 @@ def _run_mode(mode: str, agent_keys: list, task: str, context: dict,
 
             _hitl_gate(
                 gate_type=gate_type,
-                artifact_path=last_artifact_path or "output not yet saved",
+                artifact_path=str(last_artifact_path)
+                               if last_artifact_path else "output not yet saved",
                 summary=f"{mode} — {gate_key} complete. Review before proceeding.",
             )
             segment_start = gate_idx + 1

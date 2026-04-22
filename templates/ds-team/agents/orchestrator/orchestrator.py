@@ -102,7 +102,7 @@ def save_context(context: dict) -> None:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['project_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     print(f"💾 Context saved: {path}")
 
 # ── Checkpoint handler ────────────────────────────────────────────────────────

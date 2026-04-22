@@ -201,7 +201,7 @@ def request_human_review(artifact_path: str, summary: str,
             "summary": summary,
             "requested_at": datetime.utcnow().isoformat(),
             "status": "PENDING"
-        }, f, indent=2)
+        }, f, indent=2, default=str)
 
     notify_human(
         subject=f"[LEGAL REVIEW — {risk_level}] {review_id}",
@@ -271,7 +271,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['legal_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 

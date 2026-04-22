@@ -63,7 +63,7 @@ def save_handoff_package(context: dict, package: dict) -> str:
 
     filename = f"{handoff_dir}/{package['handoff_id']}.json"
     with open(filename, "w") as f:
-        json.dump(package, f, indent=2)
+        json.dump(package, f, indent=2, default=str)
 
     print(f"📦 Handoff package saved: {filename}")
     return filename

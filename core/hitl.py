@@ -63,7 +63,7 @@ def request_human_approval(
         "status": "PENDING"
     }
     with open(approval_file, "w") as f:
-        json.dump(approval_request, f, indent=2)
+        json.dump(approval_request, f, indent=2, default=str)
 
     message = (
         f"Gate type: {gate_type}\n"
@@ -126,4 +126,4 @@ def _log_decision(approval_dir: str, approval_id: str, gate_type: str,
             "artifact_path": artifact_path,
             "reason": reason,
             "timestamp": datetime.utcnow().isoformat()
-        }, f, indent=2)
+        }, f, indent=2, default=str)

@@ -94,7 +94,7 @@ def request_human_approval(gate_type: str, artifact_path: str, summary: str) -> 
     }
 
     with open(approval_file, "w") as f:
-        json.dump(approval_request, f, indent=2)
+        json.dump(approval_request, f, indent=2, default=str)
 
     notify_human(
         subject=f"[APPROVAL REQUIRED] {gate_type} — {approval_id}",
@@ -161,7 +161,7 @@ def save_context(context: dict) -> str:
     os.makedirs("logs", exist_ok=True)
     path = f"logs/{context['campaign_id']}.json"
     with open(path, "w") as f:
-        json.dump(context, f, indent=2)
+        json.dump(context, f, indent=2, default=str)
     return path
 
 
@@ -189,7 +189,7 @@ def log_event_raw(approval_id: str, gate_type: str, decision: str,
     }
     log_path = f"logs/approvals/{approval_id}.log.json"
     with open(log_path, "w") as f:
-        json.dump(entry, f, indent=2)
+        json.dump(entry, f, indent=2, default=str)
 
 
 # ── Orchestrator agent ────────────────────────────────────────────────────────
