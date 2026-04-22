@@ -62,3 +62,48 @@ def test_add_blocker_on_bare_context_does_not_crash():
     ctx = {}
     ctx_mod.add_blocker(ctx, "B-1", "HIGH", "something", "owner")
     assert len(ctx["blockers"]) == 1
+
+
+def test_save_context_missing_project_id_uses_unknown(chdir_tmp):
+    """save_context must not raise KeyError when project_id is absent.
+    Falls back to 'unknown' in the filename."""
+    from core import context as ctx_mod
+    ctx = {"team": "video"}
+    path = ctx_mod.save_context(ctx, logs_dir="logs")
+    assert "unknown_video.json" in path
+    import os
+    assert os.path.exists(path)
+
+
+def test_save_context_missing_team_uses_unknown(chdir_tmp):
+    """save_context must not raise KeyError when team is absent.
+    Hit during the 2026-04-22 video activation — the lead's context
+    had project_id but no team key."""
+    from core import context as ctx_mod
+    ctx = {"project_id": "PROJ-X"}
+    path = ctx_mod.save_context(ctx, logs_dir="logs")
+    assert "PROJ-X_unknown.json" in path
+    import os
+    assert os.path.exists(path)
+
+
+def test_save_context_missing_both_uses_unknown(chdir_tmp):
+    """The bare-context case: neither project_id nor team set."""
+    from core import context as ctx_mod
+    ctx = {}
+    path = ctx_mod.save_context(ctx, logs_dir="logs")
+    assert "unknown_unknown.json" in path
+
+
+def test_full_bare_context_log_event_roundtrip(chdir_tmp):
+    """
+    Full regression guard: the exact sequence that failed on 2026-04-22.
+    A bare context (just project_name + project_id) passes through
+    log_event -> save_context without crashing.
+    """
+    from core import context as ctx_mod
+    ctx = {"project_name": "ParallaxEdge", "project_id": "PROJ-PARALLAXEDGE"}
+    # Real save, not mocked — this is the regression path
+    ctx_mod.log_event(ctx, "TEAM_UNAVAILABLE", "video-team", logs_dir="logs")
+    assert len(ctx["events"]) == 1
+    assert ctx["events"][0]["event_type"] == "TEAM_UNAVAILABLE"

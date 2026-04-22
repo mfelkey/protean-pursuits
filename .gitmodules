@@ -25,3 +25,7 @@
 [submodule "teams/hr-team"]
 	path = teams/hr-team
 	url = git@github.com:mfelkey/hr-team.git
+[submodule "teams/video-team"]
+	path = teams/video-team
+	url = git@github.com:mfelkey/video-team.git
+	branch = main
