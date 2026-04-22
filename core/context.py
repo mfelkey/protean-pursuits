@@ -53,9 +53,18 @@ def create_project_context(
 
 
 def save_context(context: dict, logs_dir: str = "logs") -> str:
-    """Persist context to logs/."""
+    """Persist context to logs/.
+
+    Defensive against bare contexts that don't have project_id or
+    team populated (e.g. ad-hoc invocations via a team lead from a
+    bare dict). Falls back to 'unknown' for each missing key rather
+    than raising KeyError — logging a warning event is more useful
+    than crashing when a lead tries to report a startup failure.
+    """
     os.makedirs(logs_dir, exist_ok=True)
-    path = f"{logs_dir}/{context['project_id']}_{context['team']}.json"
+    project_id = context.get("project_id") or "unknown"
+    team = context.get("team") or "unknown"
+    path = f"{logs_dir}/{project_id}_{team}.json"
     with open(path, "w") as f:
         json.dump(context, f, indent=2)
     return path

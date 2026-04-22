@@ -185,16 +185,23 @@ fi
 # ---------------------------------------------------------------------------
 
 cd "$UMBRELLA"
-# Use 'git rm -r' not 'rm -rf' — git submodule add refuses if the
-# target path has files in the umbrella's index. 'git rm -r' removes
-# both the working tree AND the index entry. Fixes the Phase 4
-# bootstrap failure we hit on 2026-04-22: "fatal: 'teams/video-team'
-# already exists in the index".
-if [ -d "$LIVE" ] && git ls-files --error-unmatch "$LIVE" >/dev/null 2>&1; then
-    git rm -rf "$LIVE"
-else
-    rm -rf "$LIVE"
+# Use 'git rm -rf' when git's INDEX has any tracked files at this path,
+# regardless of whether the working tree directory still exists. A prior
+# half-completed bootstrap may have left tracked files in the index
+# without corresponding files on disk — 'git submodule add' still
+# refuses in that case with "already exists in the index".
+#
+# Use --cached so 'git rm' handles the case where files are tracked but
+# absent from disk (avoids "did not match any files" on working-tree
+# paths that no longer exist).
+if git ls-files --error-unmatch -- "teams/video-team" >/dev/null 2>&1 || \
+   [ -n "$(git ls-files -- 'teams/video-team/*' 2>/dev/null)" ]; then
+    # Remove from index (and working tree if present)
+    git rm -rf --cached -- "teams/video-team" 2>/dev/null || true
+    git ls-files -- 'teams/video-team/*' | xargs -r git rm --cached --
 fi
+# Belt-and-suspenders: also clear any stray working-tree files
+rm -rf "$LIVE"
 git submodule add -b main "$REMOTE_URL" teams/video-team
 
 # Verify it landed
