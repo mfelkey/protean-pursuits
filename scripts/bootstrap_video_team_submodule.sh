@@ -63,22 +63,35 @@ echo "  Scratch:      $SCRATCH"
 echo ""
 
 # ---------------------------------------------------------------------------
-# 1. Scratch clone / init
+# 1. Scratch clone / init / detect retry
 # ---------------------------------------------------------------------------
 
 rm -rf "$SCRATCH"
 mkdir -p "$SCRATCH"
 
-# Try to clone first — if the repo has anything on main already, we
-# want to know BEFORE we overwrite it.
+# Try to clone first — if the repo has anything on main already, decide
+# whether we're retrying (skip the push) or hitting a pre-existing
+# conflict (bail).
+SKIP_PUSH=0
 if git clone "$REMOTE_URL" "$SCRATCH" 2>/dev/null; then
     cd "$SCRATCH"
     if git log -1 >/dev/null 2>&1; then
-        echo "❌ Remote repo already has commits. This script only populates"
-        echo "   a truly empty repo. Inspect $REMOTE_URL and either:"
-        echo "   - delete its contents first, or"
-        echo "   - skip this script and register the submodule manually"
-        exit 1
+        # Remote already populated. If it looks like a prior seed
+        # (has flows/video_flow.py from our init commit), treat as
+        # retry: skip re-pushing, jump to submodule registration.
+        if [ -f "$SCRATCH/flows/video_flow.py" ] && \
+           [ -f "$SCRATCH/agents/orchestrator/orchestrator.py" ]; then
+            echo "ℹ️  Remote repo already seeded (looks like a prior"
+            echo "    bootstrap attempt). Skipping push, reusing existing"
+            echo "    commit: $(git log -1 --oneline)"
+            SKIP_PUSH=1
+        else
+            echo "❌ Remote repo has commits that don't look like our seed."
+            echo "   Inspect $REMOTE_URL and either:"
+            echo "   - delete its contents first, or"
+            echo "   - skip this script and register the submodule manually"
+            exit 1
+        fi
     fi
 else
     # Empty repo — clone warns and leaves the dir empty. Init ours.
@@ -157,18 +170,31 @@ python3.11 flows/video_flow.py \
 ```
 READMEEOF
 
-git add -A
-git -c "user.email=mfelkey@gmail.com" -c "user.name=Mike Felkey" \
-    commit -m "init: seed video-team from templates/video-team/ (Phase 4)"
-git branch -M main
-git push -u origin main
+if [ "$SKIP_PUSH" -eq 0 ]; then
+    git add -A
+    git -c "user.email=mfelkey@gmail.com" -c "user.name=Mike Felkey" \
+        commit -m "init: seed video-team from templates/video-team/ (Phase 4)"
+    git branch -M main
+    git push -u origin main
+else
+    echo "ℹ️  Skipped seed/commit/push (reusing existing remote content)."
+fi
 
 # ---------------------------------------------------------------------------
 # 3. Remove placeholder + register submodule in umbrella
 # ---------------------------------------------------------------------------
 
 cd "$UMBRELLA"
-rm -rf "$LIVE"
+# Use 'git rm -r' not 'rm -rf' — git submodule add refuses if the
+# target path has files in the umbrella's index. 'git rm -r' removes
+# both the working tree AND the index entry. Fixes the Phase 4
+# bootstrap failure we hit on 2026-04-22: "fatal: 'teams/video-team'
+# already exists in the index".
+if [ -d "$LIVE" ] && git ls-files --error-unmatch "$LIVE" >/dev/null 2>&1; then
+    git rm -rf "$LIVE"
+else
+    rm -rf "$LIVE"
+fi
 git submodule add -b main "$REMOTE_URL" teams/video-team
 
 # Verify it landed

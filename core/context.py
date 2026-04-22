@@ -63,7 +63,14 @@ def save_context(context: dict, logs_dir: str = "logs") -> str:
 
 def log_event(context: dict, event_type: str,
               detail: str = "", logs_dir: str = "logs") -> None:
-    """Append a timestamped event to context and persist."""
+    """Append a timestamped event to context and persist.
+
+    Defensively initializes context["events"] if the caller passed a
+    context that hasn't been through the full orchestrator init
+    (e.g. ad-hoc invocations via a team lead from a bare dict).
+    """
+    if "events" not in context:
+        context["events"] = []
     context["events"].append({
         "event_type": event_type,
         "detail": detail,
@@ -87,12 +94,16 @@ def add_artifact(context: dict, name: str, artifact_type: str,
     }
     if metadata:
         entry.update(metadata)
+    if "artifacts" not in context:
+        context["artifacts"] = []
     context["artifacts"].append(entry)
 
 
 def add_blocker(context: dict, blocker_id: str, severity: str,
                 description: str, owner: str) -> None:
     """Register a blocker in the project context."""
+    if "blockers" not in context:
+        context["blockers"] = []
     context["blockers"].append({
         "blocker_id": blocker_id,
         "severity": severity,
