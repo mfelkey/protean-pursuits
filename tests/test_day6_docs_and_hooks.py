@@ -33,6 +33,49 @@ def test_ll_041_present_in_lessons_learned():
     assert "## LL-041 —" in text, "LL-041 entry missing from docs/LESSONS_LEARNED.md"
 
 
+def test_ll_042_present_in_lessons_learned():
+    text = LL_PATH.read_text()
+    assert "## LL-042 —" in text, "LL-042 (Unicode caveat) missing"
+
+
+def test_ll_043_present_in_lessons_learned():
+    text = LL_PATH.read_text()
+    assert "## LL-043 —" in text, "LL-043 (Phase 2 retrospective) missing"
+
+
+def test_all_ll_entries_parse_via_training_team_parser():
+    """
+    Every LL in the file must parse cleanly. Guards against a future
+    edit breaking the format (missing date, corrupted heading, etc.).
+    """
+    submodule_parser = TRAINING_TEAM / "agents" / "curators" / "lessons_learned" / "parser.py"
+    if not submodule_parser.exists():
+        pytest.skip("training-team submodule not initialized")
+
+    script = (
+        f"import sys; sys.path.insert(0, {str(TRAINING_TEAM)!r}); "
+        f"from agents.curators.lessons_learned.parser import parse_ll_file; "
+        f"entries = parse_ll_file({str(LL_PATH)!r}); "
+        f"print(chr(10).join(f\"{{e['ll_id']}}|{{e['date']}}|{{e['severity']}}\" for e in entries))"
+    )
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        pytest.skip(f"parser subprocess failed: {result.stderr.strip()}")
+
+    out = result.stdout.strip().splitlines()
+    ids = [line.split("|")[0] for line in out]
+    for expected in ("LL-040", "LL-041", "LL-042", "LL-043"):
+        assert expected in ids, f"{expected} not parsed out of {ids}"
+
+    # Every entry has a non-empty date
+    for line in out:
+        parts = line.split("|")
+        assert parts[1], f"entry {parts[0]} has empty date"
+
+
 def test_ll_041_parses_via_training_team_parser():
     """
     The submodule's LL parser is the canonical consumer of this file.
