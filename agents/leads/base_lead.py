@@ -20,8 +20,16 @@ from crewai import Agent, LLM
 
 load_dotenv("config/.env")
 
+# TEAMS_DIR resolves to <umbrella-repo>/teams.
+# base_lead.py lives at <umbrella>/agents/leads/base_lead.py, so two
+# parent walks reach the umbrella root, and one more segment ('teams')
+# gets us to the team submodules dir. (Previous version had an extra
+# '..' and silently pointed one level above the repo root, which meant
+# team_exists() returned False for every team — masked because the
+# leads framework had never actually been exercised end-to-end until
+# Phase 4 / 2026-04-22.)
 TEAMS_DIR = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..", "teams")
+    os.path.join(os.path.dirname(__file__), "..", "..", "teams")
 )
 
 
