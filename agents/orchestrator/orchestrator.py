@@ -224,6 +224,8 @@ TEAM_TEMPLATES = {
     "legal":     "templates/legal-team",
     "strategy":  "templates/strategy-team",
     "video":     "templates/video-team",
+    "hr":        "templates/hr-team",
+    "training":  "templates/training-team",
 }
 
 
