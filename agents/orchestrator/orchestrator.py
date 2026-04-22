@@ -229,12 +229,47 @@ TEAM_TEMPLATES = {
 }
 
 
+def _register_project_lazy(name: str) -> None:
+    """
+    Lazy-import helper: register the project with the training-team
+    knowledge layer using DEFAULT_PROJECT_DOMAINS (Phase 3 Option A).
+
+    Kept as a separate function so tests can patch it cleanly and so
+    the submodule dependency stays soft — if teams/training-team is
+    uninitialized, spinup still succeeds (logs the skip).
+
+    Takes only `name`. Callers that need custom per-project domains
+    should call the submodule's register_project() directly after
+    spinup.
+    """
+    import sys as _sys
+    from pathlib import Path as _Path
+
+    # Add the submodule to sys.path just long enough to import its
+    # knowledge module, then pop it — keeps the umbrella's `agents`
+    # package from being shadowed by the submodule's `agents/`.
+    submodule = _Path(__file__).resolve().parents[2] / "teams" / "training-team"
+    original = list(_sys.path)
+    _sys.path.insert(0, str(submodule))
+    try:
+        from knowledge.knowledge_base import register_project
+        slug = register_project(name)
+        print(f"📚 Registered project '{name}' (slug={slug}) "
+              f"with training-team knowledge layer")
+    finally:
+        _sys.path[:] = original
+
+
 def spinup_project_repo(context: dict, teams: list,
                          target_dir: str) -> dict:
     """
     Copy selected team templates into a new project directory.
     Requires human approval before executing.
     teams: list of team keys e.g. ['dev', 'ds', 'marketing']
+
+    On successful spinup, auto-registers the project with the
+    training-team knowledge layer (Phase 3). Registration failure
+    does not block spinup — it's best-effort enrichment.
     """
     summary = (
         f"Spin up project repo for '{context['project_name']}' "
@@ -280,6 +315,17 @@ def spinup_project_repo(context: dict, teams: list,
     context["status"] = "REPO_SPUNUP"
     log_event(context, "REPO_SPUNUP", f"Teams: {teams} → {target_dir}")
     save_context(context)
+
+    # Phase 3: register the project with the training-team knowledge
+    # layer so inject_context(project=...) and the freshness report
+    # pick it up. Best-effort: a failure here must not roll back a
+    # successful spinup.
+    try:
+        _register_project_lazy(context["project_name"])
+    except Exception as e:
+        print(f"⚠️  Could not register project with knowledge layer: {e}")
+        print(f"   (spinup succeeded; registration is optional)")
+
     return context
 
 
