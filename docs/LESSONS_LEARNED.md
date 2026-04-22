@@ -7,6 +7,116 @@
 
 ---
 
+## LL-043 — Phase 2 training-team: what shipped, what changed, what's locked
+
+**Date:** 2026-04-22
+**Discovered via:** Phase 2 rollout (Days 1–7, 2026-04-22)
+**Severity:** INFORMATIONAL — retrospective, not a defect
+**Affected:** The Training Team and every team/project that consumes its knowledge base
+
+### What shipped
+
+Phase 2 transformed the training-team from a single-file-per-team curator pipeline that wrote directly to ChromaDB into a human-gated, multi-layer knowledge system that every PP team depends on. Seven days, eight commits (submodule + umbrella), 139 tests (135 unit + 4 integration).
+
+**Day 1 — HITL gate.** `propose_knowledge()` writes candidate JSONs to `knowledge/candidates/`; `scripts/approve_candidates.py` is the only path into ChromaDB. Legal curator migrated as the proof case. Fast unit tests with mocks, one integration test with real ChromaDB. Test harness established from scratch.
+
+**Day 2 — Lessons Learned curator.** Markdown parser (regex-based entry detection), rule-based per-team relevance scorer (universal keywords like "submodule" hit all 11 teams; team-specific vocab narrows), curator that ties them together. Stored in a new top-level `lessons_learned` collection. Parameterised invariant tests enforce the HITL contract.
+
+**Day 3 — Complete curator migration.** The remaining six curators (dev, ds, design, marketing, qa, strategy) migrated in one parametrized sweep. Umbrella picked up a training lead at `agents/leads/training/training_lead.py` and `TEAM_TEMPLATES` closed two gaps (training + hr). Umbrella got its first pytest harness — with a crewai stub that only activates when the real package is absent.
+
+**Day 4 — Per-project collection layer.** `register_project()` + `normalize_project_slug()` + `PROJECT_DOMAINS` registry. `inject_context(project=...)` threads the slug through to `build_context_block`, which queries project collections alongside team's. Unknown projects warn-and-fallback, never crash.
+
+**Day 5 — Four new curators.** Finance (10 sources), HR (10), video (9), SME (20 covering all 16 sports-betting sub-domains). Every team in the 11-team architecture now has a HITL-gated curator. Generated from a shared template to avoid drift.
+
+**Day 6 — Docs + hooks.** `ll` mode on `training_flow.py`, README rewrite (Phase 2 architecture), umbrella post-commit hook that auto-queues LL entries when `docs/LESSONS_LEARNED.md` is touched, operating manual bumped to v3.4.
+
+**Day 7 — End-to-end hardening.** Three integration tests covering propose→approve→RAG, LL-ingest→approve→RAG, and freshness-report completeness. `scripts/day7_validation.sh` runs the whole stack in six stages. Fixed a latent gap: freshness report wasn't iterating top-level domains.
+
+### What's locked for future sessions
+
+1. **Curators call `propose_knowledge`, never `store_knowledge`.** An AST invariant test enforces this across all 11 curators. Any new curator added to `agents/curators/<team>/curator.py` must be added to `SOURCE_FETCH_CURATORS` in `tests/test_all_curator_migrations.py`; the migration invariants catch regressions automatically.
+
+2. **Collection naming is `{scope}_{domain}`**, uniformly across teams, top-level, and projects. `_collection_name()` is the single helper; don't special-case top-level.
+
+3. **Project slugs are canonical at the boundary.** `inject_context(project=...)` normalizes via `normalize_project_slug()` before looking up `PROJECT_DOMAINS`. Callers can pass `ParallaxEdge`, `parallax-edge`, or the canonical `parallaxedge` and all three resolve identically.
+
+4. **HITL is non-negotiable.** There is no "bypass for trusted sources" flag. If a source is trusted enough to auto-ingest, add it to `--approve-all-above HIGH` in a bulk-approve cron, not to the curator's code path.
+
+5. **ChromaDB metadata cannot hold lists.** Store list-valued metadata as JSON-encoded strings (see `relevant_teams` in the LL curator). The approve-flush step reuses these values unchanged; agents that read them must `json.loads()`.
+
+6. **Integration tests require a working ChromaDB embedder** (ONNX model downloadable). Sandboxed CI without network access must use `pytest -m "not integration"` (the default). `day7_validation.sh --skip-integration` matches that behaviour for the shell-level validator.
+
+### What this LL is not
+
+This is a phase retrospective, not an architectural lesson. The architectural lessons from Phase 2 live in **LL-041** (HITL gate as a default, not an optional feature) and **LL-042** (Unicode-aware doc editing). Both are tighter and more actionable than this entry; prefer them when citing a lesson.
+
+### Related
+
+- LL-040 — Verify runtime dispatch path (predecessor; the reason Phase 2 patched submodules, not templates)
+- LL-041 — Curators must go through the HITL gate
+- LL-042 — Verify exact bytes when programmatically editing docs
+- Phase 2 kickoff doc — full Day 1-7 scope
+- Submodule commits 2026-04-22: `582ed0e` → `<latest>` (Days 1–7)
+- Umbrella commits 2026-04-22: `a572de2` → `<latest>` (umbrella Days 3, 6, 7)
+
+---
+
+## LL-042 — Verify exact bytes (not rendered text) when programmatically editing docs
+
+**Date:** 2026-04-22
+**Discovered via:** Phase 2 Day 6 — manual version bump v3.3 → v3.4
+**Severity:** MEDIUM — silent failures that a naive retry won't catch
+**Affected:** Any automated or semi-automated edit of markdown files that humans have authored in word processors, exported from HTML, or pasted from elsewhere
+
+### Symptom
+
+`str_replace` against `docs/agent_system_operating_manual.md` silently failed to match the version line. The rendered text — "Version 3.3 — April 2026  ·  Reflects commit `fc6a239` and beyond" — looked identical in the `view` tool output to what was typed into the replacement call. But the replacement never took effect, and the file was unchanged.
+
+### Root cause
+
+The manual contains invisible Unicode equivalents of ASCII punctuation:
+
+- `\xa0` (non-breaking space, U+00A0) instead of regular space — specifically around the middle-dot separator
+- `—` (em-dash, U+2014) which typed replacements spelled as `-` or the wrong dash variant
+- Potentially `·` (U+00B7 middle dot) vs `·` (U+2027 hyphenation point) — visually indistinguishable in most fonts
+
+These characters render identically to their ASCII cousins in every preview tool and most editors, but byte-level string matching fails. `str_replace`'s error message was "string to replace not found" — technically correct but maximally unhelpful for diagnosis.
+
+### The fix
+
+Inspect the raw bytes before attempting any edit to a human-authored docs file:
+
+```bash
+python3 -c "
+from pathlib import Path
+lines = Path('docs/agent_system_operating_manual.md').read_text().split('\\n')
+print(repr(lines[9]))  # 0-indexed line 10
+"
+# Output: 'Version 3.3 — April 2026 \\xa0·\\xa0 Reflects commit `fc6a239` and beyond'
+```
+
+`repr()` surfaces every non-ASCII byte as a `\xXX` escape so they can't hide. Match those bytes exactly in your replacement string. If you're using Python directly rather than `str_replace`, wrap the substitution in an `assert old in text` guard so a mismatch fails loudly instead of silently.
+
+### Prevention
+
+For any programmatic edit of a file under `docs/`, `READMEs/`, or any human-authored markdown:
+
+1. Default to **Python scripts with `assert old in text`**, not `str_replace`. The assertion catches invisible mismatches; `str_replace` errors with a generic "not found."
+2. Before matching, `repr()` the target line(s) once — takes two seconds, saves twenty minutes of confusion.
+3. Assume em-dashes, middle-dots, and any space next to punctuation are the **non-ASCII** variants unless proven otherwise.
+4. For new docs that Claude authors, stick to ASCII and the safe Unicode set (em-dash via `—`, middle-dot via `·`) — but use these deliberately, not by accident from auto-correct pastes.
+
+### A corollary
+
+After a cross-repo change (umbrella touches that depend on submodule behaviour, or vice versa), **re-run the full test suite on both sides.** Phase 2 Day 6 added LL-041 to the umbrella, which broke two Day 2 tests in the submodule that asserted "exactly one LL entry." The submodule suite wasn't re-run after the umbrella commit, so the breakage went unnoticed until Day 7. The lesson: whenever a commit in repo A can change the inputs of tests in repo B, run B's tests before considering the change landed.
+
+### Related
+
+- LL-041 — The HITL gate lesson (also authored this week, also needed careful character handling)
+- LL-043 — Phase 2 retrospective (which mentions this LL as the canonical Unicode-editing reference)
+
+---
+
 ## LL-041 — Curators must go through the HITL gate, never write to ChromaDB directly
 
 **Date:** 2026-04-22
